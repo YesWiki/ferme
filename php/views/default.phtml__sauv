@@ -1,0 +1,141 @@
+<!doctype html>
+<html class="no-js" lang="fr">
+
+<head>
+	<meta charset="utf-8">
+
+	<title></title>
+	<meta name="description" content="Ferme de Wikis">
+	<meta name="author" content="Florestan Bredow">
+	<meta name="viewport" content="width=device-width">
+
+	<link rel="stylesheet" href="style.css">
+	
+</head>
+<body onload="changeThumb()">
+	
+	<div id="alertesList">
+		<?php $this->printAlertesList(); ?>
+	</div>
+
+	<h1>Ferme de Wikis</h1>
+
+	<div id="header">
+
+		<img id="thumb" src="img/SupAgro.png">
+
+		<div id="newForm">
+			<h2 class="formTitle">Semer un wiki</h2>
+			<?php //Attention il ne faut pas changer class et id du formulaire 
+				  //sinon hashcash ne fonctionne plus.?>	
+
+			<form id="newWiki" class="newForm" method="post">
+				<table>
+					<tr>
+						<td>Nom du Wiki:</td>
+						<td>
+							<input 	type="text" name="wikiName" 
+									placeholder="Nom du wiki (10 caractères max)" 
+									required="required" 
+									maxlength="10"
+									<?php 
+										if (isset($_POST['wikiName'])) 
+											echo 'value = "'.$_POST['wikiName'].'"'; 
+									?> /> 
+							<img class="tooltip_aide" 
+								 title="10 caractères maximum, 
+	uniquement des alpha numériques." 
+								 src="img/aide.png" 
+								 width="16" 
+								 height="16" 
+								 alt="image aide" />
+						</td>
+					</tr><tr>
+						<td>Mail : </td>
+						<td>
+							<input 	type="email" name="mail" 
+									placeholder="Votre adresse mail" 
+									required="required"
+									<?php 
+										if (isset($_POST['mail']))
+											echo 'value = "'.$_POST['mail'].'"'; 
+									?> />
+							<img 	class="tooltip_aide" 
+									title="Elle servira à vous contacter pour tout ce 
+	qui concerne la maintenance de votre wiki." 
+								 	src="img/aide.png" 
+								 	width="16" 
+								 	height="16" 
+								 	alt="image aide" />
+						</td>
+					</tr><tr>
+						<td>Description : </td>
+						<td>
+							<textarea name="description" 
+									  placeholder="Une courte description de votre projet (140 caractères max)." 
+									  maxlength="140" ><?php 
+									 	if (isset($_POST['description'])) 
+									  		echo $_POST['description']; 
+										?></textarea> 
+							<img 	class="tooltip_aide" 
+									title="Décrivez rapidement le projet auquel est 
+	rattaché ce wiki. (140 caractères maximum)" 
+									src="img/aide.png" 
+									width="16" 
+									height="16" 
+									alt="image aide" />
+						</td>
+					</tr><tr>
+						<td>Thème : </td>
+						<td>
+							<select id="theme" name="theme" onchange="changeThumb()">
+								<?php $this->printThemesList();?>
+							</select> 
+							<img 	class="tooltip_aide" 
+									title="Choisissez le theme de votre nouveau Wiki"
+									src="img/aide.png" 
+									width="16" 
+									height="16" 
+									alt="image aide" />
+						</td>
+					</tr><tr>
+						<td></td>
+						<td>
+							<?php echo $this->HashCash() ?>
+							<script type="text/javascript">
+								document.write('<input type="submit" name="action" value="Semer !" id="submit"/>');
+							</script>
+							<noscript>Formulaire protégé via JavaScript, <br />Merci de l'activer.</noscript>
+						</td>
+					</tr>
+				</table>
+
+			</form>
+
+		</div>
+	</div>
+
+	<h2>Champs de wikis :</h2>
+	<div id="wikisList">
+		<?php $this->printWikisList(); ?>
+	</div>
+
+	<script type="text/JavaScript">
+		function changeThumb(){
+			var thumb = document
+							.getElementById('theme')
+							.options[document
+										.getElementById('theme')
+										.selectedIndex]
+							.getAttribute('thumb');
+			document.getElementById('thumb').src = thumb;
+		}
+
+		function hide(moi){
+			moi.style.display = 'none';
+		}
+
+	</script>
+
+</body>
+</html>
