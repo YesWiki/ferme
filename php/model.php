@@ -101,38 +101,21 @@ class Farm {
 
 		$wikiPath = $this->config['ferme_path'].$wikiName."/";
 
-		//Création du repertoire du nouveau wiki
-		if (is_dir($wikiPath) or is_file($wikiPath)) {
+		//Vérifie si le wiki n'existe pas déjà
+		if (is_dir($wikiPath) || is_file($wikiPath)) {
 			throw new Exception("Ce nom de wiki est déjà utilisé", 1);
 			exit();
 		}
 
-		mkdir($wikiPath,0775,true);
-			
-		
-		//Création des liens symboliques pour éviter la duplication des 
-		//données et surtout diminuer le temps de création du wiki
-		foreach($this->config['symList'] as $fname){
-			$target = $this->config['source_path'].$fname;
-			$link = $wikiPath.$fname;
-			symlink($target, $link);
-			
-		}/**/
-		
-		//création des repertoires (ceux contenant des données 
-		//spécifiques au wiki
-		foreach($this->config['newDir'] as $fname){
-			mkdir($wikiPath.$fname,0775);/**/
-			
-		}/**/
-		
-		//Les liens symboliques n'étant pas accepté sur les fichiers php
-		//nous devons donc les copier.
-		foreach($this->config['copyList'] as $fname){
-			$source = $this->config['source_path'].$fname;
-			$destination = $wikiPath.$fname;
-			copy($source, $destination);
-		}/**/
+		//$this->copy($this->config['source_path'], $wikiPath);
+		$output = shell_exec("cp -r --preserve=mode,ownership "
+			.$this->config['source_path']
+			." ".$wikiPath);
+
+		echo "<pre>";
+		print_r($output);
+		echo "</pre>";
+
 		
 		$table_prefix = $wikiName."_";
 		$wiki_url = $this->config['base_url'].$this->config['ferme_path'].$wikiName."/wakka.php?wiki=";

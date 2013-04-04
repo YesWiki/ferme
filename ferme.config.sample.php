@@ -4,32 +4,10 @@
 		'db_name' => "XXXXXXXXXXXXX",
 		'db_user' => "XXXXXXXXXXXXX",
 		'db_password' => "XXXXXXXXXX",
+		'base_url' => "http://localhost/ferme/",
 		'ferme_path' => "wikis/",
-		'base_url' => "http://webtest.cdrflorac.fr/ferme/",
-		//Necessite chemin absolu
-		'source_path' => "/homez.55/cdrflora/www-webtest/ferme/wikiSource/",
+		'source_path' => "wikiSource/",
 		'template' => "default.phtml",
-		'newDir' => array(
-			'files',
-			'themes',
-		),
-		'copyList' => array(
-			'wakka.php',
-			'tools.php',
-			'index.php',
-		),
-		'symList' => array(
-			'actions',
-			'formatters',
-			'handlers',
-			'includes',
-			'setup',
-			'tools',
-			'interwiki.conf',
-			'robots.txt',
-			'wakka.basic.css',
-			'wakka.css',
-		),
 		'themes' => array(
 			'SupAgro' => array(
 				'theme' => 'yeswiki',

@@ -6,7 +6,7 @@
 /***********************************************************************
  * Pour générer ce fichier en cas de nouvelle version de wikini, exporter
  * la base d'un wiki fraichement installé et remplacer le préfixe des
- * tables par ".$table_prefix." mettre chaque requette une cellule du 
+ * tables par ".$table_prefix." mettre chaque requette dans une cellule du 
  * tableau listQuery
  */
 
