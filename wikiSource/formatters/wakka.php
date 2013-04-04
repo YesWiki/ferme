@@ -372,7 +372,7 @@ if (!class_exists('WikiniFormatter'))
                             // Same filtering in the text (no need to
                             // filter ]] because there are none here
                             // by construct)
-							$text = preg_replace("/@@|££|\[\[/", "", $text);
+							$text = isset($text) ? preg_replace("/@@|££|\[\[/", "", $text) : '';
 							return $result.$wiki->Link($url, "", $text);
 						}
 						else
@@ -553,7 +553,9 @@ if (!class_exists('WikiniFormatter'))
 } // if !class_exists
 
 
+//$form = & WikiniFormatter :: getInstance($this);
 $form = new WikiniFormatter($this);
+//$form->getInstance($this);
 echo $form->format($text);
 
 ?>

@@ -1,31 +1,71 @@
+( function($) {
 $(document).ready(function(){
-	$("#ajax-contact-form, #ajax-abonne-form, #ajax-desabonne-form, #ajax-mail-form").live("submit", function() {
-		$(this).addClass('form-selected').prev(".note").addClass('note-selected');
-		var str = $(this).serialize();
-		$.ajax({
-			type: "POST",
-			url: $(this).attr('action'),
-			data: str,
-			success: function(msg) {
-				$(".note-selected").ajaxComplete(function(event, request, settings) {
-					// Si le message a été envoyé, on affiche le message de notification et on cache le formulaire
-					if(msg == 'OK') {
-						result = '<div class="info_box">Votre message a bien &eacute;t&eacute; envoy&eacute;. Merci!</div>';
-						$(".form-selected").hide().removeClass("form-selected");
-					} else if(msg == 'abonne') {
-						result = '<div class="info_box">Votre abonnement a bien &eacute;t&eacute; pris en compte. Merci!</div>';
-						$(".form-selected").hide().removeClass("form-selected");
-					} else if(msg == 'desabonne') {
-						result = '<div class="info_box">Votre d&eacute;sabonnement a bien &eacute;t&eacute; pris en compte. Merci, &agrave; bient&ocirc;t!</div>';
-						$(".form-selected").hide().removeClass("form-selected");
-					} else {
-						result = msg;
-						$(".form-selected").show().removeClass("form-selected");
-					}
-					$(this).html(result);
-				}).removeClass("note-selected");
+
+	// validation formulaire de contact
+	$(".mail-submit").on("click", function(e) {
+		e.stopPropagation();
+		var form = $(this).parents('.ajax-mail-form');
+		var inputsreq = form.find('input[required], textarea[required]');
+
+		var atleastonefieldnotvalid = false;
+		var atleastonemailfieldnotvalid = false;
+		
+		// on efface les anciennes erreurs
+		form.find('.help-inline').remove();
+
+		// il y a des champs requis, on teste la validite champs par champs
+		if (inputsreq.length > 0) {				
+			inputsreq.each(function() {
+				if ( !($(this).val().length === 0 || $(this).val() === '' || $(this).val() === '0')) {
+					$(this).parents('.control-group').removeClass('error');
+				} else {
+					atleastonefieldnotvalid = true;
+					$(this).parents('.control-group').addClass('error');
+					$('<span>').addClass('help-inline').text('La saisie de ce champ est obligatoire.').appendTo($(this).parents('.controls'));
+				}
+			});
+		}
+		
+		// les emails
+		form.find('input[type=email]').each(function() {
+			var reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+			var address = $(this).val();
+			if(reg.test(address) == false && !(address === '' &&  $(this).attr('required') !== 'required')) {
+				atleastonemailfieldnotvalid = true;
+				$(this).parents('.control-group').addClass('error');
+				$('<span>').addClass('help-inline').text('L\'email saisi n\'est pas valide.').appendTo($(this).parents('.controls'));		
+			} else {
+				$(this).parents('.control-group').removeClass('error');
 			}
 		});
+
+		if (atleastonefieldnotvalid === true || atleastonemailfieldnotvalid === true) {
+			// on remonte en haut du formulaire
+			$('html, body').animate({scrollTop: form.find(".error:first").offset().top - 80}, 800);
+		}
+		else {
+			// on soumet le formulaire
+			var str = form.serialize();
+			$.ajax({
+				type: "POST",
+				url: form.attr('action'),
+				data: str,
+				success: function(msg) {
+					form.ajaxComplete(function(event, request, settings) {
+						// si le message a ete envoye, on affiche le message de notification
+						form.find('.alert').remove();
+						form.prepend(msg);
+						msg = '';
+						//  on vide le formulaire si succes
+						if (form.find('.alert-success').length>0) {
+							form[0].reset();
+						}
+					});
+				}
+			});
+		}
+
 		return false;
 	});
 });
+} ) ( jQuery );

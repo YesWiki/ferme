@@ -21,20 +21,17 @@
 // | along with Foobar; if not, write to the Free Software                                                |
 // | Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA                            |
 // +------------------------------------------------------------------------------------------------------+
-// CVS : $Id: contact.php,v 1.5 2011-07-13 10:24:11 mrflos Exp $
+
 /**
 * contact.php
 *
 * Description :
 *
 *@package contact
-//Auteur original :
 *@author        Florian SCHMITT <florian@outils-reseaux.org>
-//Autres auteurs :
-*@author        Aucun
 *@copyright     outils-reseaux.org 2008
 *@version       $Revision: 1.5 $ $Date: 2011-07-13 10:24:11 $
-// +------------------------------------------------------------------------------------------------------+
+*
 */
 
 if (!defined("WIKINI_VERSION")) {
@@ -42,57 +39,42 @@ if (!defined("WIKINI_VERSION")) {
 }
 
 //recuperation des parametres
-$mail = $this->GetParameter('mail');
-if (empty($mail)) {
-	echo '<div class="error_box">Action contact : le param&ecirc;tre mail, obligatoire, est manquant.</div>';
+$contactelements['mail'] = $this->GetParameter('mail');
+if (empty($contactelements['mail'])) {
+	echo '<div class="alert alert-error"><button data-dismiss="alert" class="close" type="button">&times;</button><strong>Action contact :</strong>&nbsp;'.CONTACT_MAIL_REQUIRED.'</div>';
 }
 else {
-
-	$entete = $this->GetParameter('entete');
-	if (empty($entete)) {
-		$entete = $this->config['wakka_name'];
+	// on utilise une variable globale pour savoir de quel formulaire la demande est envoyee, s'il y en a plusieurs sur la meme page
+	if (isset($GLOBALS['nbactionmail'])) {
+		$GLOBALS['nbactionmail']++;
+	}
+	else {
+		$GLOBALS['nbactionmail'] = 1;
+	}
+	$contactelements['nbactionmail'] = $GLOBALS['nbactionmail']; 
+	
+	$contactelements['entete'] = $this->GetParameter('entete');
+	if (empty($contactelements['entete'])) {
+		$contactelements['entete'] = $this->config['wakka_name'];
 	}
 
-	$class = $this->GetParameter('class');
+	// on choisit le template utilisé
+	$template = $this->GetParameter('template'); 
+	if (empty($template)) {
+		$template = 'complete-contact-form.tpl.html';
+	}
 
+	// on peut ajouter des classes à la classe par défaut
+	$contactelements['class'] = ($this->GetParameter('class') ? 'form-contact '.$this->GetParameter('class') : 'form-contact');
 
-	echo '<div class="contact-form '.$class.'">
-		<div class="note"></div>
-		<form id="ajax-contact-form" class="ajax-form" action="'.$this->href('mail').'">
-			<div class="contact-row">
-					<label class="contact-label">Votre nom</label>
-					<input class="contact-input contact-name" type="text" name="name" value="" />
-					<div class="clear"></div>
-			</div>
+	// adresse url d'envoi du mail
+	$contactelements['mailerurl'] = $this->href('mail');
 
-			<div class="contact-row">
-					<label class="contact-label">Votre adresse mail</label>
-					<input class="contact-input contact-mail" type="text" name="email" value="" />
-					<div class="clear"></div>
-			</div>
-	
-			<div class="contact-row">
-					<label class="contact-label">Sujet du message</label>
-					<input class="contact-input contact-subject" type="text" name="subject" value="" />
-					<div class="clear"></div>
-			</div>
-	
-			<div class="contact-row">
-					<label class="contact-label">Corps du message</label>
-					<textarea class="contact-textarea contact-message" name="message" rows="5" cols="25"></textarea>
-					<div class="clear"></div>
-			</div>
-	
-			<div class="contact-row">
-					<label class="contact-label">&nbsp;</label>
-					<input class="contact-submit" type="submit" name="submit" value="Envoyer" />
-					<input type="hidden" name="mail" value="'.$mail.'" />
-					<input type="hidden" name="entete" value="'.$entete.'" />	
-					<input type="hidden" name="type" value="contact" />	
-					<div class="clear"></div>
-			</div>
-			<div class="clear"></div>	
-		</form>
-	</div>';
+	include_once('tools/contact/libs/squelettephp.class.php');
+	$contacttemplate = new SquelettePhp('tools/contact/presentation/templates/'.$template);
+	$contacttemplate->set($contactelements);
+	echo $contacttemplate->analyser();
+
+	$GLOBALS['js'] = ((isset($GLOBALS['js'])) ? str_replace('	<script src="tools/contact/libs/contact.js"></script>'."\n", '', $GLOBALS['js']) : '').'	<script src="tools/contact/libs/contact.js"></script>'."\n";
 }
 ?>
