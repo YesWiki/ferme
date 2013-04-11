@@ -1,1 +1,0 @@
-<a class="wiki" href="<?php echo $wiki['path'];?>" title="<?php echo $wiki['description']; ?>"><?php echo $wiki['name'];?></a>

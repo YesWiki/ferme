@@ -12,7 +12,7 @@
 			'YesWiki + colonne à gauche' => array(
 				'theme' => 'yeswiki',
 				'style' => 'green.css',
-				'squelette' => 'fullscreen-2cols-left.tpl.html',
+				'squelette' => 'responsive-2cols-left.tpl.html',
 				'thumb' => 'img/YesWiki2.png',
 			),
 			'YesWiki mono colonne' => array(
