@@ -79,9 +79,11 @@ class Farm {
 
 		//Protection avec HashCash
 		require_once('php/secret/wp-hashcash.lib');
-			if(!isset($_POST["hashcash_value"]) || $_POST["hashcash_value"] != hashcash_field_value()) {
-				throw new Exception("La plantation de wiki est une activité délicate qui ne doit pas être effectuée par un robot. (Pensez à activer JavaScript)", 1);
-				//die("La plantation de wiki est une activité délicate qui ne doit pas être effectuée par un robot.");
+			if(!isset($_POST["hashcash_value"]) 
+				|| $_POST["hashcash_value"] != hashcash_field_value()) {
+				throw new Exception("La plantation de wiki est une activité 
+					délicate qui ne doit pas être effectuée par un robot. 
+					(Pensez à activer JavaScript)", 1);
 			}
 
 		//Une série de tests sur les données.
@@ -95,7 +97,7 @@ class Farm {
 			exit();
 		}
 
-		$description = htmlentities($description, ENT_QUOTES);
+		$description = $this->cleanEntry($description);
 
 		$wikiPath = $this->config['ferme_path'].$wikiName."/";
 
@@ -109,23 +111,21 @@ class Farm {
 		$output = shell_exec("cp -r --preserve=mode,ownership "
 			.$this->config['source_path']
 			." ".$wikiPath);
-
-		echo "<pre>";
-		print_r($output);
-		echo "</pre>";
-
 		
 		$table_prefix = $wikiName."_";
-		$wiki_url = $this->config['base_url'].$this->config['ferme_path'].$wikiName."/wakka.php?wiki=";
+		$wiki_url = $this->config['base_url']
+					.$this->config['ferme_path']
+					.$wikiName."/wakka.php?wiki=";
 		
 		include("php/writeConfig.php");
-		file_put_contents($wikiPath."wakka.config.php", $configFileContent);
+		file_put_contents($wikiPath."wakka.config.php", 
+						  utf8_encode($configFileContent));
 		
 		//fichier d'infos sur le wiki
 		$date = time();
 		
 		include("php/writeInfos.php");
-		file_put_contents($wikiPath."wakka.infos.php", $infosFileContent);
+		file_put_contents($wikiPath."wakka.infos.php", utf8_encode($infosFileContent));
 		
 		//Création de la base de donnée
 		$dblink = mysql_connect($this->config['db_host'], 
@@ -144,9 +144,7 @@ class Farm {
 			}
 		}
 		mysql_close($dblink);
-
-		
-		
+	
 		return $wikiPath;	
 	}
 
