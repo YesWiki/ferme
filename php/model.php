@@ -17,7 +17,7 @@ class Farm {
 	 * ****************************************************************/
 	function getWikisList($order = 'none') {
 		
-		$result = array();
+		$tab_result = array();
 		
 		//Remplissage du tableau
 		if ($handle = opendir($this->config['ferme_path'])) {
@@ -28,15 +28,13 @@ class Farm {
 						
 						include($path."/wakka.infos.php");
 						
-						$result[] = array(
+						$tab_result[] = array(
 							'name' => $entry, 
 							'path' => $path,
 							'description' => $wakkaInfos['description'],
 							'date' => $wakkaInfos['date'],
 							'mail' => $wakkaInfos['mail'],
 						);
-		
-						
 					}
 				}
 			}
@@ -44,13 +42,13 @@ class Farm {
 		}
 		
 		//Tri du tableau
-		if($order != 'none'){
-			foreach ($result as $key => $row)
-					$name[$key]  = $row[$order];
-				array_multisort($name, SORT_ASC, $result);
+		if($order != 'none' && !empty($tab_result)){
+			foreach ($tab_result as $key => $row)
+				$tab_name[$key]  = $row[$order];
+			array_multisort($tab_name, SORT_ASC, $tab_result);
 		}
 
-		return $result;
+		return $tab_result;
 	}
 
 	/*******************************************************************

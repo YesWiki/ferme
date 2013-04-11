@@ -1,33 +1,39 @@
 <?php
 	$this->config = array(
-		'db_host' => "XXXXXXXXXXXXXX",
-		'db_name' => "XXXXXXXXXXXXX",
-		'db_user' => "XXXXXXXXXXXXX",
+		'db_host' => "localhost",
+		'db_name' => "XXXXXXXXXX",
+		'db_user' => "XXXXXXXXXX",
 		'db_password' => "XXXXXXXXXX",
 		'base_url' => "http://localhost/ferme/",
-		'ferme_path' => "wikis/",
 		'source_path' => "wikiSource/",
+		'ferme_path' => "wikis/",
 		'template' => "default.phtml",
 		'themes' => array(
-			'SupAgro' => array(
+			'YesWiki + colonne à gauche' => array(
 				'theme' => 'yeswiki',
-				'style' => 'yeswiki-green.css',
-				'squelette' => 'yeswiki.tpl.html',
-				'thumb' => 'img/YesWiki1.png',
-			),
-			'SupAgro + menu à gauche' => array(
-				'theme' => 'yeswiki',
-				'style' => 'yeswiki-green.css',
-				'squelette' => 'yeswiki-2cols-left.tpl.html',
+				'style' => 'green.css',
+				'squelette' => 'fullscreen-2cols-left.tpl.html',
 				'thumb' => 'img/YesWiki2.png',
 			),
-			'YesWiki' => array(
+			'YesWiki mono colonne' => array(
 				'theme' => 'yeswiki',
-				'style' => 'yeswiki.css',
-				'squelette' => 'yeswiki.tpl.html',
+				'style' => 'green.css',
+				'squelette' => 'responsive-1col.tpl.html',
+				'thumb' => 'img/YesWiki1.png',
+			),
+			'YesWiki + colonne à droite' => array(
+				'theme' => 'yeswiki',
+				'style' => 'green.css',
+				'squelette' => 'responsive-2cols-right.tpl.html',
 				'thumb' => 'img/YesWiki3.png',
 			),
-
+			'YesWiki + colonne de chaque coté' => array(
+				'theme' => 'yeswiki',
+				'style' => 'green.css',
+				'squelette' => 'responsive-3cols.tpl.html',
+				'thumb' => 'img/YesWiki3.png',
+			),
 		),
 	);
 ?>
+

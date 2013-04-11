@@ -147,7 +147,7 @@ if ($this->HasAccess('write') && $this->HasAccess('read')) {
 				$this->FormOpen('edit').
 				"<input type=\"hidden\" name=\"previous\" value=\"$previous\" />\n".
 				"<textarea id=\"body\" name=\"body\" cols=\"60\" rows=\"40\" wrap=\"soft\" class=\"edit\">\n".
-				htmlspecialchars($body).
+				htmlspecialchars($body, ENT_COMPAT | ENT_HTML401,'ISO-8859-1').
 				"</textarea><br />\n".
 				"<script type=\"text/javascript\">\n".
 				"document.getElementById(\"body\").onkeydown=fKeyDown;\n".
