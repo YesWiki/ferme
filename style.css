@@ -19,7 +19,7 @@ header {
 	header a {text-decoration:none;display:block;height:100%;width:100%;}
 #semer {width:100%;border-top:1px dotted #9fbc67;z-index:10; margin-top:20px;}
 	#semence {width:960px;margin:0 auto;overflow:hidden;position:relative;min-height:380px;}
-		#thumb {width:380px;margin-top:20px;position:absolute;right:0;border:1px solid #9fbc67; }
+		#thumb {width:380px;margin-top:60px;position:absolute;right:0;border:1px solid #9fbc67; }
 		#newForm {width:500px;padding:10px;border-radius:4px;margin-right:400px;word-wrap:break-word;}
 #cerealier {width:100%;border-top:1px dotted #9fbc67;background-color:#f3f6ed;z-index:10;}
 	#champ {width:940px;margin:0 auto;display:table;padding:10px;}
