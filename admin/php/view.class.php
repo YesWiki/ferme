@@ -25,8 +25,8 @@ class View{
 				$id = "alert".$key; 
 				include("php/views/".$template);
 			}
-			unset($_SESSION['alerts'][$key]);
 		}
+		unset($_SESSION['alerts']); //pour éviter qu'elle ne s'accumulent.
 	}
 
 	/************************************************************************

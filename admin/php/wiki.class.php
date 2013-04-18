@@ -31,26 +31,109 @@ class Wiki{
 		return $tab_infos;
 	}
 
-	function delete(){
-		//throw new Exception("Wiki->delete() : TODO", 1);
+	function delete(){ //TODO
+		//Nettoyage des fichiers temporaires
+		$filename = "archives/".$name.date("YmjHi").".tgz";
+
+		//Supprimer les fichiers
+		$output = shell_exec("rm -r tmp/".$name);
+		if(!is_file($filename)) {
+			throw new Exception("Impossible de supprimer les fichiers du wiki", 1);
+			exit();
+		}
+
+		//Supprimer la base de donnée
 	}
 
 	function save(){
 		$name = $this->config['wakka_name'];
+		$filename = "archives/".$name.date("YmjHi").".tgz";
 
 		//Création du repertoir temporaire
 		$output = shell_exec("mkdir tmp/".$name);
 		if(!is_dir("tmp/".$name)) {
-			throw new Exception("Impossible de créer le repertoire temporaire", 1);
+			throw new Exception("Impossible de créer le repertoire temporaire (Vérifiez les droits d'acces sur admin/tmp)", 1);
 			exit();
 		}
-			
 
+		//Récupération de la base de donnée
+		$dump = $this->dumpDB();
+		file_put_contents("tmp/".$name."/".$name.".sql", $dump);
+	    
+		//Ajout des fichiers du wiki
+		$output = shell_exec("cp -R ../wikis/".$name." tmp/".$name."/");
+		if(!is_dir("tmp/".$name."/".$name)) {
+			throw new Exception("Impossible de copier les fichiers du wiki", 1);
+			exit();
+		}
+		
+		//Compression des données
+		$output = shell_exec("cd tmp && tar -cvzf ../".$filename." ".$name." && cd -");
+		if(!is_file($filename)) {
+			throw new Exception("Impossible de créer le fichier de sauvegarde (Vérifiez les droits d'acces sur admin/archives) ", 1);
+			exit();
+		}
+		
+		//Nettoyage des fichiers temporaires
+		$output = shell_exec("rm -r tmp/".$name);
+		if(!is_dir("rm -r tmp/".$name)) {
+			throw new Exception("Impossible de créer le fichier de sauvegarde (Vérifiez les droits d'acces sur admin/archives) ", 1);
+			exit();
+		}	
 
 	}
 
-	function rename($newName){
-		throw new Exception("Wiki->rename() : TODO", 1);
+	/*************************************************************************
+	 * Exporte la base de donnée en SQL
+	 ************************************************************************/
+	function dumpDB(){
+	    $mysqli = mysqli_connect(
+	    	$this->config['mysql_host'], 
+	    	$this->config['mysql_user'], 
+	    	$this->config['mysql_password'],
+	    	$this->config['mysql_database'] );
+	 
+	    $create = "";
+	    $insert = "";
+	 
+	 	//Charge la liste des tables du wiki
+	    $tables = mysqli_query($mysqli,
+	    	"show tables like '".$this->config['table_prefix']."%'");
+
+	    while($table = mysqli_fetch_array($tables))
+	    {
+
+            //Structure de la table
+            $listeCreationsTables = mysqli_query($mysqli, "show create table ".$table[0]);
+            while($creationTable = mysqli_fetch_array($listeCreationsTables))
+            {
+              $create .= $creationTable[1].";\n\n";
+            }
+
+			//Données            
+            $data = mysqli_query($mysqli, "SELECT * FROM ".$table[0]);
+            while($nuplet = mysqli_fetch_array($data))
+            {
+                $insert .= "INSERT INTO ".$table[0]." VALUES(";
+                for($i=0; $i < mysqli_num_fields($data); $i++)
+                {
+                  if($i != 0)
+                     $insert .=  ", ";
+                  if(mysqli_fetch_field_direct($data, $i) == "string" || mysqli_fetch_field_direct($data, $i) == "blob")
+                     $insert .=  "'";
+                  $insert .= addslashes($nuplet[$i]);
+                  if(mysqli_fetch_field_direct($data, $i) == "string" || mysqli_fetch_field_direct($data, $i) == "blob")
+                    $insert .=  "'";
+                }
+                $insert .=  ");\n";
+            }
+            $insert .= "\n";
+        }
+	 
+	    mysqli_close($mysqli);
+
+	    return $create."\n\n".$insert;
+	 
 	}
 }
 

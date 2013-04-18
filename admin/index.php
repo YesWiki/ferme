@@ -5,7 +5,7 @@ include_once('php/ferme.class.php');
 include_once('php/view.class.php');
 
 $ferme = new Ferme("../ferme.config.php");
-$view = new View($ferme);
+$view  = new View($ferme);
 
 switch ($_GET['action']) {
 	case 'delete':
@@ -19,9 +19,17 @@ switch ($_GET['action']) {
 
 	case 'save':
 		if(isset($_GET['name']))
-			$ferme->save($_GET['name']);
+			try {
+				$ferme->save($_GET['name']);
+			} catch (Exception $e) {
+				$view->addAlert($e->getMessage(),"error");
+				header("Location: ".$ferme->getURL());
+				exit;
+			}
+		
 			$view->addAlert("Wiki ".$_GET['name']." : Sauvegardé avec succès");
 			header("Location: ".$ferme->getURL());
+			exit;
 		break;
 
 	default:
