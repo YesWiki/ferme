@@ -1,0 +1,92 @@
+<!doctype html>
+<html class="no-js" lang="fr">
+
+<head>
+	<title>Administration de la ferme</title>
+
+	<meta charset="utf-8">
+	<meta name="description" content="Ferme de Wikis">
+	<meta name="author" content="Florestan Bredow">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<link href="css/bootstrap.min.css" 	rel="stylesheet" media="screen">
+	<style>
+      body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+    </style>
+	
+</head>
+<body>
+
+<div class="navbar navbar-inverse navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="#">Administration de la ferme</a>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+	
+	<?php $this->printAlerts(); ?>
+
+	<h1>Liste des wikis</h1>
+
+	<div class="span12">
+	<table class="wiki-list table table-hover table-condensed">
+		<thead>
+			<tr>
+				<th>Nom</th>
+				<th>Créateur</th>
+				<th>Date de création</th>
+				<th></th>
+			</tr>
+		</thead>
+		<?php 
+			$this->ferme->resetIndex();
+			do {
+			$infos = $this->ferme->getCurWikiInfos(); 
+		?>	<tr>
+			<td><?php print($infos['name']); ?></td>
+			<td> 
+				<a href="mailto:<?php print($infos['mail']); ?>">
+					<?php print($infos['mail']); ?>
+				</a>
+			</td>
+			<td><?php print(date("Y-m-j H:i", $infos['date'])); ?></td>
+			<td>
+				<a 	class="save btn btn-mini" target="_blank"
+					href="<?php print($infos['url']); ?>">
+					<i class=" icon-eye-open"></i>
+				</a>
+				<a 	class="save btn btn-mini btn-success" 
+					href="?action=save&name=<?php print($infos['name']); ?>">
+					<i class="icon-circle-arrow-down icon-white"></i>
+				</a>
+				<a 	class="delete btn btn-mini btn-danger" 
+					href="?action=delete&name=<?php print($infos['name']); ?>">
+					<i class="icon-trash icon-white"></i>
+				</a> 
+			</td>
+		</tr>
+	<?php 
+			} while($this->ferme->getNextWiki()); 
+		?></table>
+
+	</div>
+
+	<h1>Liste des archives</h1>
+
+	<div class="span12">
+
+	</div>
+
+
+
+	<script src="http://code.jquery.com/jquery.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+</div>
+    
+</body>
+</html>

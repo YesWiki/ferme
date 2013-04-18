@@ -1,3 +1,5 @@
 ferme.config.php
 wikis/*
 img/.directory
+admin/tmp/*
+admin/archives/*
