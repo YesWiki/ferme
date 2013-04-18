@@ -1,6 +1,1 @@
-SetEnv PHP_VER 5_2
 
-AuthName "Accés réservé"
-AuthType Basic
-AuthUserFile "/homez.55/cdrflora/www-passwd/webtest_passwd"
-Require valid-user
