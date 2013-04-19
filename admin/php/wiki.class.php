@@ -32,17 +32,35 @@ class Wiki{
 	}
 
 	function delete(){ //TODO
-		//Nettoyage des fichiers temporaires
-		$filename = "archives/".$name.date("YmjHi").".tgz";
 
 		//Supprimer les fichiers
-		$output = shell_exec("rm -r tmp/".$name);
-		if(!is_file($filename)) {
+		$output = shell_exec("rm -r ../wikis/".$this->config['wakka_name']);
+		if(is_dir("../wikis/".$this->config['wakka_name'])) {
 			throw new Exception("Impossible de supprimer les fichiers du wiki", 1);
 			exit();
 		}
 
 		//Supprimer la base de donnée
+		$mysqli = mysqli_connect(
+	    	$this->config['mysql_host'], 
+	    	$this->config['mysql_user'], 
+	    	$this->config['mysql_password'],
+	    	$this->config['mysql_database'] );
+
+		//On récupère la liste des tables du wiki
+		$tables = $tables = mysqli_query($mysqli,
+	    	"SHOW TABLES LIKE '".$this->config['table_prefix']."%'");
+
+
+		while($table = mysqli_fetch_array($tables)) {
+
+			if(!mysqli_query($mysqli,"DROP TABLE ".$table[0])){
+				throw new Exception("Impossible de supprimer la table ".$table[0]." dans la base de donnée", 1);
+				exit();
+			}
+		}
+
+		mysqli_close($mysqli);
 	}
 
 	function save(){
@@ -76,8 +94,8 @@ class Wiki{
 		
 		//Nettoyage des fichiers temporaires
 		$output = shell_exec("rm -r tmp/".$name);
-		if(!is_dir("rm -r tmp/".$name)) {
-			throw new Exception("Impossible de créer le fichier de sauvegarde (Vérifiez les droits d'acces sur admin/archives) ", 1);
+		if(is_dir("rm -r tmp/".$name)) {
+			throw new Exception("Impossible de supprimer les fichiers temporaires. Prévenez l'administrateur.", 1);
 			exit();
 		}	
 
@@ -98,7 +116,7 @@ class Wiki{
 	 
 	 	//Charge la liste des tables du wiki
 	    $tables = mysqli_query($mysqli,
-	    	"show tables like '".$this->config['table_prefix']."%'");
+	    	"SHOW TABLES LIKE '".$this->config['table_prefix']."%'");
 
 	    while($table = mysqli_fetch_array($tables))
 	    {
@@ -133,7 +151,6 @@ class Wiki{
 	    mysqli_close($mysqli);
 
 	    return $create."\n\n".$insert;
-	 
 	}
 }
 
