@@ -104,7 +104,7 @@
 						</td>
 					</tr><tr>
 						<td colspan="2">
-							<?php print($this->HashCash()); ?>
+							<?php echo $this->HashCash() ?>
 							<script type="text/javascript">
 								document.write('<input type="submit" name="action" value="Semer !" id="submit"/>');
 							</script>
@@ -118,42 +118,31 @@
 		</div> <!--fin newForm-->
 	</div> <!--fin semence-->
 	</div> <!--fin semer-->
-
 	<div id="cerealier">
-		<div id="champ">
-			<h2>Le champ de wikis</h2>
-			<?php 
-				$this->ferme->resetIndex();
-				do {
-				$infos = $this->ferme->getCurWikiInfos(); 
-			?>	<a class="wiki" href="<?php print($infos['url']);?>">
-		    		<div>
-		    			<p><?php print($infos['name']); ?></p>
-		    			<span><?php print($infos['description']);?></span>
-		    		</div>
-				</a>
-			<?php 
-				} while($this->ferme->getNextWiki()); 
-			?></table>
+	<div id="champ">
+	<h2>Le champ de wikis</h2>
+	<div id="wikisList">
+		<?php $this->printWikisList(); ?>
+	</div>
 
-			<script type="text/JavaScript">
-				function changeThumb(){
-					var thumb = document
-									.getElementById('theme')
-									.options[document
-												.getElementById('theme')
-												.selectedIndex]
-									.getAttribute('thumb');
-					document.getElementById('thumb').src = thumb;
-				}
+	<script type="text/JavaScript">
+		function changeThumb(){
+			var thumb = document
+							.getElementById('theme')
+							.options[document
+										.getElementById('theme')
+										.selectedIndex]
+							.getAttribute('thumb');
+			document.getElementById('thumb').src = thumb;
+		}
 
-				function hide(moi){
-					moi.style.display = 'none';
-				}
+		function hide(moi){
+			moi.style.display = 'none';
+		}
 
-			</script>
+	</script>
 		</div> <!--fin champ-->
-	</div> <!--fin cerealier-->
+		</div> <!--fin cerealier-->
 
 </body>
 </html>

@@ -1,13 +1,12 @@
 <?php
-	error_reporting(E_ALL); 
 
-	include("php/model.php");
-	include("php/view.php");
-	
-	
+	include("php/ferme.class.php");
+	include("php/view.class.php");
 
-	$farm = new Farm("ferme.config.php");
-	$view = new FarmView($farm);
+	$farm = new Ferme("ferme.config.php");
+	$view = new View($farm);
+
+	$farm->refresh();
 
 	//test des alertes
 
@@ -42,8 +41,6 @@ Pour toute information complémentaire n'hésitez pas à contacter :
 
 		$view->addAlerte('<a href="'.$farm->config["base_url"].$wikiPath.'">Visiter le nouveau wiki</a>');
 	}
-	
-
 
 	$view->showNewWiki();
 

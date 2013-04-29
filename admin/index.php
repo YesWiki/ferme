@@ -1,11 +1,16 @@
 <?php
 session_start();
 
-include_once('php/ferme.class.php');
+include_once('../php/ferme.class.php');
 include_once('php/view.class.php');
 
 $ferme = new Ferme("../ferme.config.php");
 $view  = new View($ferme);
+
+//Pour éviter les problèmes de chemin : 
+$ferme->config['ferme_path'] = "../".$ferme->config['ferme_path'];
+
+$ferme->refresh();
 
 if(isset($_GET['action'])){
 	switch ($_GET['action']) {

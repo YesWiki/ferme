@@ -7,7 +7,7 @@
 		'base_url' => "http://localhost/ferme/",
 		'source_path' => "wikiSource/",
 		'ferme_path' => "wikis/",
-		'template' => "default.phtml",
+		'template' => "default",
 		'themes' => array(
 			'YesWiki + colonne à gauche' => array(
 				'theme' => 'yeswiki',
