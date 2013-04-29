@@ -18,7 +18,7 @@ if(isset($_GET['action'])){
 			if(isset($_GET['name'])){
 				$ferme->delete($_GET['name']);
 				$view->addAlert("Wiki ".$_GET['name']." : Supprimé avec succès");
-				header("Location: ".$ferme->getURL());
+				header("Location: ".$ferme->getAdminURL());
 				exit;
 			}
 			break;
@@ -29,12 +29,12 @@ if(isset($_GET['action'])){
 					$ferme->save($_GET['name']);
 				} catch (Exception $e) {
 					$view->addAlert($e->getMessage(),"error");
-					header("Location: ".$ferme->getURL());
+					header("Location: ".$ferme->getAdminURL());
 					exit;
 				}
 			
 				$view->addAlert("Wiki ".$_GET['name']." : Sauvegardé avec succès");
-				header("Location: ".$ferme->getURL());
+				header("Location: ".$ferme->getAdminURL());
 				exit;
 			break;
 

@@ -2,7 +2,7 @@
 class View{
 	
 	protected $ferme;
-	protected $alertes;
+	protected $alerts;
 	protected $theme;
 
 	/************************************************************************
@@ -10,15 +10,17 @@ class View{
 	 ***********************************************************************/
 	function __construct($ferme){
 		$this->ferme = $ferme;
-		$this->alertes = array();
+		$this->alerts = array();
 	}
 	
 	/************************************************************************
 	 * Affiche le wiki.
 	 ***********************************************************************/
 	//TODO : Ajouter choix du template
-	function showNewWiki($wikiName = "", $mail = "", $description = ""){
-		$template = "php/views/".$this->ferme->config['template'];
+	function show($template = ""){
+		
+		if($template == "")
+			$template = "php/views/".$this->ferme->config['template'];
 
 		if(!is_file($template)) {
 			die("Template introuvable. (php/views/".$this->ferme->config['template'].").");
@@ -38,20 +40,6 @@ class View{
 		}
 		unset($themesList);
 	}
-
-	/************************************************************************
-	 * Affiche la liste des wikis selon le template fournis 
-	 * et l'ordre demandé
-	 ***********************************************************************/
-	private function printWikisList($order = 'none', $template = "wiki.phtml"){
-		$listWikis = $this->ferme->getWikisList('name');
-
-		foreach($listWikis as $wiki) {
-			include("php/views/".$template);
-		}
-		unset($wiki);
-	}
-
 
 	/************************************************************************
 	 * Affiche la liste des alertes selon le template fournis.
@@ -80,12 +68,38 @@ class View{
 		</script>';
 	}
 
+		/************************************************************************
+	 * Affiche la liste des alertes selon le template fournis.
+	 ***********************************************************************/
+	function printAlerts($template = "alert.phtml"){
+		//Affichage des alertes
+		if (isset($_SESSION['alerts'])){
+			$i = 0;
+			foreach ($_SESSION['alerts'] as $key => $alert){
+				$id = "alert".$key; 
+				include("php/views/".$template);
+			}
+		}
+		unset($_SESSION['alerts']); //pour éviter qu'elle ne s'accumulent.
+	}
+
 	/************************************************************************
 	 * Ajoute une alerte a afficher.
 	 ***********************************************************************/
-	//TODO : Gérer les alertes dans le model.
-	function addAlerte($text){
-		$this->alertes[] = $text;
+	function addAlert($text, $type="default"){
+		/*$this->alerts[] = array(
+			'text' => $text,
+			'type' => $type,
+			);*/
+		if (!isset($_SESSION['alerts'])) {
+			$_SESSION['alerts'] = array();
+		}
+
+		$_SESSION['alerts'][] = array(
+				'text' => $text,
+				'type' => $type,
+			);
+
 	}
 
 	/***********************************************************************

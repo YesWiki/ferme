@@ -1,22 +1,23 @@
 <?php
+	session_start();
 
 	include("php/ferme.class.php");
 	include("php/view.class.php");
 
-	$farm = new Ferme("ferme.config.php");
-	$view = new View($farm);
+	$ferme = new Ferme("ferme.config.php");
+	$view = new View($ferme);
 
-	$farm->refresh();
+	$ferme->refresh();
 
 	//test des alertes
 
 	if (isset($_POST['action']) && isset($_POST['wikiName'])) {
 
 		try {
-			$wikiPath = $farm->installWiki($_POST['wikiName'], $_POST['mail'], $_POST['description']);
+			$wikiPath = $ferme->add($_POST['wikiName'], $_POST['mail'], $_POST['description']);
 		} catch(Exception $e){
-			$view->addAlerte($e->getMessage());
-			$view->showNewWiki();
+			$view->addAlert($e->getMessage());
+			$view->show();
 			die();
 		}
 
@@ -28,7 +29,7 @@
 		"Bonjour, 
 
 Votre wiki : ".$_POST["wikiName"]." a été planté avec succès. 
-Vous le trouverez a l'adresse : ".$farm->config["base_url"].$wikiPath."
+Vous le trouverez a l'adresse : ".$ferme->config["base_url"].$wikiPath."
 
 Pour toute information complémentaire n'hésitez pas à contacter :
  - christian.resche@supagro.inra.fr
@@ -39,10 +40,13 @@ Pour toute information complémentaire n'hésitez pas à contacter :
  		/********************************************************************/
 
 
-		$view->addAlerte('<a href="'.$farm->config["base_url"].$wikiPath.'">Visiter le nouveau wiki</a>');
+		$view->addAlert('<a href="'.$ferme->config["base_url"].$wikiPath.'">Visiter le nouveau wiki</a>');
+		//Recharge la page pour ne pas conserver les données du formulaire
+		header("Location: ".$ferme->getURL());
+		exit;
 	}
 
-	$view->showNewWiki();
+	$view->show();
 
 
 ?>

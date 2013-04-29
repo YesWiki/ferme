@@ -1,159 +1,213 @@
-<!doctype html>
+<!DOCTYPE html>
 <html class="no-js" lang="fr">
 
 <head>
-	<meta charset="utf-8">
+	<title>Ferme de Wiki</title>
 
-	<title></title>
+	<meta charset="utf-8">
 	<meta name="description" content="Ferme de Wikis">
 	<meta name="author" content="Florestan Bredow">
-	<meta name="viewport" content="width=device-width">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-	<link rel="stylesheet" href="style.css">
+	<!-- <link rel="stylesheet" href="style.css"> -->
+	<link href="css/bootstrap.min.css" 	rel="stylesheet" media="screen">
+	<style>
+      body {padding-top: 60px; background-color: #EFE;}
+      #thumbdiv {margin-top: 35px;}
+      tr.clickable {cursor: pointer}
+    </style>
 	
 </head>
 <body onLoad="changeThumb()">
-	<header>
-	<div id="entete">
-        <img class="ferme" src="img/supagro_ferme.png" alt="Logo de la ferme de Wiki de SupAgro" />
+
+<div class="navbar navbar-inverse navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+      <span class="brand">Ferme de Wikis</span>
     </div>
-	</header>
-	
-	<div id="semer">
+  </div>
+</div>
 
-	<!--<div id="alertesList" onClick="hide(this)">-->
-            <?php $this->printAlertesList(); ?>
-    <!--</div>-->
-	<div id="semence">
-		<div>
-			<img id="thumb" src="img/SupAgro.png">
+<div class="container">
+
+	<?php $this->printAlertesList(); ?>
+
+	<h1 class="formTitle">Semez votre Wiki</h1>	
+
+	<div class="controls controls-row ">
+		
+		<?php //Attention il ne faut pas changer class et id du formulaire 
+			  //sinon hashcash ne fonctionne plus.?>	
+
+		<form id="newWiki" 
+			  class="newForm span6 well form-horizontal" 
+			  method="post">
+
+			<div class="control-group">
+				<label class="control-label" for="wikiName">
+					Nom du wiki : 
+				</label>
+
+				<div class="controls">
+					<input 	type="text" name="wikiName" 
+							placeholder="10 caractères max" 
+							required="required" 
+							maxlength="10"
+							<?php 
+								if (isset($_POST['wikiName'])) 
+									echo 'value = "'.$_POST['wikiName'].'"'; 
+							?> > 
+					</input> 
+					<img class="tooltip_aide" 
+						title="10 caractères maximum, uniquement des alpha numériques." 
+						src="img/aide.png" 
+						width="16" 
+						height="16" 
+						alt="image aide" />
+				</div>
+			</div>
+
+			<div class="control-group">
+				<label class="control-label" for="mail">
+					Votre adresse email : 
+				</label>
+
+				<div class="controls">
+					<input 	type="email" name="mail" 
+							placeholder="Votre adresse mail" 
+							required="required"
+							<?php 
+								if (isset($_POST['mail']))
+									echo 'value = "'.$_POST['mail'].'"'; 
+							?> > </input>
+							<img 	class="tooltip_aide" 
+								title="Elle sera notre contact pour la maintenance de votre wiki." 
+								src="img/aide.png" 
+								width="16" 
+								height="16" 
+								alt="image aide" />
+				</div>
+			</div>
+
+			<div class="control-group">
+				<label class="control-label" for="description">
+					Description du Wiki : 
+				</label>
+			
+				<div class="controls">
+					<textarea name="description" 
+							  placeholder="Une courte description de votre projet (140 caractères max)." 
+							  maxlength="140" >
+						<?php 
+							if (isset($_POST['description'])) 
+								echo $_POST['description']; 
+						?>
+					</textarea> 
+					<img 	class="tooltip_aide" 
+							title="Décrivez rapidement le projet auquel est rattaché ce wiki. (140 caractères maximum)" 
+							src="img/aide.png" 
+							width="16" 
+							height="16" 
+							alt="image aide" />
+				</div>
+			</div>
+
+			<div class="control-group">
+				<label class="control-label" for="theme">
+					Thème : 
+				</label>
+			
+				<div class="controls">
+					<select id="theme" name="theme" onChange="changeThumb()">
+						<?php $this->printThemesList();?>
+					</select> 
+					<img class="tooltip_aide" 
+						 title="Choisissez le thème de votre nouveau Wiki"
+						 src="img/aide.png" 
+						 width="16" 
+						 height="16" 
+						 alt="image aide" />
+				</div>
+			</div>
+
+			<div class="control-group">
+				<div class="controls">
+					<?php print($this->HashCash()); ?>
+					<script type="text/javascript">
+						document.write('<input type="submit" name="action" class="btn" value="Semer !" id="submit"/>');
+					</script>
+					<noscript>Formulaire protégé via JavaScript, <br />Merci de l'activer.</noscript>
+				</div>
+			</div>
+		</form>
+
+
+		<div id="thumbdiv" class="span5">
+			<img id="thumb" class="img-polaroid" src="<?php
+				//TODO : Remplacer par une fonction 
+				reset($this->ferme->config['themes']);
+				$theme = current($this->ferme->config['themes']);
+				print($theme['thumb']);
+			?>" />
 		</div>
+	</div>
 
-		<div id="newForm">
-			<h2 class="formTitle">Semez votre wiki</h2>
-			<?php //Attention il ne faut pas changer class et id du formulaire 
-				  //sinon hashcash ne fonctionne plus.?>	
 
-			<form id="newWiki" class="newForm" method="post">
-				<table>
-					<tr>
-						<td>Nom du Wiki:</td>
-						<td>
-							<input 	type="text" name="wikiName" 
-									placeholder="Nom du wiki (10 caractères max)" 
-									required="required" 
-									maxlength="10"
-									<?php 
-										if (isset($_POST['wikiName'])) 
-											echo 'value = "'.$_POST['wikiName'].'"'; 
-									?> /> 
-							<img class="tooltip_aide" 
-								 title="10 caractères maximum, 
-	uniquement des alpha numériques." 
-								 src="img/aide.png" 
-								 width="16" 
-								 height="16" 
-								 alt="image aide" />
-						</td>
-					</tr><tr>
-						<td>Mail : </td>
-						<td>
-							<input 	type="email" name="mail" 
-									placeholder="Votre adresse mail" 
-									required="required"
-									<?php 
-										if (isset($_POST['mail']))
-											echo 'value = "'.$_POST['mail'].'"'; 
-									?> />
-							<img 	class="tooltip_aide" 
-									title="Elle sera notre contact la maintenance de votre wiki." 
-								 	src="img/aide.png" 
-								 	width="16" 
-								 	height="16" 
-								 	alt="image aide" />
-						</td>
-					</tr><tr>
-						<td>Description : </td>
-						<td>
-							<textarea name="description" 
-									  placeholder="Une courte description de votre projet (140 caractères max)." 
-									  maxlength="140" ><?php 
-									 	if (isset($_POST['description'])) 
-									  		echo $_POST['description']; 
-										?></textarea> 
-							<img 	class="tooltip_aide" 
-									title="Décrivez rapidement le projet auquel est 
-	rattaché ce wiki. (140 caractères maximum)" 
-									src="img/aide.png" 
-									width="16" 
-									height="16" 
-									alt="image aide" />
-						</td>
-					</tr><tr>
-						<td>Thème : </td>
-						<td>
-							<select id="theme" name="theme" onChange="changeThumb()">
-								<?php $this->printThemesList();?>
-							</select> 
-							<img 	class="tooltip_aide" 
-									title="Choisissez le thème de votre nouveau Wiki"
-									src="img/aide.png" 
-									width="16" 
-									height="16" 
-									alt="image aide" />
-						</td>
-					</tr><tr>
-						<td colspan="2">
-							<?php print($this->HashCash()); ?>
-							<script type="text/javascript">
-								document.write('<input type="submit" name="action" value="Semer !" id="submit"/>');
-							</script>
-							<noscript>Formulaire protégé via JavaScript, <br />Merci de l'activer.</noscript>
-						</td>
-					</tr>
-				</table>
+	<h1>Le champ de Wikis</h1>
 
-			</form>
+	<div class="span12">
 
-		</div> <!--fin newForm-->
-	</div> <!--fin semence-->
-	</div> <!--fin semer-->
+	<table class="wiki-list table table-hover table-condensed">
+		<thead>
+			<tr>
+				<th>Nom</th>
+				<th>Description</th>
+				<th>Date de création</th>
+			</tr>
+		</thead>
 
-	<div id="cerealier">
-		<div id="champ">
-			<h2>Le champ de wikis</h2>
-			<?php 
-				$this->ferme->resetIndex();
-				do {
-				$infos = $this->ferme->getCurWikiInfos(); 
-			?>	<a class="wiki" href="<?php print($infos['url']);?>">
-		    		<div>
-		    			<p><?php print($infos['name']); ?></p>
-		    			<span><?php print($infos['description']);?></span>
-		    		</div>
-				</a>
-			<?php 
-				} while($this->ferme->getNextWiki()); 
-			?></table>
+		<?php 
+			$this->ferme->resetIndex();
+			do {
+			$infos = $this->ferme->getCurWikiInfos(); 
+		?><tr class="clickable" onclick='document.location.href="<?php print($infos['url']); ?>"'>
+			
+			<td class="span2">
+				<!--<a href="<?php print($infos['url']); ?>">-->
+					<strong><?php print($infos['name']); ?></strong>
+				<!--</a>-->
+			</td>
+			
+			<td class="span8"> 
+				<?php print($infos['description']); ?>
+			</td>
+			
+			<td class="span2">
+				<?php print(date("Y-m-j H:i", $infos['date'])); ?>
+			</td>
+		</tr>
+		<?php 
+			} while($this->ferme->getNextWiki()); 
+		?></table>
+	</div>
 
-			<script type="text/JavaScript">
-				function changeThumb(){
-					var thumb = document
-									.getElementById('theme')
-									.options[document
-												.getElementById('theme')
-												.selectedIndex]
-									.getAttribute('thumb');
-					document.getElementById('thumb').src = thumb;
-				}
+	<script src="http://code.jquery.com/jquery.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script type="text/JavaScript">
+		function changeThumb(){
+			var thumb = document
+						.getElementById('theme')
+						.options[document
+						.getElementById('theme')
+						.selectedIndex]
+						.getAttribute('thumb');
+			document.getElementById('thumb').src = thumb;
+		}
 
-				function hide(moi){
-					moi.style.display = 'none';
-				}
-
-			</script>
-		</div> <!--fin champ-->
-	</div> <!--fin cerealier-->
+		function hide(moi){
+			moi.style.display = 'none';
+		}
+	</script>
 
 </body>
 </html>

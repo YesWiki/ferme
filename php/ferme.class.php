@@ -4,7 +4,7 @@ include_once('wiki.class.php');
 
 class Ferme {
 	
-	public $config;
+	public $config; //TODO : devrait devenir privé
 	private $wikis;
 
 	/*******************************************************************
@@ -78,59 +78,26 @@ class Ferme {
 	 * Tri les wikis par rapport à l'une de leur caractéristique
 	 ************************************************************************/
 	function orderBy($tri = 'name'){
-
+		//TODO : *
 	}
 
 	/*************************************************************************
 	 * Renvoi l'URL de l'interface d'administration
 	 ************************************************************************/
 
-	function getURL(){
+	function getAdminURL(){
 		return $this->config['base_url']."admin/";
 	}
 
+	/*************************************************************************
+	 * Renvoi l'URL de la ferme
+	 ************************************************************************/
+
+	function getURL(){
+		return $this->config['base_url'];
+	}
+
 	
-	/*******************************************************************
-	 * retourne la liste des wikis installés (tableau avec nom et URL)
-	 * Trié par 'name', 'date', 'description', 'mail' ou 'path'
-	 * ****************************************************************/
-	// Obsolete
-	/*function getWikisList($order = 'none') {
-		
-		$tab_result = array();
-		
-		//Remplissage du tableau
-		if ($handle = opendir($this->config['ferme_path'])) {
-			while (false !== ($entry = readdir($handle))) {
-			if ($entry != "." && $entry != "..") {
-					$path = $this->config['ferme_path'].$entry;
-					if(is_dir($path)){
-						
-						include($path."/wakka.infos.php");
-						
-						$tab_result[] = array(
-							'name' => $entry, 
-							'path' => $path,
-							'description' => $wakkaInfos['description'],
-							'date' => $wakkaInfos['date'],
-							'mail' => $wakkaInfos['mail'],
-						);
-					}
-				}
-			}
-			closedir($handle);
-		}
-		
-		//Tri du tableau
-		if($order != 'none' && !empty($tab_result)){
-			foreach ($tab_result as $key => $row)
-				$tab_name[$key]  = $row[$order];
-			array_multisort($tab_name, SORT_ASC, $tab_result);
-		}
-
-		return $tab_result;
-	}/**/
-
 	/*******************************************************************
 	 * Securise une entrée utilisateur
 	 ******************************************************************/
