@@ -2,12 +2,13 @@
 session_start();
 
 include_once('../php/ferme.class.php');
-include_once('php/view.class.php');
+include_once('../php/view.class.php');
 
 $ferme = new Ferme("../ferme.config.php");
 $view  = new View($ferme);
 
 //Pour éviter les problèmes de chemin : 
+// TODO : Gérer ça de façon plus propre
 $ferme->config['ferme_path'] = "../".$ferme->config['ferme_path'];
 
 $ferme->refresh();
@@ -44,6 +45,6 @@ if(isset($_GET['action'])){
 	}
 }
 
-$view->show();
+$view->show("admin");
 
 ?>

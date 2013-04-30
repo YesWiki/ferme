@@ -11,56 +11,46 @@ class View{
 	function __construct($ferme){
 		$this->ferme = $ferme;
 		$this->alerts = array();
+
+		$this->theme = $this->ferme->config['template'];
 	}
 	
 	/************************************************************************
-	 * Affiche le wiki.
+	 * Affiche le wiki. ($template permet de forcer le theme)
 	 ***********************************************************************/
 	//TODO : Ajouter choix du template
 	function show($template = ""){
-		
-		if($template == "")
-			$template = "php/views/".$this->ferme->config['template'];
 
-		if(!is_file($template)) {
-			die("Template introuvable. (php/views/".$this->ferme->config['template'].").");
+		if($template == "")
+			$template = $this->theme;
+		else 
+			$this->theme = $template;
+
+		$squelette_path = "themes/".$template."/squelette/".$template.".phtml";
+
+		if(!is_file($squelette_path)) {
+			die("Template introuvable. (".$squelette_path.").");
 		}
-		include("php/views/".$this->ferme->config['template']);	
+		include($squelette_path);	
 	}
 
 	
 	/************************************************************************
 	 * Affiche la liste des Themes selon le template fournis
 	 ***********************************************************************/
-	private function printThemesList($template = "theme.phtml"){
+	private function printThemes($template = "theme.phtml"){
 		$themesList = $this->ferme->getThemesList();
 		$i = 0;
 		foreach ($themesList as $theme) {
-			include("php/views/".$template);
+			include("themes/".$this->theme."/squelette/".$template);
 		}
 		unset($themesList);
-	}
-
-	/************************************************************************
-	 * Affiche la liste des alertes selon le template fournis.
-	 ***********************************************************************/
-	private function printAlertesList($template = "alerte.phtml"){
-		//Affichage des alertes
-		if(!empty($this->alertes)){
-			$i = 0;
-			foreach ($this->alertes as $alerte)
-				$id = "alerte".$i; 
-				include("php/views/".$template);
-				$i++;
-			unset($alerte);
-		}
 	}
 
 	/************************************************************************
 	 * HASH-CASH : Charge le JavaScript qui génére la clé.
 	 ***********************************************************************/
 	private function HashCash(){	
-		
 		//TODO : Rendre ce code "portable"
 		echo '<!--Protection HashCash -->
 		<script type="text/javascript" 
@@ -68,7 +58,7 @@ class View{
 		</script>';
 	}
 
-		/************************************************************************
+	/************************************************************************
 	 * Affiche la liste des alertes selon le template fournis.
 	 ***********************************************************************/
 	function printAlerts($template = "alert.phtml"){
@@ -77,7 +67,7 @@ class View{
 			$i = 0;
 			foreach ($_SESSION['alerts'] as $key => $alert){
 				$id = "alert".$key; 
-				include("php/views/".$template);
+				include("themes/".$this->theme."/squelette/".$template);
 			}
 		}
 		unset($_SESSION['alerts']); //pour éviter qu'elle ne s'accumulent.
@@ -87,10 +77,6 @@ class View{
 	 * Ajoute une alerte a afficher.
 	 ***********************************************************************/
 	function addAlert($text, $type="default"){
-		/*$this->alerts[] = array(
-			'text' => $text,
-			'type' => $type,
-			);*/
 		if (!isset($_SESSION['alerts'])) {
 			$_SESSION['alerts'] = array();
 		}
@@ -109,6 +95,46 @@ class View{
 	// configuration.
 	function sendConfirmationMail($mail, $wikiName){
 
+	}
+
+	/***********************************************************************
+	 * Ajoute les CSS du themes
+	 **********************************************************************/
+	function printCSS(){
+		$css_path = "themes/".$this->theme."/css/";
+		foreach ($this->getFiles($css_path) as $file) {
+			print("<link href=\"".$file."\" rel=\"stylesheet\">\n");
+		}
+	}
+
+	/***********************************************************************
+	 * Ajoute les JavaScript du themes
+	 **********************************************************************/
+	function printJS(){
+		$js_path = "themes/".$this->theme."/js/";
+		foreach ($this->getFiles($js_path) as $file) {
+			print("<script src=\"".$file."\"></script>\n");
+		}
+	}
+
+	/***********************************************************************
+	 * Liste des fichiers dans un repertoire
+	 **********************************************************************/
+	//TODO : Filtrer les résultat par extension
+	private function getFiles($path){
+		$file_array = array();
+		if ($handle = opendir($path)) {
+			while (false !== ($entry = readdir($handle))) {
+				$entry_path = $path.$entry;
+				if ($entry != "." && $entry != ".." 
+								  && is_file($entry_path)){
+					
+					$file_array[] = $entry_path;
+				}
+			}
+			closedir($handle);
+		}
+		return $file_array;
 	}
 	
 }

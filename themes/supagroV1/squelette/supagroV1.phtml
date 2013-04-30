@@ -9,7 +9,7 @@
 	<meta name="author" content="Florestan Bredow">
 	<meta name="viewport" content="width=device-width">
 
-	<link rel="stylesheet" href="style.css">
+	<?=$this->printCSS()?>
 	
 </head>
 <body onLoad="changeThumb()">
@@ -22,7 +22,7 @@
 	<div id="semer">
 
 	<!--<div id="alertesList" onClick="hide(this)">-->
-            <?php $this->printAlertesList(); ?>
+            <?=$this->printAlerts()?>
     <!--</div>-->
 	<div id="semence">
 		<div>
@@ -93,7 +93,7 @@
 						<td>Thème : </td>
 						<td>
 							<select id="theme" name="theme" onChange="changeThumb()">
-								<?php $this->printThemesList();?>
+								<?php $this->printThemes();?>
 							</select> 
 							<img 	class="tooltip_aide" 
 									title="Choisissez le thème de votre nouveau Wiki"
@@ -104,7 +104,7 @@
 						</td>
 					</tr><tr>
 						<td colspan="2">
-							<?php print($this->HashCash()); ?>
+							<?=$this->HashCash()?>
 							<script type="text/javascript">
 								document.write('<input type="submit" name="action" value="Semer !" id="submit"/>');
 							</script>

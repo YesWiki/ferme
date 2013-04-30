@@ -169,7 +169,13 @@ class Ferme {
 		//fichier d'infos sur le wiki
 		$date = time();
 		
-		include("php/writeInfos.php");
+		$infosFileContent = "<?php"
+							."\t\$wakkaInfos = array ("
+							."\t\t'mail' => '$email',"
+							."\t\t'description' => '$description',"
+							."\t\t'date' => '$date',"
+							."\t);"
+							."?>";
 		file_put_contents($wikiPath."wakka.infos.php", utf8_encode($infosFileContent));
 		
 		//Création de la base de donnée
