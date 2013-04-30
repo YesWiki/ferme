@@ -5,7 +5,7 @@
 		'db_user' => "XXXXXXXXXX",
 		'db_password' => "XXXXXXXXXX",
 		'base_url' => "http://localhost/ferme/",
-		'source_path' => "wikiSource/",
+		'source' => "yeswiki0.2",
 		'ferme_path' => "wikis/",
 		'template' => "default",
 		'themes' => array(

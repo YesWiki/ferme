@@ -123,6 +123,7 @@ class Ferme {
 	function add($wikiName, $email, $description) {
 
 		//Protection avec HashCash
+		// TODO : c'est le boulot du controleur ça !
 		require_once('php/secret/wp-hashcash.lib');
 			if(!isset($_POST["hashcash_value"]) 
 				|| $_POST["hashcash_value"] != hashcash_field_value()) {
@@ -146,6 +147,11 @@ class Ferme {
 
 		$wikiPath = $this->config['ferme_path'].$wikiName."/";
 
+
+		//Quelques variables concerant le paquet choisi:
+		$package_path = "packages/".$this->config['source']."/";
+
+
 		//Vérifie si le wiki n'existe pas déjà
 		if (is_dir($wikiPath) || is_file($wikiPath)) {
 			throw new Exception("Ce nom de wiki est déjà utilisé", 1);
@@ -154,7 +160,7 @@ class Ferme {
 
 		//$this->copy($this->config['source_path'], $wikiPath);
 		$output = shell_exec("cp -r --preserve=mode,ownership "
-			.$this->config['source_path']
+			.$package_path."files"
 			." ".$wikiPath);
 		
 		$table_prefix = $wikiName."_";
@@ -162,7 +168,8 @@ class Ferme {
 					.$this->config['ferme_path']
 					.$wikiName."/wakka.php?wiki=";
 		
-		include("php/writeConfig.php");
+		//TODO : parcourir les fichiers dans "packages/ID_Package/config"
+		include($package_path."config.php");
 		file_put_contents($wikiPath."wakka.config.php", 
 						  utf8_encode($configFileContent));
 		
@@ -186,7 +193,7 @@ class Ferme {
 		mysql_select_db($this->config['db_name'], 
 						$dblink);
 		
-		include("php/initDB.php");
+		include($package_path."database.php");
 				
 		foreach($listQuery as $query){
 			$result = mysql_query($query, $dblink);
