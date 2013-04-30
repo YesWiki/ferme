@@ -9,140 +9,149 @@
 	<meta name="author" content="Florestan Bredow">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-	<!-- <link rel="stylesheet" href="style.css"> -->
 	<link href="css/bootstrap.min.css" 	rel="stylesheet" media="screen">
 	<style>
-      body {padding-top: 60px; background-color: #EFE;}
-      #thumbdiv {margin-top: 35px;}
+      body {padding-top: 60px;}
       tr.clickable {cursor: pointer}
     </style>
 	
 </head>
 <body onLoad="changeThumb()">
 
-<div class="navbar navbar-inverse navbar-fixed-top">
-  <div class="navbar-inner">
-    <div class="container">
-      <span class="brand">Ferme de Wikis</span>
-    </div>
-  </div>
+<div class="navbar navbar-fixed-top navbar-inverse">
+	<div class="navbar-inner">
+		<div class="container">
+			<span class="brand">Ferme de Wikis</span>
+			<div class="nav-collapse collapse">
+				<ul class="nav">
+					<li><a href="#">Nouveau Wiki</a></li>
+					<li><a href="#liste">Liste des Wikis</a></li>
+				</ul>
+			</div>
+			<div class="nav-collapse collapse pull-right">
+				<ul class="nav">
+					<li><a href="admin/"><i class="icon-lock"></i> Administration</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
 </div>
 
 <div class="container">
 
-	<?php $this->printAlertesList(); ?>
+	<?php $this->printAlerts(); ?>
 
-	<h1 class="formTitle">Semez votre Wiki</h1>	
-
-	<div class="controls controls-row ">
+	<h1>Nouveau Wiki</h1>
+	<div id="nouveau" class="row">
+		<div class="span6">
 		
-		<?php //Attention il ne faut pas changer class et id du formulaire 
-			  //sinon hashcash ne fonctionne plus.?>	
+			<?php //Attention il ne faut pas changer class et id du formulaire 
+				  //sinon hashcash ne fonctionne plus.?>	
 
-		<form id="newWiki" 
-			  class="newForm span6 well form-horizontal" 
-			  method="post">
+			<form id="newWiki" 
+				  class="newForm well well-small form-horizontal" 
+				  method="post">
 
-			<div class="control-group">
-				<label class="control-label" for="wikiName">
-					Nom du wiki : 
-				</label>
+				<div class="control-group">
+					<label class="control-label" for="wikiName">
+						Nom du wiki : 
+					</label>
 
-				<div class="controls">
-					<input 	type="text" name="wikiName" 
-							placeholder="10 caractères max" 
-							required="required" 
-							maxlength="10"
-							<?php 
-								if (isset($_POST['wikiName'])) 
-									echo 'value = "'.$_POST['wikiName'].'"'; 
-							?> > 
-					</input> 
-					<img class="tooltip_aide" 
-						title="10 caractères maximum, uniquement des alpha numériques." 
-						src="img/aide.png" 
-						width="16" 
-						height="16" 
-						alt="image aide" />
-				</div>
-			</div>
-
-			<div class="control-group">
-				<label class="control-label" for="mail">
-					Votre adresse email : 
-				</label>
-
-				<div class="controls">
-					<input 	type="email" name="mail" 
-							placeholder="Votre adresse mail" 
-							required="required"
-							<?php 
-								if (isset($_POST['mail']))
-									echo 'value = "'.$_POST['mail'].'"'; 
-							?> > </input>
-							<img 	class="tooltip_aide" 
-								title="Elle sera notre contact pour la maintenance de votre wiki." 
-								src="img/aide.png" 
-								width="16" 
-								height="16" 
-								alt="image aide" />
-				</div>
-			</div>
-
-			<div class="control-group">
-				<label class="control-label" for="description">
-					Description du Wiki : 
-				</label>
-			
-				<div class="controls">
-					<textarea name="description" 
-							  placeholder="Une courte description de votre projet (140 caractères max)." 
-							  maxlength="140" >
-						<?php 
-							if (isset($_POST['description'])) 
-								echo $_POST['description']; 
-						?>
-					</textarea> 
-					<img 	class="tooltip_aide" 
-							title="Décrivez rapidement le projet auquel est rattaché ce wiki. (140 caractères maximum)" 
+					<div class="controls">
+						<input 	type="text" name="wikiName" 
+								placeholder="10 caractères max" 
+								required="required" 
+								maxlength="10"
+								<?php 
+									if (isset($_POST['wikiName'])) 
+										echo 'value = "'.$_POST['wikiName'].'"'; 
+								?> > 
+						</input> 
+						<img class="tooltip_aide" 
+							title="10 caractères maximum, uniquement des alpha numériques." 
 							src="img/aide.png" 
 							width="16" 
 							height="16" 
 							alt="image aide" />
+					</div>
 				</div>
-			</div>
 
-			<div class="control-group">
-				<label class="control-label" for="theme">
-					Thème : 
-				</label>
-			
-				<div class="controls">
-					<select id="theme" name="theme" onChange="changeThumb()">
-						<?php $this->printThemesList();?>
-					</select> 
-					<img class="tooltip_aide" 
-						 title="Choisissez le thème de votre nouveau Wiki"
-						 src="img/aide.png" 
-						 width="16" 
-						 height="16" 
-						 alt="image aide" />
+				<div class="control-group">
+					<label class="control-label" for="mail">
+						Votre adresse email : 
+					</label>
+
+					<div class="controls">
+						<input 	type="email" name="mail" 
+								placeholder="Votre adresse mail" 
+								required="required"
+								<?php 
+									if (isset($_POST['mail']))
+										echo 'value = "'.$_POST['mail'].'"'; 
+								?> > </input>
+								<img 	class="tooltip_aide" 
+									title="Elle sera notre contact pour la maintenance de votre wiki." 
+									src="img/aide.png" 
+									width="16" 
+									height="16" 
+									alt="image aide" />
+					</div>
 				</div>
-			</div>
 
-			<div class="control-group">
-				<div class="controls">
-					<?php print($this->HashCash()); ?>
-					<script type="text/javascript">
-						document.write('<input type="submit" name="action" class="btn" value="Semer !" id="submit"/>');
-					</script>
-					<noscript>Formulaire protégé via JavaScript, <br />Merci de l'activer.</noscript>
+				<div class="control-group">
+					<label class="control-label" for="description">
+						Description du Wiki : 
+					</label>
+				
+					<div class="controls">
+						<textarea name="description" 
+								  placeholder="Une courte description de votre projet (140 caractères max)." 
+								  maxlength="140" >
+							<?php 
+								if (isset($_POST['description'])) 
+									echo $_POST['description']; 
+							?></textarea> 
+						<img 	class="tooltip_aide" 
+								title="Décrivez rapidement le projet auquel est rattaché ce wiki. (140 caractères maximum)" 
+								src="img/aide.png" 
+								width="16" 
+								height="16" 
+								alt="image aide" />
+					</div>
 				</div>
-			</div>
-		</form>
+
+				<div class="control-group">
+					<label class="control-label" for="theme">
+						Thème : 
+					</label>
+				
+					<div class="controls">
+						<select id="theme" name="theme" onChange="changeThumb()">
+							<?php $this->printThemesList();?>
+						</select> 
+						<img class="tooltip_aide" 
+							 title="Choisissez le thème de votre nouveau Wiki"
+							 src="img/aide.png" 
+							 width="16" 
+							 height="16" 
+							 alt="image aide" />
+					</div>
+				</div>
+
+				<div class="control-group">
+					<div class="controls">
+						<?php print($this->HashCash()); ?>
+						<script type="text/javascript">
+							document.write('<input type="submit" name="action" class="btn" value="Semer !" id="submit"/>');
+						</script>
+						<noscript>Formulaire protégé via JavaScript, <br />Merci de l'activer.</noscript>
+					</div>
+				</div>
+			</form>
+		</div>
 
 
-		<div id="thumbdiv" class="span5">
+		<div id="thumbdiv" class="span6">
 			<img id="thumb" class="img-polaroid" src="<?php
 				//TODO : Remplacer par une fonction 
 				reset($this->ferme->config['themes']);
@@ -150,14 +159,14 @@
 				print($theme['thumb']);
 			?>" />
 		</div>
-	</div>
+	</div> <!-- Fin row-->
 
 
-	<h1>Le champ de Wikis</h1>
+<h1>Liste des Wikis</h1>
 
-	<div class="span12">
+	<div id="liste" class="row">
 
-	<table class="wiki-list table table-hover table-condensed">
+	<table class="wiki-list table table-hover table-condensed span12">
 		<thead>
 			<tr>
 				<th>Nom</th>
@@ -190,6 +199,7 @@
 			} while($this->ferme->getNextWiki()); 
 		?></table>
 	</div>
+</div> <!--Fin container -->
 
 	<script src="http://code.jquery.com/jquery.js"></script>
 	<script src="js/bootstrap.min.js"></script>
