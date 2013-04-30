@@ -123,6 +123,7 @@ class Ferme {
 	function add($wikiName, $email, $description) {
 
 		//Protection avec HashCash
+		/********************************************************************/		
 		// TODO : c'est le boulot du controleur ça !
 		require_once('php/secret/wp-hashcash.lib');
 			if(!isset($_POST["hashcash_value"]) 
@@ -145,15 +146,15 @@ class Ferme {
 
 		$description = $this->cleanEntry($description);
 
-		$wikiPath = $this->config['ferme_path'].$wikiName."/";
+		// Fin de la partie a déplacer dans le controlleur
+		/********************************************************************/
 
 
-		//Quelques variables concerant le paquet choisi:
+		$wiki_path = $this->config['ferme_path'].$wikiName."/";
 		$package_path = "packages/".$this->config['source']."/";
 
-
 		//Vérifie si le wiki n'existe pas déjà
-		if (is_dir($wikiPath) || is_file($wikiPath)) {
+		if (is_dir($wiki_path) || is_file($wiki_path)) {
 			throw new Exception("Ce nom de wiki est déjà utilisé", 1);
 			exit();
 		}
@@ -163,28 +164,20 @@ class Ferme {
 			.$package_path."files"
 			." ".$wikiPath);
 		
-		$table_prefix = $wikiName."_";
-		$wiki_url = $this->config['base_url']
-					.$this->config['ferme_path']
-					.$wikiName."/wakka.php?wiki=";
-		
-		//TODO : parcourir les fichiers dans "packages/ID_Package/config"
+
+		/*********************************************************************
+		 * DEBUT BOUCLE DE PARCOUR DES FICHIERS DE CONFIG
+		 ********************************************************************/
 		include($package_path."config.php");
-		file_put_contents($wikiPath."wakka.config.php", 
-						  utf8_encode($configFileContent));
-		
-		//fichier d'infos sur le wiki
-		$date = time();
-		
-		$infosFileContent = "<?php"
-							."\t\$wakkaInfos = array ("
-							."\t\t'mail' => '$email',"
-							."\t\t'description' => '$description',"
-							."\t\t'date' => '$date',"
-							."\t);"
-							."?>";
-		file_put_contents($wikiPath."wakka.infos.php", utf8_encode($infosFileContent));
-		
+
+		foreach ($config as $file => $content) {
+			file_put_contents($wiki_path.$file, utf8_encode($content));
+		}
+		/*********************************************************************
+		 * FIN BOUCLE
+		 ********************************************************************/
+
+
 		//Création de la base de donnée
 		$dblink = mysql_connect($this->config['db_host'], 
 								$this->config['db_user'], 

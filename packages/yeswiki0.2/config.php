@@ -1,9 +1,19 @@
 <?php
-$configFileContent = "<?php
-// wakka.config.php cr&eacute;&eacute;e Tue Oct  4 09:06:58 2011
-// ne changez pas la wikini_version manuellement!
+/****************************************************************************
+ * Clé -> chemin du fichier (relatif a l'emplacement d'installation)
+ * Valeur -> Contenu du fichier
+ ***************************************************************************/
 
-\$wakkaConfig = array (
+$table_prefix = $wikiName."_";
+$wiki_url = $this->config['base_url']
+			.$this->config['ferme_path']
+			.$wikiName."/wakka.php?wiki=";
+$date = time();
+
+$config = array(
+
+	'wakka.config.php' => 
+"<?php \$wakkaConfig = array (
 	'wakka_version' => '0.1.1',
 	'wikini_version' => '0.5.0',
 	'debug' => 'no',
@@ -34,5 +44,13 @@ $configFileContent = "<?php
 	'favorite_style' => '".$this->config['themes'][$_POST['theme']]['style']."',
 	'favorite_squelette' => '".$this->config['themes'][$_POST['theme']]['squelette']."',
 );
-?>";/**/
-?>
+?>",
+	'wakka.infos.php' => "<?php"
+						."\t\$wakkaInfos = array ("
+						."\t\t'mail' => '$email',"
+						."\t\t'description' => '$description',"
+						."\t\t'date' => '$date',"
+						."\t);"
+						."?>",
+
+);?>
