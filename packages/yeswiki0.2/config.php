@@ -46,11 +46,11 @@ $config = array(
 );
 ?>",
 	'wakka.infos.php' => "<?php"
-						."\t\$wakkaInfos = array ("
-						."\t\t'mail' => '$email',"
-						."\t\t'description' => '$description',"
-						."\t\t'date' => '$date',"
-						."\t);"
+						."\t\$wakkaInfos = array (\n"
+						."\t\t'mail' => '$email',\n"
+						."\t\t'description' => '$description',\n"
+						."\t\t'date' => '$date',\n"
+						."\t);\n"
 						."?>",
 
 );?>

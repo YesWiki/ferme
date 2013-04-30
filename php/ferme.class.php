@@ -162,7 +162,7 @@ class Ferme {
 		//$this->copy($this->config['source_path'], $wikiPath);
 		$output = shell_exec("cp -r --preserve=mode,ownership "
 			.$package_path."files"
-			." ".$wikiPath);
+			." ".$wiki_path);
 		
 
 		/*********************************************************************
@@ -196,7 +196,7 @@ class Ferme {
 		}
 		mysql_close($dblink);
 
-		return $wikiPath;	
+		return $wiki_path;	
 	}
 
 	function getThemesList(){
