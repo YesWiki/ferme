@@ -1,6 +1,16 @@
-<a class="wiki" href="<?php echo $wiki['path'];?>">
-    <div>
-    <p><?php echo $wiki['name'];?></p>
-    <span><?php echo $wiki['description'];?></span>
-    </div>
-</a>
+<tr class="clickable" onclick='document.location.href="<?=$infos['url']?>"'>
+			
+	<td class="span2">
+		<!--<a href="<?=$infos['url']?>">-->
+			<strong><?=$infos['name']?></strong>
+		<!--</a>-->
+	</td>
+	
+	<td class="span8"> 
+		<?=$infos['description']?>
+	</td>
+	
+	<td class="span2">
+		<?=date("Y-m-j H:i", $infos['date'])?>
+	</td>
+</tr>

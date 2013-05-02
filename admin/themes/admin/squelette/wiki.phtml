@@ -1,0 +1,25 @@
+<tr>
+	<td ><?=$infos['name']?></td>
+	<td> 
+		<a href="mailto:<?=$infos['mail']?>">
+			<?=$infos['mail']?>
+		</a>
+	</td>
+	<td><?=date("Y-m-d H:i", $infos['date'])?></td>
+	<td>
+		<div class="btn-group  pull-right">
+			<a 	class="save btn btn-mini" target="_blank"
+				href="<?=$infos['url']?>">
+				<i class=" icon-eye-open"></i>
+			</a>
+			<a 	class="save btn btn-mini btn-success" 
+				href="?action=save&name=<?=$infos['name']?>">
+				<i class="icon-circle-arrow-down icon-white"></i>
+			</a>
+			<a 	class="delete btn btn-mini btn-danger" 
+				href="?action=delete&name=<?=$infos['name']?>">
+				<i class="icon-trash icon-white"></i>
+			</a> 
+		</div>
+	</td>
+</tr>

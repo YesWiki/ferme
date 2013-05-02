@@ -13,6 +13,7 @@
 	<style>
       body {padding-top: 60px;}
       tr.clickable {cursor: pointer}
+      h1.title {margin-bottom: 15px; margin-top: 30px;}
     </style>
 	
 </head>
@@ -41,7 +42,7 @@
 
 	<?=$this->printAlerts()?>
 
-	<h1>Nouveau Wiki</h1>
+	<h1 class="title">Nouveau Wiki</h1>
 	<div id="nouveau" class="row">
 		<div class="span6">
 		
@@ -69,7 +70,7 @@
 						</input> 
 						<img class="tooltip_aide" 
 							title="10 caractères maximum, uniquement des alpha numériques." 
-							src="img/aide.png" 
+							src="themes/default/img/aide.png" 
 							width="16" 
 							height="16" 
 							alt="image aide" />
@@ -90,8 +91,8 @@
 										echo 'value = "'.$_POST['mail'].'"'; 
 								?> > </input>
 								<img 	class="tooltip_aide" 
-									title="Elle sera notre contact pour la maintenance de votre wiki." 
-									src="img/aide.png" 
+									title="Saisissez votre adresse, nous l'utiliserons pour vous contacter." 
+									src="themes/default/img/aide.png" 
 									width="16" 
 									height="16" 
 									alt="image aide" />
@@ -112,7 +113,7 @@
 							?></textarea> 
 						<img 	class="tooltip_aide" 
 								title="Décrivez rapidement le projet auquel est rattaché ce wiki. (140 caractères maximum)" 
-								src="img/aide.png" 
+								src="themes/default/img/aide.png" 
 								width="16" 
 								height="16" 
 								alt="image aide" />
@@ -125,12 +126,12 @@
 					</label>
 				
 					<div class="controls">
-						<select id="theme" name="theme" onChange="changeThumb()">
-							<?php $this->printThemes();?>
-						</select> 
+						<select id="theme" name="theme" onChange="changeThumb()"><?php 
+							$this->printThemes();
+						?></select> 
 						<img class="tooltip_aide" 
 							 title="Choisissez le thème de votre nouveau Wiki"
-							 src="img/aide.png" 
+							 src="themes/default/img/aide.png" 
 							 width="16" 
 							 height="16" 
 							 alt="image aide" />
@@ -161,7 +162,7 @@
 	</div> <!-- Fin row-->
 
 
-<h1>Liste des Wikis</h1>
+<h1 class="title">Liste des Wikis</h1>
 
 	<div id="liste" class="row">
 
@@ -173,30 +174,8 @@
 				<th>Date de création</th>
 			</tr>
 		</thead>
-
-		<?php 
-			$this->ferme->resetIndex();
-			do {
-			$infos = $this->ferme->getCurWikiInfos(); 
-		?><tr class="clickable" onclick='document.location.href="<?php print($infos['url']); ?>"'>
-			
-			<td class="span2">
-				<!--<a href="<?php print($infos['url']); ?>">-->
-					<strong><?php print($infos['name']); ?></strong>
-				<!--</a>-->
-			</td>
-			
-			<td class="span8"> 
-				<?php print($infos['description']); ?>
-			</td>
-			
-			<td class="span2">
-				<?php print(date("Y-m-j H:i", $infos['date'])); ?>
-			</td>
-		</tr>
-		<?php 
-			} while($this->ferme->getNextWiki()); 
-		?></table>
+		<?=$this->printWikis()?>
+		</table>
 	</div>
 </div> <!--Fin container -->
 

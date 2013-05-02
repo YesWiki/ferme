@@ -1,13 +1,8 @@
 <?php
-	$this->config = array(
-		'db_host' => "localhost",
-		'db_name' => "XXXXXXXXXX",
-		'db_user' => "XXXXXXXXXX",
-		'db_password' => "XXXXXXXXXX",
-		'base_url' => "http://localhost/ferme/",
-		'source' => "yeswiki0.2",
-		'ferme_path' => "wikis/", //parametres qui va disparaitre, ne pas changer.
-		'template' => "default",
+
+//TODO : placer ici le parametrage des aperçus pour l'installation.
+<?php
+	$config = array(
 		'themes' => array(
 			'YesWiki + colonne à gauche' => array(
 				'theme' => 'yeswiki',
@@ -35,5 +30,5 @@
 			),
 		),
 	);
-?>
 
+?>

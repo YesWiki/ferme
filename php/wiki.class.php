@@ -31,7 +31,7 @@ class Wiki{
 		return $tab_infos;
 	}
 
-	function delete(){ //TODO
+	function delete(){ 
 
 		//Supprimer les fichiers
 		$output = shell_exec("rm -r ../wikis/".$this->config['wakka_name']);
@@ -65,7 +65,7 @@ class Wiki{
 
 	function save(){
 		$name = $this->config['wakka_name'];
-		$filename = "archives/".$name.date("YmjHi").".tgz";
+		$filename = "archives/".$name.date("YmdHi").".tgz";
 
 		//Création du repertoir temporaire
 		$output = shell_exec("mkdir tmp/".$name);
@@ -75,8 +75,10 @@ class Wiki{
 		}
 
 		//Récupération de la base de donnée
-		$dump = $this->dumpDB();
-		file_put_contents("tmp/".$name."/".$name.".sql", $dump);
+		//$dump = $this->dumpDB();
+		//file_put_contents("tmp/".$name."/".$name.".sql", $dump);
+		$this->dumpDB("tmp/".$name."/".$name.".sql");
+
 	    
 		//Ajout des fichiers du wiki
 		$output = shell_exec("cp -R ../wikis/".$name." tmp/".$name."/");
@@ -86,7 +88,8 @@ class Wiki{
 		}
 		
 		//Compression des données
-		$output = shell_exec("cd tmp && tar -cvzf ../".$filename." ".$name." && cd -");
+		$output = shell_exec("cd tmp && tar -cvzf ../".$filename." ".$name
+						    ." && cd -");
 		if(!is_file($filename)) {
 			throw new Exception("Impossible de créer le fichier de sauvegarde (Vérifiez les droits d'acces sur admin/archives) ", 1);
 			exit();
@@ -94,7 +97,7 @@ class Wiki{
 		
 		//Nettoyage des fichiers temporaires
 		$output = shell_exec("rm -r tmp/".$name);
-		if(is_dir("rm -r tmp/".$name)) {
+		if(is_dir("tmp/".$name)) {
 			throw new Exception("Impossible de supprimer les fichiers temporaires. Prévenez l'administrateur.", 1);
 			exit();
 		}	
@@ -104,7 +107,7 @@ class Wiki{
 	/*************************************************************************
 	 * Exporte la base de donnée en SQL
 	 ************************************************************************/
-	function dumpDB(){
+	/*function dumpDB(){
 	    $mysqli = mysqli_connect(
 	    	$this->config['mysql_host'], 
 	    	$this->config['mysql_user'], 
@@ -151,6 +154,16 @@ class Wiki{
 	    mysqli_close($mysqli);
 
 	    return $create."\n\n".$insert;
+	}*/
+
+	function dumpDB($file){
+	    $output = shell_exec("mysqldump --host=".$this->config['mysql_host']
+	    					." --user=".$this->config['mysql_user']
+	    					." --password=".$this->config['mysql_password']
+	    					." ".$this->config['mysql_database']
+	    					." > ".$file);
+
+	    return $output;
 	}
 }
 

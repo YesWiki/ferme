@@ -1,11 +1,13 @@
 <?php
 
 include_once('wiki.class.php');
+include_once('archive.class.php');
 
 class Ferme {
 	
 	public $config; //TODO : devrait devenir privé
 	private $wikis;
+	private $archives;
 
 	/*******************************************************************
 	 * constructeur
@@ -13,6 +15,7 @@ class Ferme {
 	function __construct($configPath) {
 		include($configPath);
 		$this->wikis = array();
+		$this->archives = array();
 	}
 
 	/*************************************************************************
@@ -32,13 +35,38 @@ class Ferme {
 				}
 			}
 			closedir($handle);
-		}
+		} else
+			throw new Exception("Impossible d'accéder à "
+								.$ferme_path, 1);
+			
+	}
+
+	/*************************************************************************
+	 * Charge la liste des archives
+	 ************************************************************************/
+	function refreshArchives(){
+		$this->archives = array();
+		$archives_path = $this->config['admin_path'];
+
+		if ($handle = opendir($archives_path)) {
+			while (false !== ($entry = readdir($handle))) {
+				$entry_path = $archives_path.$entry;
+				if ($entry != "." && $entry != ".." 
+								  && is_file($entry_path)){
+
+					$this->archives[$entry] = new Archive($entry);
+				}
+			}
+			closedir($handle);
+		} else
+			throw new Exception("Impossible d'accéder à "
+								.$archives_path, 1);
 	}
 
 	/*************************************************************************
 	 * Passe au wiki suivant dans la liste
 	 ************************************************************************/
-	function getNextWiki(){
+	function getNext(){
 		if(!next($this->wikis))
 			return FALSE;
 		return current($this->wikis);
@@ -52,9 +80,9 @@ class Ferme {
 	}
 
 	/*************************************************************************
-	 * renvois les infos du wiki sur lequel l'index pointe
+	 * Renvois les infos du wiki sur lequel l'index pointe
 	 ************************************************************************/
-	function getCurWikiInfos(){
+	function getCurInfos(){
 		return current($this->wikis)->getInfos();
 	}
 
@@ -62,9 +90,9 @@ class Ferme {
 	 * Supprime un wiki
 	 ************************************************************************/
 	function delete($name){
-		print($name);
 		//TODO : gestion des erreurs.
 		$this->wikis[$name]->delete();
+
 	}
 
 	/*************************************************************************
@@ -74,11 +102,48 @@ class Ferme {
 		$this->wikis[$name]->save();
 	}
 
+	function restore($name){
+		$this->archives[$name]->restore();
+	}
+
 	/*************************************************************************
 	 * Tri les wikis par rapport à l'une de leur caractéristique
 	 ************************************************************************/
 	function orderBy($tri = 'name'){
 		//TODO : *
+	}
+
+	/*************************************************************************
+	 * Passe au wiki suivant dans la liste
+	 ************************************************************************/
+	function getNextArchive(){
+		if(!next($this->archives))
+			return FALSE;
+		return current($this->archives);
+	}
+
+	/*************************************************************************
+	 * Remet l'index a zero pour a nouveau parcourir la liste des wiki
+	 ************************************************************************/
+	function resetIndexArchives(){
+		reset($this->archives);
+	}
+
+	/*************************************************************************
+	 * renvois les infos du wiki sur lequel l'index pointe
+	 ************************************************************************/
+	function getCurArchiveInfos(){
+		return current($this->archives);
+	}
+
+	/*************************************************************************
+	 * Supprime une archive
+	 ************************************************************************/
+	function deleteArchive($name){
+		if(!isset($this->archives[$name]))
+			throw new Exception("L'archive ".$name." n'existe pas.", 1);
+		else
+			$this->archives[$name]->delete();
 	}
 
 	/*************************************************************************
@@ -92,7 +157,6 @@ class Ferme {
 	/*************************************************************************
 	 * Renvoi l'URL de la ferme
 	 ************************************************************************/
-
 	function getURL(){
 		return $this->config['base_url'];
 	}
@@ -115,7 +179,6 @@ class Ferme {
 		}
 		return true;
 	}
-
 
 	/*******************************************************************
 	 * Installe un wiki
@@ -148,7 +211,6 @@ class Ferme {
 
 		// Fin de la partie a déplacer dans le controlleur
 		/********************************************************************/
-
 
 		$wiki_path = $this->config['ferme_path'].$wikiName."/";
 		$package_path = "packages/".$this->config['source']."/";
@@ -199,6 +261,9 @@ class Ferme {
 		return $wiki_path;	
 	}
 
+	/*************************************************************************
+	 * Retourne la liste des thèmes
+	 * **********************************************************************/
 	function getThemesList(){
 		$themesList = array();
 
@@ -206,6 +271,16 @@ class Ferme {
 			$themesList[] = $key;
 		}
 		return $themesList;
+	}
+
+	/*************************************************************************
+	 * Vérifie les accès necessaire pour le bon fonctionnement de la ferme
+	 * **********************************************************************/
+	function checkInstall(){
+		//TODO : 
+		$is_valid = true;
+
+		return $is_valid;
 	}
 
 

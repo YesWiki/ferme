@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 
 include_once('../php/ferme.class.php');
@@ -8,17 +9,23 @@ $ferme = new Ferme("../ferme.config.php");
 $view  = new View($ferme);
 
 //Pour éviter les problèmes de chemin : 
-// TODO : Gérer ça de façon plus propre
-$ferme->config['ferme_path'] = "../".$ferme->config['ferme_path'];
+$ferme->config['ferme_path'] = "../wikis/";
+$ferme->config['admin_path'] = "archives/";
 
 $ferme->refresh();
+$ferme->refreshArchives();
 
 if(isset($_GET['action'])){
 	switch ($_GET['action']) {
 		case 'delete':
 			if(isset($_GET['name'])){
-				$ferme->delete($_GET['name']);
-				$view->addAlert("Wiki ".$_GET['name']." : Supprimé avec succès");
+				try {
+					$ferme->delete($_GET['name']);
+					$view->addAlert("Wiki ".$_GET['name']
+									." : Supprimé avec succès");
+				} catch (Exception $e) {
+					$view->addAlert($e->getMessage(),"error");
+				}
 				header("Location: ".$ferme->getAdminURL());
 				exit;
 			}
@@ -28,15 +35,42 @@ if(isset($_GET['action'])){
 			if(isset($_GET['name']))
 				try {
 					$ferme->save($_GET['name']);
+					$view->addAlert("Wiki ".$_GET['name']
+								." : Sauvegardé avec succès");
 				} catch (Exception $e) {
 					$view->addAlert($e->getMessage(),"error");
-					header("Location: ".$ferme->getAdminURL());
-					exit;
 				}
-			
-				$view->addAlert("Wiki ".$_GET['name']." : Sauvegardé avec succès");
 				header("Location: ".$ferme->getAdminURL());
 				exit;
+			break;
+
+		case 'restore':
+			if(isset($_GET['name'])){
+				try {
+					$ferme->restore($_GET['name']);
+					$view->addAlert("Archive : ".$_GET['name']
+									." : Restaurée avec succès");
+				} catch (Exception $e) {
+					$view->addAlert($e->getMessage(),"error");
+				}		
+				header("Location: ".$ferme->getAdminURL());
+				exit;
+			}
+			//$ferme->restore($_GET['name']);
+			break;
+
+		case 'deleteArchive':
+			if(isset($_GET['name'])){
+				try {
+					$ferme->deleteArchive($_GET['name']);
+					$view->addAlert("Archive : ".$_GET['name']
+									." : Supprimé avec succès");
+				} catch (Exception $e) {
+					$view->addAlert($e->getMessage(),"error");
+				}
+				header("Location: ".$ferme->getAdminURL());
+				exit;
+			}
 			break;
 
 		default:

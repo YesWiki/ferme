@@ -1,7 +1,7 @@
 <?php
 
 //ATTENTION CE FICHIER DOIT ETRE ENCODE EN ISO-8859-1 sous peine de 
-//voire des caractère bizarre dans les wikis.
+//voir des caractère bizarre dans les wikis.
 
 /***********************************************************************
  * Pour générer ce fichier en cas de nouvelle version de wikini, 

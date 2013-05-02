@@ -33,7 +33,6 @@ class View{
 		}
 		include($squelette_path);	
 	}
-
 	
 	/************************************************************************
 	 * Affiche la liste des Themes selon le template fournis
@@ -45,6 +44,31 @@ class View{
 			include("themes/".$this->theme."/squelette/".$template);
 		}
 		unset($themesList);
+	}
+
+	/************************************************************************
+	 * Affiche la liste des Wikis selon le template fournis
+	 ***********************************************************************/
+	private function printWikis($template = "wiki.phtml"){
+		$this->ferme->resetIndex();
+		do {
+			$infos = $this->ferme->getCurInfos(); 
+			include("themes/".$this->theme."/squelette/".$template);
+
+		} while ($this->ferme->getNext());		
+	}
+
+	/************************************************************************
+	 * Affiche la liste des Archives selon le template fournis
+	 ***********************************************************************/
+	private function printArchives($template = "archive.phtml"){
+		$this->ferme->resetIndexArchives();
+		do {
+			$archive = $this->ferme->getCurArchiveInfos(); 
+			$infos = $archive->getInfos();
+			include("themes/".$this->theme."/squelette/".$template);
+
+		} while ($this->ferme->getNextArchive());		
 	}
 
 	/************************************************************************

@@ -48,49 +48,35 @@
 	<table class="wiki-list table table-hover table-condensed">
 		<thead>
 			<tr>
-				<th>Nom</th>
-				<th>Créateur</th>
-				<th>Date de création</th>
-				<th></th>
+				<th class="span2">Nom</th>
+				<th class="span4">Créé par</th>
+				<th class="span2">Créé le</th>
+				<th class="span2"></th>
 			</tr>
 		</thead>
-		<?php 
-			$this->ferme->resetIndex();
-			do {
-			$infos = $this->ferme->getCurWikiInfos(); 
-		?>	<tr>
-			<td><?php print($infos['name']); ?></td>
-			<td> 
-				<a href="mailto:<?php print($infos['mail']); ?>">
-					<?php print($infos['mail']); ?>
-				</a>
-			</td>
-			<td><?php print(date("Y-m-j H:i", $infos['date'])); ?></td>
-			<td>
-				<a 	class="save btn btn-mini" target="_blank"
-					href="<?php print($infos['url']); ?>">
-					<i class=" icon-eye-open"></i>
-				</a>
-				<a 	class="save btn btn-mini btn-success" 
-					href="?action=save&name=<?php print($infos['name']); ?>">
-					<i class="icon-circle-arrow-down icon-white"></i>
-				</a>
-				<a 	class="delete btn btn-mini btn-danger" 
-					href="?action=delete&name=<?php print($infos['name']); ?>">
-					<i class="icon-trash icon-white"></i>
-				</a> 
-			</td>
-		</tr>
-	<?php 
-			} while($this->ferme->getNextWiki()); 
-		?></table>
+		
+		<?=$this->printWikis()?>
+
+		</table>
 
 	</div>
 
 	<h1>Liste des archives</h1>
 
 	<div id="archives" class="span12">
+	<table class="wiki-list table table-hover table-condensed">
+		<thead>
+			<tr>
+				<th class="span2">Nom</th>
+				<th class="span4"></th>
+				<th class="span2">Archivé le</th>
+				<th class="span2"></th>
+			</tr>
+		</thead>
+		
+		<?=$this->printArchives()?>
 
+	</table>
 	</div>
 
 	<script src="http://code.jquery.com/jquery.js"></script>
