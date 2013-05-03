@@ -67,11 +67,12 @@ class Archive{
 		//restaurer la base de donnée
 		include("../wikis/".$name."/wakka.config.php");
 
-		$output = shell_exec("cat tmp/".$name."/".$name.".sql | mysql" 
+		$output = shell_exec("cat tmp/".$name."/".$name.".sql | "
+			.$GLOBALS['exec_path']."mysql" 
 			." --host=".$wakkaConfig['mysql_host']
 			." --user=".$wakkaConfig['mysql_user']
 			." --password=".$wakkaConfig['mysql_password']
-			." ".$wakkaConfig['mysql_database']);		
+			." ".$wakkaConfig['mysql_database']);	
 
 		//Effacer les fichiers temporaires
 		$output = shell_exec("rm -r tmp/".$name);

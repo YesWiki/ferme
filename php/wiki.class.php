@@ -157,7 +157,8 @@ class Wiki{
 	}*/
 
 	function dumpDB($file){
-	    $output = shell_exec("mysqldump --host=".$this->config['mysql_host']
+	    $output = shell_exec($GLOBALS['exec_path']
+	    					."mysqldump --host=".$this->config['mysql_host']
 	    					." --user=".$this->config['mysql_user']
 	    					." --password=".$this->config['mysql_password']
 	    					." ".$this->config['mysql_database']

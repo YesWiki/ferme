@@ -8,6 +8,7 @@
 		'source' => "yeswiki0.2",
 		'ferme_path' => "wikis/", //parametres qui va disparaitre, ne pas changer.
 		'template' => "default",
+		'exec_path' => "/usr/bin/", //Ou trouver les executables mysql (utile pour lampp)
 		'themes' => array(
 			'YesWiki + colonne à gauche' => array(
 				'theme' => 'yeswiki',

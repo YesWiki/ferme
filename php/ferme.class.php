@@ -16,6 +16,12 @@ class Ferme {
 		include($configPath);
 		$this->wikis = array();
 		$this->archives = array();
+
+		//Ce qui suit est un bricolage infame qui permet de travailler avec
+		//lampp, dont les executables ne sont pas dans /usr/bin
+		//Il faut absolument trouver un autre moyen de passer cette valeur par
+		//un autre moyen aux classes Wiki et Archive
+		$GLOBALS['exec_path'] = $this->config['exec_path'];
 	}
 
 	/*************************************************************************

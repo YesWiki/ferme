@@ -13,7 +13,8 @@
 				href="?action=restore&name=<?=$infos['filename']?>">
 				<i class="icon-circle-arrow-up icon-white"></i> 
 			</a>
-			<a 	class="delete btn btn-mini btn-danger " 
+			<a 	class="delete btn btn-mini btn-danger "
+				onclick="return(confirm('Êtes-vous sûr de vouloir supprimer l\'archive : <?=$infos['filename']?> ?'));" 
 				href="?action=deleteArchive&name=<?=$infos['filename']?>">
 				<i class="icon-trash icon-white"></i>
 			</a>
