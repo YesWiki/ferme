@@ -6,6 +6,14 @@
 		</a>
 	</td>
 	<td><?=date("Y-m-d H:i", $infos['date'])?></td>
+	<td >
+		<span class="pull-right">
+			<?=number_format($infos['db_size']/1024,2)?> Ko</td>
+		</span>
+	<td>
+		<span class="pull-right">
+			<?=number_format($infos['files_size']/1024,2)?> Mo</td>
+		</span>
 	<td>
 		<div class="btn-group  pull-right">
 			<a 	class="save btn btn-mini" target="_blank"

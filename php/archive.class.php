@@ -27,6 +27,9 @@ class Archive{
 			intval(substr($str_date, 0, 4)) 	//Année
 		);
 		$tab_infos['url']  = '../admin/archives/'.$this->filename;
+
+		$tab_infos['size'] = $this->calFilesSize();
+
 		return $tab_infos;
 	}
 
@@ -94,8 +97,14 @@ class Archive{
 			exit();
 		}
 	}
+
+	private function calFilesSize(){
+	
+		$output = shell_exec("du -s ../admin/archives/".$this->filename);
+		$size = explode("\t", $output);
+		
+		return intval($size[0]);
+	}
 }
-
-
 ?>
 

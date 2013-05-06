@@ -44,8 +44,10 @@
 		<thead>
 			<tr>
 				<th class="span2">Nom</th>
-				<th class="span4">Créé par</th>
+				<th class="span2">Créé par</th>
 				<th class="span2">Créé le</th>
+				<th class="span1">BD</th>
+				<th class="span1">Disque</th>
 				<th class="span2"></th>
 			</tr>
 		</thead>
@@ -64,9 +66,9 @@
 		class="wiki-list table table-hover table-condensed tablesorter">
 		<thead>
 			<tr>
-				<th class="span2">Nom</th>
-				<th class="span4"></th>
+				<th class="span4">Nom</th>
 				<th class="span2">Archivé le</th>
+				<th class="span1">Poid</th>
 				<th class="span2"></th>
 			</tr>
 		</thead>
@@ -85,7 +87,7 @@
         		{
         			sortList: [[0,0]],
         			headers: { 
-        				3: { sorter: false }
+        				5: { sorter: false }
         			}
         		}
         	); 
@@ -95,7 +97,6 @@
         		{
         			sortList: [[0,0]],
         			headers: { 
-        				1: { sorter: false },
         				3: { sorter: false }
 	        		}
 	        	}

@@ -55,7 +55,8 @@ class View{
 
 		$this->ferme->resetIndex();
 		do {
-			$infos = $this->ferme->getCurInfos(); 
+			$wiki = $this->ferme->getCur();
+			$infos = $wiki->getInfos(); 
 			include("themes/".$this->theme."/squelette/".$template);
 
 		} while ($this->ferme->getNext());		
@@ -70,7 +71,7 @@ class View{
 
 		$this->ferme->resetIndexArchives();
 		do {
-			$archive = $this->ferme->getCurArchiveInfos(); 
+			$archive = $this->ferme->getCurArchive(); 
 			$infos = $archive->getInfos();
 			include("themes/".$this->theme."/squelette/".$template);
 

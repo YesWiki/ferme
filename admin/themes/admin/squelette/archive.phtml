@@ -1,8 +1,11 @@
 <tr>
 	<td><?=$infos['name']?></td>
-	<td></td>
 	<td><?=date("Y-m-d H:i", $infos['date'])?></td>
-
+	<td>
+		<span class="pull-right">
+			<?=number_format($infos['size']/1024,2)?> Mo
+		</span>
+	</td>
 	<td>
 		<div class="btn-group  pull-right">
 			<a 	class="save btn btn-mini"

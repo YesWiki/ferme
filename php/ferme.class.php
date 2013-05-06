@@ -91,8 +91,8 @@ class Ferme {
 	/*************************************************************************
 	 * Renvois les infos du wiki sur lequel l'index pointe
 	 ************************************************************************/
-	function getCurInfos(){
-		return current($this->wikis)->getInfos();
+	function getCur(){
+		return current($this->wikis);
 	}
 
 	/*************************************************************************
@@ -141,7 +141,7 @@ class Ferme {
 	/*************************************************************************
 	 * renvois les infos du wiki sur lequel l'index pointe
 	 ************************************************************************/
-	function getCurArchiveInfos(){
+	function getCurArchive(){
 		return current($this->archives);
 	}
 

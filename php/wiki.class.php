@@ -19,18 +19,23 @@ class Wiki{
 		//Charge la configuration du wiki
 		include($path."/wakka.config.php");
 		$this->config = $wakkaConfig;
+
+		$this->infos['name'] = $this->config['wakka_name'];
+		$this->infos['url'] = $this->config['base_url'];
+
+		$this->infos['db_size'] = $this->calDBSize();
+		$this->infos['files_size'] = $this->calFilesSize();
 	}
 
 	/*************************************************************************
 	 * Retourne les infos sur le wiki
 	 ************************************************************************/
-	function getInfos(){
-		$tab_infos = $this->infos;
-		$tab_infos['name'] = $this->config['wakka_name'];
-		$tab_infos['url'] = $this->config['base_url'];
-		return $tab_infos;
-	}
+	function getInfos(){ return $this->infos;}
 
+
+	/*************************************************************************
+	 * Supprime le wiki
+	 ************************************************************************/
 	function delete(){ 
 
 		//Supprimer les fichiers
@@ -63,6 +68,9 @@ class Wiki{
 		mysqli_close($mysqli);
 	}
 
+	/*************************************************************************
+	 * Créé une archive du Wiki
+	 ************************************************************************/
 	function save(){
 		$name = $this->config['wakka_name'];
 		$filename = "archives/".$name.date("YmdHi").".tgz";
@@ -165,6 +173,40 @@ class Wiki{
 	    					." > ".$file);
 
 	    return $output;
+	}
+
+	private function calDBSize(){
+
+		$dns = 'mysql:host='.$this->config['mysql_host'].';'
+			  .'dbname='.$this->config['mysql_database'].';'
+			  .'port=3606';
+
+		$connexion = new PDO($dns, 
+						 $this->config['mysql_user'], 
+						 $this->config['mysql_password']);
+
+		$query = "SHOW TABLE STATUS LIKE '"
+				.$this->config['table_prefix']."%';";
+
+		$result = $connexion->query($query);
+
+		$result->setFetchMode(PDO::FETCH_OBJ);
+
+		$size = 0;
+		while($row = $result->fetch()){
+			$size += $row->Data_length + $row->Index_length;
+		}
+
+		return $size;
+	}
+
+	private function calFilesSize(){
+	
+		$output = shell_exec("du -s ../wikis/".$this->infos["name"]);
+		$size = explode("\t", $output);
+				
+		return intval($size[0]);
+
 	}
 }
 
