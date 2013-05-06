@@ -10,14 +10,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 	<?=$this->printCSS()?>
-	<style>
-      body {padding-top: 60px;}
-      tr.clickable {cursor: pointer}
-      h1.title {margin-bottom: 15px; margin-top: 30px;}
-    </style>
-	
 </head>
-<body onLoad="changeThumb()">
+<body>
 
 <div class="navbar navbar-fixed-top navbar-inverse">
 	<div class="navbar-inner">
@@ -165,16 +159,19 @@
 <h1 class="title">Liste des Wikis</h1>
 
 	<div id="liste" class="row">
-
-	<table class="wiki-list table table-hover table-condensed span12">
-		<thead>
-			<tr>
-				<th>Nom</th>
-				<th>Description</th>
-				<th>Date de création</th>
-			</tr>
-		</thead>
-		<?=$this->printWikis()?>
+		<table id="listeWikis" 
+			class="wiki-list table table-hover table-condensed 
+				   span12 tablesorter">
+			<thead>
+				<tr>
+					<th>Nom</th>
+					<th>Description</th>
+					<th>Date de création</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?=$this->printWikis()?>
+			</tbody>
 		</table>
 	</div>
 </div> <!--Fin container -->
@@ -191,6 +188,14 @@
 						.getAttribute('thumb');
 			document.getElementById('thumb').src = thumb;
 		}
+
+		$(document).ready(changeThumb());
+
+		$(document).ready(function() { 
+        	$("#listeWikis").tablesorter(
+        		{sortList: [[0,0]]}
+        		); 
+    	}); 
 	</script>
 
 </body>

@@ -1,0 +1,14 @@
+body {padding-top: 60px;}
+tr.clickable {cursor: pointer}
+h1.title {margin-bottom: 15px; margin-top: 30px;}
+table.tablesorter thead tr .header {
+	background: url(../img/bg.gif) no-repeat center left; 
+	cursor: pointer; 
+	padding-left: 20px;
+}
+table.tablesorter thead tr .headerSortUp {
+	background: url(../img/asc.gif) #F5F5F5 no-repeat center left;
+}
+table.tablesorter thead tr .headerSortDown {
+	background: url(../img/desc.gif) #F5F5F5 no-repeat center left;
+}

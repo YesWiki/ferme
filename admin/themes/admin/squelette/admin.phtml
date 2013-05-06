@@ -10,12 +10,6 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 	<?=$this->printCSS()?>
-	<style>
-      body { padding-top: 60px; }
-    </style>
-
-
-	
 </head>
 <body>
 
@@ -45,7 +39,8 @@
 	<h1>Liste des wikis</h1>
 
 	<div id="wikis" class="span12">
-	<table class="wiki-list table table-hover table-condensed">
+	<table id="listeWikis"
+		class="wiki-list table table-hover table-condensed tablesorter">
 		<thead>
 			<tr>
 				<th class="span2">Nom</th>
@@ -54,17 +49,19 @@
 				<th class="span2"></th>
 			</tr>
 		</thead>
-		
-		<?=$this->printWikis()?>
+		<tbody>
+			<?=$this->printWikis()?>
+		</tbody>
+	</table>
 
-		</table>
 
 	</div>
 
 	<h1>Liste des archives</h1>
 
 	<div id="archives" class="span12">
-	<table class="wiki-list table table-hover table-condensed">
+	<table id="listeArchives"
+		class="wiki-list table table-hover table-condensed tablesorter">
 		<thead>
 			<tr>
 				<th class="span2">Nom</th>
@@ -73,14 +70,38 @@
 				<th class="span2"></th>
 			</tr>
 		</thead>
-		
-		<?=$this->printArchives()?>
+		<tbody>
+			<?=$this->printArchives()?>
+		</tbody>
 
 	</table>
 	</div>
 
 	<script src="http://code.jquery.com/jquery.js"></script>
 	<?=$this->printJS()?>
+	<script type="text/JavaScript">
+		$(document).ready(function() { 
+        	$("#listeWikis").tablesorter(
+        		{
+        			sortList: [[0,0]],
+        			headers: { 
+        				3: { sorter: false }
+        			}
+        		}
+        	); 
+    	});
+    	$(document).ready(function() { 
+        	$("#listeArchives").tablesorter(
+        		{
+        			sortList: [[0,0]],
+        			headers: { 
+        				1: { sorter: false },
+        				3: { sorter: false }
+	        		}
+	        	}
+	        ); 
+    	});  
+	</script>
 </div>
     
 </body>

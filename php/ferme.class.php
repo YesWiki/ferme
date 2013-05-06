@@ -17,10 +17,10 @@ class Ferme {
 		$this->wikis = array();
 		$this->archives = array();
 
-		//Ce qui suit est un bricolage infame qui permet de travailler avec
-		//lampp, dont les executables ne sont pas dans /usr/bin
-		//Il faut absolument trouver un autre moyen de passer cette valeur par
-		//un autre moyen aux classes Wiki et Archive
+		// TODO : Ce qui suit est un bricolage infame qui permet de travailler 
+		// avec lampp, dont les executables ne sont pas dans /usr/bin
+		// Il faut absolument trouver un autre moyen de passer cette valeur 
+		// aux classes Wiki et Archive
 		$GLOBALS['exec_path'] = $this->config['exec_path'];
 	}
 
@@ -69,6 +69,9 @@ class Ferme {
 								.$archives_path, 1);
 	}
 
+	function nbWikis(){return count($this->wikis);}
+	function nbArchives(){return count($this->archives);}
+
 	/*************************************************************************
 	 * Passe au wiki suivant dans la liste
 	 ************************************************************************/
@@ -79,7 +82,7 @@ class Ferme {
 	}
 
 	/*************************************************************************
-	 * Remet l'index a zero pour a nouveau parcourir la liste des wiki
+	 * Remet l'index a zero pour à nouveau parcourir la liste des wiki
 	 ************************************************************************/
 	function resetIndex(){
 		reset($this->wikis);

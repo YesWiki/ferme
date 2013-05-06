@@ -50,6 +50,9 @@ class View{
 	 * Affiche la liste des Wikis selon le template fournis
 	 ***********************************************************************/
 	private function printWikis($template = "wiki.phtml"){
+
+		if($this->ferme->nbWikis() <= 0) return;
+
 		$this->ferme->resetIndex();
 		do {
 			$infos = $this->ferme->getCurInfos(); 
@@ -62,6 +65,9 @@ class View{
 	 * Affiche la liste des Archives selon le template fournis
 	 ***********************************************************************/
 	private function printArchives($template = "archive.phtml"){
+
+		if($this->ferme->nbArchives() <= 0) return;
+
 		$this->ferme->resetIndexArchives();
 		do {
 			$archive = $this->ferme->getCurArchiveInfos(); 
