@@ -165,11 +165,32 @@ class Wiki{
 	}*/
 
 	function dumpDB($file){
+
+		//On récupère la liste des tables
+		$mysqli = mysqli_connect(
+	    	$this->config['mysql_host'], 
+	    	$this->config['mysql_user'], 
+	    	$this->config['mysql_password'],
+	    	$this->config['mysql_database'] );
+	 
+	    
+	 	//Charge la liste des tables du wiki
+	    $tables = mysqli_query($mysqli,
+	    	"SHOW TABLES LIKE '".$this->config['table_prefix']."%'");
+
+	    $str_list_table = "";
+	    while($table = mysqli_fetch_array($tables))
+	    {
+	    	$str_list_table .= $table[0]." ";
+	    }
+
+
 	    $output = shell_exec($GLOBALS['exec_path']
 	    					."mysqldump --host=".$this->config['mysql_host']
 	    					." --user=".$this->config['mysql_user']
 	    					." --password=".$this->config['mysql_password']
 	    					." ".$this->config['mysql_database']
+	    					." ".$str_list_table
 	    					." > ".$file);
 
 	    return $output;
