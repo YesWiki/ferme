@@ -8,6 +8,7 @@ $table_prefix = $wikiName."_";
 $wiki_url = $this->config['base_url']
 			.$this->config['ferme_path']
 			.$wikiName."/wakka.php?wiki=";
+$WikiAdminPasswordMD5 = $this->config['admin_password'];
 $date = time();
 
 $config = array(

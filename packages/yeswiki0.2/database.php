@@ -504,7 +504,7 @@ $listQuery = array(
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;",
 
 "INSERT INTO `".$table_prefix."users` (`name`, `password`, `email`, `motto`, `revisioncount`, `changescount`, `doubleclickedit`, `signuptime`, `show_comments`) VALUES
-('WikiAdmin', 'c23cc813361e0f1d723c4062217e08a9', '', '', 20, 50, 'Y', '$date', 'N');",
+('WikiAdmin', '".$WikiAdminPasswordMD5."', '', '', 20, 50, 'Y', '$date', 'N');",
 
 );
 
