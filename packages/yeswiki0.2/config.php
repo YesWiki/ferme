@@ -11,10 +11,14 @@ $wiki_url = $this->config['base_url']
 $WikiAdminPasswordMD5 = $this->config['admin_password'];
 $date = time();
 
+// Take theme list from package
+include("install.config.php");
+$theme = $config['themes'];
+
 $config = array(
 
-	'wakka.config.php' => 
-"<?php \$wakkaConfig = array (
+'wakka.config.php' => 
+	"<?php \n\$wakkaConfig = array (
 	'wakka_version' => '0.1.1',
 	'wikini_version' => '0.5.0',
 	'debug' => 'no',
@@ -41,17 +45,18 @@ $config = array(
 	'default_comment_acl' => '*',
 	'preview_before_save' => '0',
 	'allow_raw_html' => '1',
-	'favorite_theme' => '".$this->config['themes'][$_POST['theme']]['theme']."',
-	'favorite_style' => '".$this->config['themes'][$_POST['theme']]['style']."',
-	'favorite_squelette' => '".$this->config['themes'][$_POST['theme']]['squelette']."',
+	'favorite_theme' => '".$theme[$_POST['theme']]['theme']."',
+	'favorite_style' => '".$theme[$_POST['theme']]['style']."',
+	'favorite_squelette' => '".$theme[$_POST['theme']]['squelette']."',
 );
 ?>",
-	'wakka.infos.php' => "<?php"
-						."\t\$wakkaInfos = array (\n"
-						."\t\t'mail' => '$email',\n"
-						."\t\t'description' => '$description',\n"
-						."\t\t'date' => '$date',\n"
-						."\t);\n"
-						."?>",
 
+'wakka.infos.php' => 
+	"<?php\n"
+	."\t\$wakkaInfos = array (\n"
+	."\t\t'mail' => '$email',\n"
+	."\t\t'description' => '$description',\n"
+	."\t\t'date' => '$date',\n"
+	."\t);\n"
+	."?>",
 );?>

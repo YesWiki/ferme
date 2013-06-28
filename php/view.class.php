@@ -39,6 +39,11 @@ class View{
 	 ***********************************************************************/
 	private function printThemes($template = "theme.phtml"){
 		$themesList = $this->ferme->getThemesList();
+
+		echo "<pre>";
+		var_dump($themesList);
+		echo "</pre>";
+
 		$i = 0;
 		foreach ($themesList as $theme) {
 			include("themes/".$this->theme."/squelette/".$template);

@@ -5,27 +5,25 @@ include_once('archive.class.php');
 
 class Ferme {
 	
-	public $config; //TODO : devrait devenir privé
+	public $config; //TODO : Must be private
 	private $wikis;
 	private $archives;
 
 	/*******************************************************************
-	 * constructeur
+	 * constructor
 	 * ****************************************************************/	
 	function __construct($configPath) {
 		include($configPath);
 		$this->wikis = array();
 		$this->archives = array();
 
-		// TODO : Ce qui suit est un bricolage infame qui permet de travailler 
-		// avec lampp, dont les executables ne sont pas dans /usr/bin
-		// Il faut absolument trouver un autre moyen de passer cette valeur 
-		// aux classes Wiki et Archive
+		// TODO : Awful hack to work with Lampp (mysql binaries path is 
+		// different) need a best way to give path to class Wiki and Archive
 		$GLOBALS['exec_path'] = $this->config['exec_path'];
 	}
 
 	/*************************************************************************
-	 * Charge la liste des wikis et leur config
+	 * Load wiki list and configuration
 	 ************************************************************************/
 	function refresh(){
 		$this->wikis = array();
@@ -48,7 +46,7 @@ class Ferme {
 	}
 
 	/*************************************************************************
-	 * Charge la liste des archives
+	 * Load archives 's list
 	 ************************************************************************/
 	function refreshArchives(){
 		$this->archives = array();
@@ -73,7 +71,7 @@ class Ferme {
 	function nbArchives(){return count($this->archives);}
 
 	/*************************************************************************
-	 * Passe au wiki suivant dans la liste
+	 * Next wiki in wiki's list
 	 ************************************************************************/
 	function getNext(){
 		if(!next($this->wikis))
@@ -82,21 +80,21 @@ class Ferme {
 	}
 
 	/*************************************************************************
-	 * Remet l'index a zero pour à nouveau parcourir la liste des wiki
+	 * Reset index on wiki's list
 	 ************************************************************************/
 	function resetIndex(){
 		reset($this->wikis);
 	}
 
 	/*************************************************************************
-	 * Renvois les infos du wiki sur lequel l'index pointe
+	 * Give current wiki information
 	 ************************************************************************/
 	function getCur(){
 		return current($this->wikis);
 	}
 
 	/*************************************************************************
-	 * Supprime un wiki
+	 * delete a wiki
 	 ************************************************************************/
 	function delete($name){
 		//TODO : gestion des erreurs.
@@ -105,7 +103,7 @@ class Ferme {
 	}
 
 	/*************************************************************************
-	 * Crée une archive d'un wiki et renvois l'URL pour la télécharger
+	 * Make wiki backup and get back url to download it
 	 ************************************************************************/
 	function save($name){
 		$this->wikis[$name]->save();
@@ -116,14 +114,7 @@ class Ferme {
 	}
 
 	/*************************************************************************
-	 * Tri les wikis par rapport à l'une de leur caractéristique
-	 ************************************************************************/
-	function orderBy($tri = 'name'){
-		//TODO : *
-	}
-
-	/*************************************************************************
-	 * Passe au wiki suivant dans la liste
+	 * Next Wiki in wiki list
 	 ************************************************************************/
 	function getNextArchive(){
 		if(!next($this->archives))
@@ -132,21 +123,21 @@ class Ferme {
 	}
 
 	/*************************************************************************
-	 * Remet l'index a zero pour a nouveau parcourir la liste des wiki
+	 * Reset index on archive list
 	 ************************************************************************/
 	function resetIndexArchives(){
 		reset($this->archives);
 	}
 
 	/*************************************************************************
-	 * renvois les infos du wiki sur lequel l'index pointe
+	 * Get back current wiki information
 	 ************************************************************************/
 	function getCurArchive(){
 		return current($this->archives);
 	}
 
 	/*************************************************************************
-	 * Supprime une archive
+	 * Delete an archive
 	 ************************************************************************/
 	function deleteArchive($name){
 		if(!isset($this->archives[$name]))
@@ -156,7 +147,7 @@ class Ferme {
 	}
 
 	/*************************************************************************
-	 * Renvoi l'URL de l'interface d'administration
+	 * Get back backoffice url
 	 ************************************************************************/
 
 	function getAdminURL(){
@@ -164,7 +155,7 @@ class Ferme {
 	}
 
 	/*************************************************************************
-	 * Renvoi l'URL de la ferme
+	 * Get back farm URL
 	 ************************************************************************/
 	function getURL(){
 		return $this->config['base_url'];
@@ -172,7 +163,7 @@ class Ferme {
 
 	
 	/*******************************************************************
-	 * Securise une entrée utilisateur
+	 * Clean unwanted characters
 	 ******************************************************************/
 	private function cleanEntry($entry){
 		//TODO : éliminer les caractère indésirables
@@ -180,7 +171,7 @@ class Ferme {
 	}
 	
 	/*******************************************************************
-	 * Détermine si un nom de wiki est valide
+	 * Check wikiname
 	 ******************************************************************/
 	private function isValidWikiName($name) {
 		if (preg_match("~^[a-zA-Z0-9]{1,10}$~i",$name)) {
@@ -190,13 +181,13 @@ class Ferme {
 	}
 
 	/*******************************************************************
-	 * Installe un wiki
+	 * Wiki installation
 	 * ****************************************************************/
 	function add($wikiName, $email, $description) {
 
-		//Protection avec HashCash
+		//HashCash protection
 		/********************************************************************/		
-		// TODO : c'est le boulot du controleur ça !
+		// TODO : Move it to controller !
 		require_once('php/secret/wp-hashcash.lib');
 			if(!isset($_POST["hashcash_value"]) 
 				|| $_POST["hashcash_value"] != hashcash_field_value()) {
@@ -218,11 +209,12 @@ class Ferme {
 
 		$description = $this->cleanEntry($description);
 
-		// Fin de la partie a déplacer dans le controlleur
+		// End of part who must move to controller
 		/********************************************************************/
 
 		$wiki_path = $this->config['ferme_path'].$wikiName."/";
 		$package_path = "packages/".$this->config['source']."/";
+
 
 		//Vérifie si le wiki n'existe pas déjà
 		if (is_dir($wiki_path) || is_file($wiki_path)) {
@@ -230,7 +222,6 @@ class Ferme {
 			exit();
 		}
 
-		//$this->copy($this->config['source_path'], $wikiPath);
 		$output = shell_exec("cp -r --preserve=mode,ownership "
 			.$package_path."files"
 			." ".$wiki_path);
@@ -241,6 +232,7 @@ class Ferme {
 		 ********************************************************************/
 		include($package_path."config.php");
 
+		
 		foreach ($config as $file => $content) {
 			file_put_contents($wiki_path.$file, utf8_encode($content));
 		}
@@ -271,19 +263,24 @@ class Ferme {
 	}
 
 	/*************************************************************************
-	 * Retourne la liste des thèmes
+	 * Get back themes list
 	 * **********************************************************************/
 	function getThemesList(){
 		$themesList = array();
 
-		foreach($this->config['themes'] as $key => $value){
-			$themesList[] = $key;
+		include("packages/".$this->config['source']."/install.config.php");
+
+		foreach($config['themes'] as $key => $value){
+			$themesList[] = array( 
+				'name' 	 => $key,
+				'thumb' => $value['thumb'],
+			);
 		}
 		return $themesList;
 	}
 
 	/*************************************************************************
-	 * Vérifie les accès necessaire pour le bon fonctionnement de la ferme
+	 * Check ACL on directories
 	 * **********************************************************************/
 	function checkInstall(){
 		//TODO : 

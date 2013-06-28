@@ -49,21 +49,24 @@ class Archive{
 		//Décompresser les données
 		$output = shell_exec("mkdir tmp/".$name);
 		if(!is_dir("tmp/".$name)) {
-			throw new Exception("Impossible de créer le repertoire temporaire (Vérifiez les droits d'acces sur admin/tmp)", 1);
+			throw new Exception("Impossible de créer le repertoire temporaire"
+						  ." (Vérifiez les droits d'acces sur admin/tmp)", 1);
 			exit();
 		}
 
 		$output = shell_exec("cd tmp && tar -xvzf ../archives/"
 							.$this->filename." && cd -");
 		if(!is_dir("tmp/".$name)) {
-			throw new Exception("Impossible d'extraire l'archive (Vérifiez les droits d'acces sur admin/tmp) ", 1);
+			throw new Exception("Impossible d'extraire l'archive (Vérifiez "
+								."les droits d'acces sur admin/tmp) ", 1);
 			exit();
 		}
 
 		//déplacer les fichiers
 		$output = shell_exec("mv tmp/".$name."/".$name." ../wikis/");
 		if(!is_dir("../wikis/".$name)) {
-			throw new Exception("Impossible de replacer les fichiers du wiki (Vérifiez les droits d'acces sur wikis/) ", 1);
+			throw new Exception("Impossible de replacer les fichiers du wiki "
+							."(Vérifiez les droits d'acces sur wikis/) ", 1);
 			exit();
 		}
 
@@ -80,7 +83,8 @@ class Archive{
 		//Effacer les fichiers temporaires
 		$output = shell_exec("rm -r tmp/".$name);
 		if(is_dir("tmp/".$name)) {
-			throw new Exception("Impossible de supprimer les fichiers temporaires. Prévenez l'administrateur.", 1);
+			throw new Exception("Impossible de supprimer les fichiers "
+							."temporaires. Prévenez l'administrateur.", 1);
 			exit();
 		}
 

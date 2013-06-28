@@ -13,7 +13,7 @@ $ferme->config['admin_path'] = "admin/archives/";
 
 $ferme->refresh();
 
-//test des alertes
+//Alert test
 
 if (isset($_POST['action']) && isset($_POST['wikiName'])) {
 
@@ -28,7 +28,7 @@ if (isset($_POST['action']) && isset($_POST['wikiName'])) {
 	}
 
 	/*************************************************************************
-	 * Envois email.
+	 * Send email.
 	 ************************************************************************/
 	mail($_POST["mail"], 
 	"Création du wiki ".$_POST["wikiName"], 
@@ -48,7 +48,7 @@ Cordialement.",
 
 	$view->addAlert('<a href="'.$ferme->config["base_url"]
 					.$wiki_path.'">Visiter le nouveau wiki</a>');
-	//Recharge la page pour ne pas conserver les données du formulaire
+	// Reload page to clean form.
 	header("Location: ".$ferme->getURL());
 	exit;
 }
