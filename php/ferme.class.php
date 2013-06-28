@@ -35,7 +35,8 @@ class Ferme {
 				if ($entry != "." && $entry != ".." 
 								  && is_dir($entry_path)){
 					
-					$this->wikis[$entry] = new Wiki($entry_path);
+					try {$this->wikis[$entry] = new Wiki($entry_path);} 
+					catch (Exception $e) { }//TODO : send mail to admin 
 				}
 			}
 			closedir($handle);

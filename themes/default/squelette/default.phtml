@@ -121,8 +121,9 @@
 				
 					<div class="controls">
 						<select id="theme" name="theme" onChange="changeThumb()"><?php 
-							$this->printThemes();
-						?></select> 
+							$this->printThemes();?>
+
+						</select> 
 						<img class="tooltip_aide" 
 							 title="Choisissez le thème de votre nouveau Wiki"
 							 src="themes/default/img/aide.png" 
@@ -146,17 +147,12 @@
 
 
 		<div id="thumbdiv" class="span6">
-			<img id="thumb" class="img-polaroid" src="<?php
-				//TODO : Remplacer par une fonction 
-				reset($this->ferme->config['themes']);
-				$theme = current($this->ferme->config['themes']);
-				print($theme['thumb']);
-			?>" />
+			<img id="thumb" class="img-polaroid" src="" />
 		</div>
 	</div> <!-- Fin row-->
 
 
-<h1 class="title">Liste des Wikis</h1>
+	<h1 class="title">Liste des Wikis</h1>
 
 	<div id="liste" class="row">
 		<table id="listeWikis" 
@@ -169,8 +165,9 @@
 					<th>Date de création</th>
 				</tr>
 			</thead>
-			<tbody>
-				<?=$this->printWikis()?>
+			<tbody><?php 
+				print($this->printWikis()); ?>
+				
 			</tbody>
 		</table>
 	</div>

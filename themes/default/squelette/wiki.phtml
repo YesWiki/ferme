@@ -1,16 +1,11 @@
-<tr class="clickable" onclick='document.location.href="<?=$infos['url']?>"'>
-			
-	<td class="span2">
-		<!--<a href="<?=$infos['url']?>">-->
-			<strong><?=$infos['name']?></strong>
-		<!--</a>-->
-	</td>
-	
-	<td class="span8"> 
-		<?=$infos['description']?>
-	</td>
-	
-	<td class="span2">
-		<?=date("Y-m-j H:i", $infos['date'])?>
-	</td>
-</tr>
+
+				<tr class="clickable" onclick='document.location.href="<?=$infos['url']?>"'>	
+					<td class="span2"><strong><?=$infos['name']?></strong></td>
+					<td class="span8"><?=$infos['description']?></td>
+					<td class="span2"><?php
+						if ($infos['date'] == 0)
+							print("Inconnue");
+						else
+							print(date("Y-m-j H:i", $infos['date']));
+					?></td>
+				</tr>

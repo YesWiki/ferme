@@ -7,17 +7,29 @@ class Wiki{
 	private $infos;
 
 	/*************************************************************************
-	 * Constructeur
+	 * Constructor
 	 ************************************************************************/
 	function __construct($path) {
 		$this->path = $path;
 
 		//Charge les infos sur le wiki
-		include($path."/wakka.infos.php");
+		$file_path = $path."/wakka.infos.php";
+		if(file_exists($file_path))
+			include($file_path);
+		else 
+			$wakkaInfos = array (
+				'mail' => 'nomail',
+				'description' => 'Pas de description.',
+				'date' => 0,
+			);
 		$this->infos = $wakkaInfos;
 
 		//Charge la configuration du wiki
-		include($path."/wakka.config.php");
+		$file_path = $path."/wakka.config.php";
+		if(!file_exists($file_path))
+			throw new Exception("Wiki mal installé (".$path.").", 1);
+			
+		include($file_path);
 		$this->config = $wakkaConfig;
 
 		$this->infos['name'] = $this->config['wakka_name'];
@@ -28,13 +40,13 @@ class Wiki{
 	}
 
 	/*************************************************************************
-	 * Retourne les infos sur le wiki
+	 * Get back wiki informations
 	 ************************************************************************/
 	function getInfos(){ return $this->infos;}
 
 
 	/*************************************************************************
-	 * Supprime le wiki
+	 * delete this wiki
 	 ************************************************************************/
 	function delete(){ 
 
@@ -69,7 +81,7 @@ class Wiki{
 	}
 
 	/*************************************************************************
-	 * Créé une archive du Wiki
+	 * make an archive of this wiki
 	 ************************************************************************/
 	function save(){
 		$name = $this->config['wakka_name'];
@@ -113,57 +125,8 @@ class Wiki{
 	}
 
 	/*************************************************************************
-	 * Exporte la base de donnée en SQL
+	 * SQL Dump of database (this wiki only)
 	 ************************************************************************/
-	/*function dumpDB(){
-	    $mysqli = mysqli_connect(
-	    	$this->config['mysql_host'], 
-	    	$this->config['mysql_user'], 
-	    	$this->config['mysql_password'],
-	    	$this->config['mysql_database'] );
-	 
-	    $create = "";
-	    $insert = "";
-	 
-	 	//Charge la liste des tables du wiki
-	    $tables = mysqli_query($mysqli,
-	    	"SHOW TABLES LIKE '".$this->config['table_prefix']."%'");
-
-	    while($table = mysqli_fetch_array($tables))
-	    {
-
-            //Structure de la table
-            $listeCreationsTables = mysqli_query($mysqli, "show create table ".$table[0]);
-            while($creationTable = mysqli_fetch_array($listeCreationsTables))
-            {
-              $create .= $creationTable[1].";\n\n";
-            }
-
-			//Données            
-            $data = mysqli_query($mysqli, "SELECT * FROM ".$table[0]);
-            while($nuplet = mysqli_fetch_array($data))
-            {
-                $insert .= "INSERT INTO ".$table[0]." VALUES(";
-                for($i=0; $i < mysqli_num_fields($data); $i++)
-                {
-                  if($i != 0)
-                     $insert .=  ", ";
-                  if(mysqli_fetch_field_direct($data, $i) == "string" || mysqli_fetch_field_direct($data, $i) == "blob")
-                     $insert .=  "'";
-                  $insert .= addslashes($nuplet[$i]);
-                  if(mysqli_fetch_field_direct($data, $i) == "string" || mysqli_fetch_field_direct($data, $i) == "blob")
-                    $insert .=  "'";
-                }
-                $insert .=  ");\n";
-            }
-            $insert .= "\n";
-        }
-	 
-	    mysqli_close($mysqli);
-
-	    return $create."\n\n".$insert;
-	}*/
-
 	function dumpDB($file){
 
 		//On récupère la liste des tables
@@ -196,6 +159,9 @@ class Wiki{
 	    return $output;
 	}
 
+	/*************************************************************************
+	 * Calculate database usage
+	 ************************************************************************/
 	private function calDBSize(){
 
 		$dns = 'mysql:host='.$this->config['mysql_host'].';'
@@ -221,9 +187,12 @@ class Wiki{
 		return $size;
 	}
 
+	/*************************************************************************
+	 * calculate disk space usage
+	 ************************************************************************/
 	private function calFilesSize(){
-	
-		$output = shell_exec("du -s ../wikis/".$this->infos["name"]);
+
+		$output = shell_exec("du -s ".$this->path);
 		$size = explode("\t", $output);
 				
 		return intval($size[0]);
