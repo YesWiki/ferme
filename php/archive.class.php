@@ -104,10 +104,12 @@ class Archive{
 
 	private function calFilesSize(){
 	
-		$output = shell_exec("du -s ../admin/archives/".$this->filename);
+		/*$output = shell_exec("du -s ../admin/archives/".$this->filename);
 		$size = explode("\t", $output);
 		
-		return intval($size[0]);
+		return intval($size[0]);*/
+
+		return filesize("../admin/archives/".$this->filename);
 	}
 }
 ?>

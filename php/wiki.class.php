@@ -9,7 +9,7 @@ class Wiki{
 	/*************************************************************************
 	 * Constructor
 	 ************************************************************************/
-	function __construct($path) {
+	function __construct($path, $calsize = true) {
 		$this->path = $path;
 
 		//Charge les infos sur le wiki
@@ -35,8 +35,10 @@ class Wiki{
 		$this->infos['name'] = $this->config['wakka_name'];
 		$this->infos['url'] = $this->config['base_url'];
 
-		$this->infos['db_size'] = $this->calDBSize();
-		$this->infos['files_size'] = $this->calFilesSize();
+		if($calsize){
+			$this->infos['db_size'] = $this->calDBSize();
+			$this->infos['files_size'] = $this->calFilesSize();
+		}
 	}
 
 	/*************************************************************************
@@ -72,7 +74,8 @@ class Wiki{
 		while($table = mysqli_fetch_array($tables)) {
 
 			if(!mysqli_query($mysqli,"DROP TABLE ".$table[0])){
-				throw new Exception("Impossible de supprimer la table ".$table[0]." dans la base de donnée", 1);
+				throw new Exception("Impossible de supprimer la table "
+					.$table[0]." dans la base de donnée", 1);
 				exit();
 			}
 		}
@@ -90,7 +93,8 @@ class Wiki{
 		//Création du repertoir temporaire
 		$output = shell_exec("mkdir tmp/".$name);
 		if(!is_dir("tmp/".$name)) {
-			throw new Exception("Impossible de créer le repertoire temporaire (Vérifiez les droits d'acces sur admin/tmp)", 1);
+			throw new Exception("Impossible de créer le repertoire temporaire"
+				." (Vérifiez les droits d'acces sur admin/tmp)", 1);
 			exit();
 		}
 
@@ -111,14 +115,16 @@ class Wiki{
 		$output = shell_exec("cd tmp && tar -cvzf ../".$filename." ".$name
 						    ." && cd -");
 		if(!is_file($filename)) {
-			throw new Exception("Impossible de créer le fichier de sauvegarde (Vérifiez les droits d'acces sur admin/archives) ", 1);
+			throw new Exception("Impossible de créer le fichier de sauvegarde"
+				." (Vérifiez les droits d'acces sur admin/archives) ", 1);
 			exit();
 		}
 		
 		//Nettoyage des fichiers temporaires
 		$output = shell_exec("rm -r tmp/".$name);
 		if(is_dir("tmp/".$name)) {
-			throw new Exception("Impossible de supprimer les fichiers temporaires. Prévenez l'administrateur.", 1);
+			throw new Exception("Impossible de supprimer les fichiers "
+				."temporaires. Prévenez l'administrateur.", 1);
 			exit();
 		}	
 
@@ -165,8 +171,8 @@ class Wiki{
 	private function calDBSize(){
 
 		$dns = 'mysql:host='.$this->config['mysql_host'].';'
-			  .'dbname='.$this->config['mysql_database'].';'
-			  .'port=3606';
+			  .'dbname='.$this->config['mysql_database'].';';
+			  //.'port=3606';
 
 		$connexion = new PDO($dns, 
 						 $this->config['mysql_user'], 
@@ -183,22 +189,37 @@ class Wiki{
 		while($row = $result->fetch()){
 			$size += $row->Data_length + $row->Index_length;
 		}
-
+		
 		return $size;
 	}
 
 	/*************************************************************************
-	 * calculate disk space usage
+	 * calculate recursively disk space.
 	 ************************************************************************/
-	private function calFilesSize(){
+	private function calFilesSize($path = ""){
 
-		$output = shell_exec("du -s ".$this->path);
-		$size = explode("\t", $output);
-				
-		return intval($size[0]);
+		if ($path == "")
+			$path = $this->path;
 
+		if (is_file($path)){
+
+			return filesize($path);
+		}
+		else if (is_dir($path)) {
+			$size = 0;
+			$files = scandir($path);
+			foreach ($files as $file) {
+				if($file != "." && $file != ".."){
+					$size += $this->calFilesSize($path."/".$file); 
+				}
+			}
+			return $size;
+		} 
+		else return 0;
 	}
-}
+}			
+
+	
 
 
 ?>

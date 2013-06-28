@@ -1,20 +1,22 @@
 <?php
+
 session_start();
 
 include("php/ferme.class.php");
 include("php/view.class.php");
 
 $ferme = new Ferme("ferme.config.php");
+
 $view = new View($ferme);
+
 
 //Pour éviter les problèmes de chemin : 
 $ferme->config['ferme_path'] = "wikis/";
 $ferme->config['admin_path'] = "admin/archives/";
 
-$ferme->refresh();
+$ferme->refresh(false); //refesh without calculating size (db & files)
 
 //Alert test
-
 if (isset($_POST['action']) && isset($_POST['wikiName'])) {
 
 	try {

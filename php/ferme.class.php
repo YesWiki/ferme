@@ -20,12 +20,13 @@ class Ferme {
 		// TODO : Awful hack to work with Lampp (mysql binaries path is 
 		// different) need a best way to give path to class Wiki and Archive
 		$GLOBALS['exec_path'] = $this->config['exec_path'];
+		
 	}
 
 	/*************************************************************************
 	 * Load wiki list and configuration
 	 ************************************************************************/
-	function refresh(){
+	function refresh($calsize = true){
 		$this->wikis = array();
 		$ferme_path = $this->config['ferme_path'];
 
@@ -35,7 +36,7 @@ class Ferme {
 				if ($entry != "." && $entry != ".." 
 								  && is_dir($entry_path)){
 					
-					try {$this->wikis[$entry] = new Wiki($entry_path);} 
+					try {$this->wikis[$entry] = new Wiki($entry_path, $calsize);} 
 					catch (Exception $e) { }//TODO : send mail to admin 
 				}
 			}
@@ -43,7 +44,7 @@ class Ferme {
 		} else
 			throw new Exception("Impossible d'accéder à "
 								.$ferme_path, 1);
-			
+		
 	}
 
 	/*************************************************************************
@@ -66,6 +67,7 @@ class Ferme {
 		} else
 			throw new Exception("Impossible d'accéder à "
 								.$archives_path, 1);
+		
 	}
 
 	function nbWikis(){return count($this->wikis);}
