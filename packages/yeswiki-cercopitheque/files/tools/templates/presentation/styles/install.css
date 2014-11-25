@@ -1,0 +1,158 @@
+ /* Styles for yeswiki's install
+  * Author: Francois Labastie <francois@outils-reseaux.org>
+  * under GNU General Public License 
+  * 10/12/2013
+  */
+
+body {
+    padding-top:30px;
+}
+
+p, li{
+    font-family: "DejaVu Sans", Arial, Helvetica, sans-serif;
+}
+
+a:active, a:focus{ 
+	outline:none; 
+}
+
+.ok { color: #008800; font-weight: bold; }
+.failed { color: #880000; font-weight: bold; }
+
+.form-horizontal .control-label {
+    float: left;
+    padding-top: 5px;
+    padding-right: 10px;
+    text-align: right;
+    width: 250px;
+}
+
+legend {
+    color: #18657f;
+    padding-left: 15px;
+    font-size: 20px;
+    margin-bottom: 10px;
+    margin-top: 30px;
+    line-height: 32px;
+}
+
+.legend-first {
+    margin-bottom: -20px;
+}
+
+.hero-unit h1 {
+    display:inline;
+    color: #ffb500;
+    font-size: 32px;
+    margin-bottom: 20px;
+}
+
+h4 {
+    display:inline;
+    color: #ffb500;
+}
+
+
+.hero-unit {
+    padding: 18px;
+    line-height: 25px;
+    margin-bottom: 22px;
+    padding-bottom: 10px;
+}
+
+.accordion-group {
+    border: none;
+}
+
+.accordion-inner {
+    border-radius: 4px 4px 4px 4px;
+    background-color: #00FFFF;
+}
+
+.plusinfos {
+    float:right;
+    margin-top: -38px;
+}
+
+.plusinfosfirst {
+    float:right;
+    margin-top: -38px;
+}
+
+.accordion-heading{
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.continuer, .revenir {
+	margin-left: 80px;
+    padding: 20px 75px;
+}
+
+.form-actions {
+    margin-bottom: 100px;
+}
+
+.accordion-inner .control-label {
+    width: 232px;
+}
+
+.checkbox {
+    margin-left: 240px;
+    padding-right: 20px;
+}
+
+.accordion-inner legend {
+    padding-left: 0;
+}
+
+.dl-horizontal dt {
+    width: 235px;
+    color: #FFB500;
+    font-weight:600;
+}
+
+.dl-horizontal dd {
+    margin-left: 245px;
+}
+
+.dl-horizontal dd.droits-admin {
+    margin-left: 230px;
+}
+
+.dl-horizontal ul {
+    margin-left: 50px;
+    list-style-type:square;
+}
+
+.dl-horizontal dt.admin {
+    width: 248px;
+}
+
+span {
+    color: #FFB500;
+    font-weight:600;
+}
+
+#collapseFour span {
+    font-size: 14px;
+}
+
+.form-horizontal .control-group {
+    margin-bottom: 15px;
+}
+
+legend span {
+    font-size: 12px;
+    color: #333333;
+    font-family: "DejaVu Sans",Arial,Helvetica,sans-serif;
+    font-weight:normal;
+}
+
+dl {
+    margin-bottom: 12px;
+}
+
+.soustitre {
+    font-size: 14px;
+}
