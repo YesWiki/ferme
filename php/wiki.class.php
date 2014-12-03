@@ -42,10 +42,31 @@ class Wiki{
 	}
 
 	/*************************************************************************
+	 * Connect to database
+	 ************************************************************************/
+	private function connectDB(){
+			$mysqli = mysqli_connect(
+	    	$this->config['mysql_host'], 
+	    	$this->config['mysql_user'], 
+	    	$this->config['mysql_password'],
+	    	$this->config['mysql_database'] );
+
+	    	return $mysqli;
+	}
+
+	/*************************************************************************
+	 * get table list for wiki
+	 ************************************************************************/
+	private function getDBTablesList($mysqli){
+		return mysqli_query($mysqli,
+	    	"SHOW TABLES LIKE '".$this->config['table_prefix']."\_%'");
+	}
+
+
+	/*************************************************************************
 	 * Get back wiki informations
 	 ************************************************************************/
 	function getInfos(){ return $this->infos;}
-
 
 	/*************************************************************************
 	 * delete this wiki
@@ -59,17 +80,8 @@ class Wiki{
 			exit();
 		}
 
-		//Supprimer la base de donnée
-		$mysqli = mysqli_connect(
-	    	$this->config['mysql_host'], 
-	    	$this->config['mysql_user'], 
-	    	$this->config['mysql_password'],
-	    	$this->config['mysql_database'] );
-
-		//On récupère la liste des tables du wiki
-		$tables = $tables = mysqli_query($mysqli,
-	    	"SHOW TABLES LIKE '".$this->config['table_prefix']."%'");
-
+		$mysqli = $this->connectDB();
+		$tables = $this->getDBTablesList($mysqli);
 
 		while($table = mysqli_fetch_array($tables)) {
 
@@ -130,29 +142,19 @@ class Wiki{
 
 	}
 
-	/*************************************************************************
+		/*************************************************************************
 	 * SQL Dump of database (this wiki only)
 	 ************************************************************************/
 	function dumpDB($file){
 
-		//On récupère la liste des tables
-		$mysqli = mysqli_connect(
-	    	$this->config['mysql_host'], 
-	    	$this->config['mysql_user'], 
-	    	$this->config['mysql_password'],
-	    	$this->config['mysql_database'] );
-	 
-	    
-	 	//Charge la liste des tables du wiki
-	    $tables = mysqli_query($mysqli,
-	    	"SHOW TABLES LIKE '".$this->config['table_prefix']."%'");
+		$mysqli = $this->connectDB();
+	    $tables = $this->getDBTablesList($mysqli);
 
 	    $str_list_table = "";
 	    while($table = mysqli_fetch_array($tables))
 	    {
 	    	$str_list_table .= $table[0]." ";
 	    }
-
 
 	    $output = shell_exec($GLOBALS['exec_path']
 	    					."mysqldump --host=".$this->config['mysql_host']

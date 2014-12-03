@@ -5,7 +5,7 @@
 		'db_user' => "XXXXXXXXXX",
 		'db_password' => "XXXXXXXXXX",
 		'base_url' => "http://localhost/ferme/", 
-		'source' => "yeswiki0.2", 				//
+		'source' => "yeswiki-cercopitheque", 				//
 		'ferme_path' => "wikis/", 				// Deprecated, do not modify
 		'template' => "default",				// Template used 
 		'exec_path' => "/usr/bin/", 			// Mysql binaries location (for LAMPP)
