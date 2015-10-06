@@ -1,6 +1,8 @@
 ferme
 =====
 
+**/!\ : Actuellement instable, ne pas mettre a jour vers la dernière version**
+
 Permet de gérer une ferme de wiki avec une interface ouverte permettant la création à la volée.
 
 Installation
