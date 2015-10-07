@@ -2,6 +2,7 @@
 namespace Ferme;
 
 use \PDO;
+use \Exception;
 
 class Wiki
 {
@@ -48,32 +49,6 @@ class Wiki
     }
 
     /*************************************************************************
-     * Connect to database
-     ************************************************************************/
-    private function connectDB()
-    {
-        $mysqli = mysqli_connect(
-            $this->config['mysql_host'],
-            $this->config['mysql_user'],
-            $this->config['mysql_password'],
-            $this->config['mysql_database']
-        );
-        return $mysqli;
-    }
-
-    /*************************************************************************
-     * get table list for wiki
-     ************************************************************************/
-    private function getDBTablesList($mysqli)
-    {
-        return mysqli_query(
-            $mysqli,
-            "SHOW TABLES LIKE '".$this->config['table_prefix']."\_%'"
-        );
-    }
-
-
-    /*************************************************************************
      * Get back wiki informations
      ************************************************************************/
     public function getInfos()
@@ -86,28 +61,40 @@ class Wiki
      ************************************************************************/
     public function delete()
     {
-        //Supprimer les fichiers
-        $output = shell_exec("rm -r ../wikis/".$this->config['wakka_name']);
-        if (is_dir("../wikis/".$this->config['wakka_name'])) {
-            throw new Exception("Impossible de supprimer les fichiers du wiki", 1);
-            exit();
-        }
+        //Supprime la base de donnée
+        $db = $this->connectDB();
+        $tables = $this->getDBTablesList($db);
 
-        $mysqli = $this->connectDB();
-        $tables = $this->getDBTablesList($mysqli);
-
-        while ($table = mysqli_fetch_array($tables)) {
-            if (!mysqli_query($mysqli, "DROP TABLE ".$table[0])) {
+        foreach ($tables as $table_name) {
+            $sth = $db->prepare("DROP TABLE IF EXISTS ".$table_name);
+            if (!$sth->execute()) {
                 throw new Exception(
-                    "Impossible de supprimer la table "
-                    .$table[0]." dans la base de donnée",
+                    "Erreur lors de la suppression de la base de donnée",
                     1
                 );
                 exit();
             }
         }
-
-        mysqli_close($mysqli);
+        // Vérifie si la suppression a été effective
+        $tables = $this->getDBTablesList($db);
+        if (!empty($tables)) {
+            throw new Exception(
+                "Erreur lors de la suppression de la base de donnée",
+                1
+            );
+            exit();
+        }
+        
+        //Supprimer les fichiers
+        // TODO : Trouver une solution efficace sans passer par le shell
+        $output = shell_exec("rm -r ../wikis/".$this->config['wakka_name']);
+        if (is_dir("../wikis/".$this->config['wakka_name'])) {
+            throw new Exception(
+                "Impossible de supprimer les fichiers du wiki",
+                1
+            );
+            exit();
+        }
     }
 
     /*************************************************************************
@@ -121,7 +108,7 @@ class Wiki
         //Création du repertoir temporaire
         $output = shell_exec("mkdir tmp/".$name);
         if (!is_dir("tmp/".$name)) {
-            throw new Exception(
+            throw new \Exception(
                 "Impossible de créer le repertoire temporaire"
                 ." (Vérifiez les droits d'acces sur admin/tmp)",
                 1
@@ -130,15 +117,12 @@ class Wiki
         }
 
         //Récupération de la base de donnée
-        //$dump = $this->dumpDB();
-        //file_put_contents("tmp/".$name."/".$name.".sql", $dump);
         $this->dumpDB("tmp/".$name."/".$name.".sql");
-
         
         //Ajout des fichiers du wiki
         $output = shell_exec("cp -R ../wikis/".$name." tmp/".$name."/");
         if (!is_dir("tmp/".$name."/".$name)) {
-            throw new Exception("Impossible de copier les fichiers du wiki", 1);
+            throw new \Exception("Impossible de copier les fichiers du wiki", 1);
             exit();
         }
         
@@ -199,31 +183,17 @@ class Wiki
      ************************************************************************/
     private function calDBSize()
     {
-        $dsn = 'mysql:host='.$this->config['mysql_host'].';'
-            .'dbname='.$this->config['mysql_database'].';';
-              //.'port=3606';
-
-        try {
-            $connexion = new PDO(
-                $dsn,
-                $this->config['mysql_user'],
-                $this->config['mysql_password']
-            );
-        } catch (PDOException $e) {
-            echo 'Connexion échouée : ' . $e->getMessage();
-        }
-
-
+        $db = $this->connectDB();
         $query = "SHOW TABLE STATUS LIKE '".$this->config['table_prefix']."%';";
 
-        $result = $connexion->query($query);
-
+        $result = $db->query($query);
         $result->setFetchMode(PDO::FETCH_OBJ);
 
         $size = 0;
         while ($row = $result->fetch()) {
             $size += $row->Data_length + $row->Index_length;
         }
+
         return $size;
     }
 
@@ -251,5 +221,57 @@ class Wiki
         } else {
             return 0;
         }
+    }
+
+        /*************************************************************************
+     * Connect to database
+     ************************************************************************/
+    private function connectDB()
+    {
+        $dsn = 'mysql:host='.$this->config['mysql_host'].';'
+            .'dbname='.$this->config['mysql_database'].';';
+
+        try {
+            $connexion = new PDO(
+                $dsn,
+                $this->config['mysql_user'],
+                $this->config['mysql_password']
+            );
+            return $connexion;
+        } catch (PDOException $e) {
+            throw new \Exception(
+                "Impossible de se connecter à la base de donnée : "
+                .$e->getMessage(),
+                1
+            );
+        }
+    }
+
+    /*************************************************************************
+     * get table list for wiki
+     ************************************************************************/
+    private function getDBTablesList($db)
+    {
+        // Echape le caractère '_' et '%'
+        $search = array('%', '_');
+        $replace = array('\%', '\_');
+        $table_prefix = str_replace(
+            $search,
+            $replace,
+            $this->config['table_prefix']
+        ).'%';
+            
+        $query = "SHOW TABLES LIKE ?";
+        $sth = $db->prepare($query);
+        $sth->execute(array($table_prefix));
+
+        $results = $sth->fetchAll();
+
+        $final_results = array();
+        foreach ($results as $value) {
+            $final_results[] = $value[0];
+        }
+        
+        return $final_results;
     }
 }

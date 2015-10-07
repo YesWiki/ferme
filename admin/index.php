@@ -62,7 +62,6 @@ if (isset($_GET['action'])) {
                 header("Location: ".$ferme->getAdminURL());
                 exit;
             }
-            //$ferme->restore($_GET['name']);
             break;
         case 'deleteArchive':
             if (isset($_GET['name'])) {

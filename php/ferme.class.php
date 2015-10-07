@@ -1,6 +1,8 @@
 <?php
 namespace Ferme;
 
+use Exception;
+
 include_once('wiki.class.php');
 include_once('archive.class.php');
 
@@ -118,7 +120,15 @@ class Ferme
     public function delete($name)
     {
         //TODO : gestion des erreurs.
-        $this->wikis[$name]->delete();
+        if (isset($this->wikis[$name])) {
+            $this->wikis[$name]->delete();
+        } else {
+            throw new Exception(
+                "Impossible de supprimé le wiki $name. Il n'éxiste pas.",
+                1
+            );
+        }
+        
 
     }
 
@@ -222,7 +232,7 @@ class Ferme
         if (!isset($_POST["hashcash_value"])
             || $_POST["hashcash_value"] != hashcash_field_value()
         ) {
-            throw new Exception(
+            throw new \Exception(
                 "La plantation de wiki est une activité 
                 délicate qui ne doit pas être effectuée par un robot. 
                 (Pensez à activer JavaScript)",
@@ -232,12 +242,12 @@ class Ferme
 
         //Une série de tests sur les données.
         if ($this->isValidWikiName($wikiName)) {
-            throw new Exception("Ce nom wiki n'est pas valide.", 1);
+            throw new \Exception("Ce nom wiki n'est pas valide.", 1);
             exit();
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            throw new Exception("Cet email n'est pas valide.", 1);
+            throw new \Exception("Cet email n'est pas valide.", 1);
             exit();
         }
 
