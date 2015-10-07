@@ -1,6 +1,8 @@
 <?php
 namespace Ferme;
 
+use Exception;
+
 class Archive
 {
     private $filename;
@@ -91,7 +93,7 @@ class Archive
 
         $output = shell_exec(
             "cat tmp/".$name."/".$name.".sql | "
-            .$GLOBALS['exec_path']."mysql"
+            ."/usr/bin/mysql"
             ." --host=".$wakkaConfig['mysql_host']
             ." --user=".$wakkaConfig['mysql_user']
             ." --password=".$wakkaConfig['mysql_password']
