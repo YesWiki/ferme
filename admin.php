@@ -1,16 +1,13 @@
 <?php
 
+namespace Ferme;
+
 session_start();
 
-include_once '../php/ferme.class.php';
-include_once '../php/view.class.php';
+$loader = require __DIR__ . '/vendor/autoload.php';
 
-$ferme = new Ferme\Ferme("../ferme.config.php");
-$view = new Ferme\View($ferme);
-
-//Pour éviter les problèmes de chemin :
-$ferme->config['ferme_path'] = "../wikis/";
-$ferme->config['admin_path'] = "archives/";
+$ferme = new Ferme("ferme.config.php");
+$view = new View($ferme);
 
 $ferme->refresh();
 $ferme->refreshArchives();

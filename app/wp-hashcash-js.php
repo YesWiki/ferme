@@ -1,40 +1,40 @@
 <?php
-    ob_start("ob_gzhandler");
-    require_once(realpath(dirname(__FILE__) . '/') . '/secret/wp-hashcash.lib');
-    
-    $field_id = hashcash_random_string(rand(6, 18));
-    $fn_enable_name = hashcash_random_string(rand(6, 18));
+ob_start("ob_gzhandler");
+require_once realpath(dirname(__FILE__) . '/') . '/secret/wp-hashcash.php';
+
+$field_id = hashcash_random_string(rand(6, 18));
+$fn_enable_name = hashcash_random_string(rand(6, 18));
 ?>
 
-addLoadEvent(<?php echo $fn_enable_name; ?>);
+addLoadEvent(<?php echo $fn_enable_name;?>);
 
 function createHiddenField() {
     var inp = document.createElement('input');
     inp.setAttribute('type', 'hidden');
-    inp.setAttribute('id', '<?php echo $field_id; ?>');
+    inp.setAttribute('id', '<?php echo $field_id;?>');
     inp.setAttribute('name', 'hashcash_value');
     inp.setAttribute('value', '-1');
-    
-    var e = document.getElementById('<?php echo HASHCASH_FORM_ID; ?>');
+
+    var e = document.getElementById('<?php echo HASHCASH_FORM_ID;?>');
 
 
     e.appendChild(inp); //PB ICI
 }
 
 function addVerbage(){ //PB la dedans
-    var e = getElementsByClass('<?php echo HASHCASH_FORM_CLASS; ?>');
+    var e = getElementsByClass('<?php echo HASHCASH_FORM_CLASS;?>');
     var p = document.createElement('p');
-    p.innerHTML = '<?php echo str_replace("'", "\'", hashcash_verbage()); ?>';
+    p.innerHTML = '<?php echo str_replace("'", "\'", hashcash_verbage());?>';
     e[0].appendChild(p);
 }
 
 function <?php echo $fn_enable_name;?>(){
     createHiddenField();
     //addVerbage(); //Affiche la phrase protection antispam active.
-    loadHashCashKey('<?php 
-    echo $_GET['siteurl'];
-    ?>/php/wp-hashcash-getkey.php', '<?php echo $field_id; ?>');
-}   
+    loadHashCashKey('<?php
+echo $_GET['siteurl'];
+?>/app/wp-hashcash-getkey.php', '<?php echo $field_id;?>');
+}
 
 function loadHashCashKey(fragment_url, e_id) {
     var xmlhttp=createXMLHttp();
@@ -71,16 +71,16 @@ function getElementsByClass(searchClass,node,tag) {
 function createXMLHttp() {
     if (typeof XMLHttpRequest != "undefined")
         return new XMLHttpRequest();
-    
+
     var xhrVersion = [ "MSXML2.XMLHttp.5.0", "MSXML2.XMLHttp.4.0","MSXML2.XMLHttp.3.0", "MSXML2.XMLHttp","Microsoft.XMLHttp" ];
-  
+
     for (var i = 0; i < xhrVersion.length; i++) {
     try {
             var xhrObj = new ActiveXObject(xhrVersion[i]);
       return xhrObj;
     } catch (e) { }
   }
-  
+
   return null;
 }
 

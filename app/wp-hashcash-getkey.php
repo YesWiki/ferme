@@ -1,6 +1,6 @@
 <?php
 
-require_once(realpath(dirname(__FILE__) . '/') . '/secret/wp-hashcash.lib');
+require_once realpath(dirname(__FILE__) . '/') . '/secret/wp-hashcash.php';
 
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -9,7 +9,7 @@ header("Cache-Control: post-check=0, pre-check=0", false);
 $expired = array();
 
 $function_name = hashcash_random_string(rand(6, 18));
-$expired [] = $function_name;
+$expired[] = $function_name;
 
 $js = "function $function_name (){";
 
@@ -19,37 +19,37 @@ switch ($type) {
     Time guarantee:  100 iterations or less */
     case 0:
         $eax = hashcash_random_string(rand(8, 10), $expired);
-        $expired [] = $eax;
-        
+        $expired[] = $eax;
+
         $val = hashcash_field_value();
         $inc = rand($val / 100, $val - 1);
         $n = floor($val / $inc);
         $r = $val % $inc;
-        
+
         $js .= "var $eax = $inc; ";
         for ($i = 0; $i < $n - 1; $i++) {
             $js .= "$eax += $inc; ";
         }
-    
+
         $js .= "$eax += $r; ";
         $js .= "return $eax; ";
         break;
-    
+
     /* Conversion from binary:
     Time guarantee:  log(n) iterations or less */
     case 1:
         $eax = hashcash_random_string(rand(8, 10), $expired);
-        $expired [] = $eax;
-        
+        $expired[] = $eax;
+
         $ebx = hashcash_random_string(rand(8, 10), $expired);
-        $expired [] = $ebx;
-        
+        $expired[] = $ebx;
+
         $ecx = hashcash_random_string(rand(8, 10), $expired);
-        $expired [] = $ecx;
-        
+        $expired[] = $ecx;
+
         $val = hashcash_field_value();
         $binval = strrev(base_convert($val, 10, 2));
-            $js .= "var $eax = \"$binval\"; ";
+        $js .= "var $eax = \"$binval\"; ";
         $js .= "var $ebx = 0; ";
         $js .= "var $ecx = 0; ";
         $js .= "while($ecx < $eax.length){ ";
@@ -59,9 +59,9 @@ switch ($type) {
         $js .= "$ecx++; ";
         $js .= "} ";
         $js .= "return $ebx; ";
-        
+
         break;
-    
+
     /* Multiplication of square roots:
     Time guarantee:  constant time */
     case 2:
@@ -70,7 +70,7 @@ switch ($type) {
         $r = $val - ($sqrt * $sqrt);
         $js .= "return $sqrt * $sqrt + $r; ";
         break;
-    
+
     /* Sum of random numbers to the final value:
     Time guarantee:  log(n) expected value */
     case 3:
@@ -82,7 +82,7 @@ switch ($type) {
             if ($i++ > 0) {
                 $js .= "+";
             }
-            
+
             $temp = rand(1, $val);
             $val -= $temp;
             $js .= $temp;
@@ -91,23 +91,23 @@ switch ($type) {
         $js .= ";";
         break;
 }
-    
+
 $js .= "} $function_name ();";
 
 // pack bytes
 function strToLongs($s)
 {
     $l = array();
-    
+
     // pad $s to some multiple of 4
     $s = preg_split('//', $s, -1, PREG_SPLIT_NO_EMPTY);
-    
+
     while (count($s) % 4 != 0) {
-        $s [] = ' ';
+        $s[] = ' ';
     }
 
-    for ($i = 0; $i < ceil(count($s)/4); $i++) {
-        $l[$i] = ord($s[$i*4]) + (ord($s[$i*4+1]) << 8) + (ord($s[$i*4+2]) << 16) + (ord($s[$i*4+3]) << 24);
+    for ($i = 0; $i < ceil(count($s) / 4); $i++) {
+        $l[$i] = ord($s[$i * 4]) + (ord($s[$i * 4 + 1]) << 8) + (ord($s[$i * 4 + 2]) << 16) + (ord($s[$i * 4 + 3]) << 24);
     }
 
     return $l;
@@ -123,23 +123,23 @@ for ($i = 0; $i < count($js); $i++) {
 
 // libs function encapsulation
 $libs_name = hashcash_random_string(rand(6, 18), $expired);
-$expired [] = $libs_name;
+$expired[] = $libs_name;
 
 $libs = "function $libs_name(){";
 
 // write bytes to javascript, xor with key
 $data_name = hashcash_random_string(rand(6, 18), $expired);
-$expired [] = $data_name;
+$expired[] = $data_name;
 
 $libs .= "var $data_name = new Array(" . count($js) . "); ";
 for ($i = 0; $i < count($js); $i++) {
-    $libs .= $data_name . '[' . $i . '] = ' . $js[$i] . ' ^ ' . $key .'; ';
+    $libs .= $data_name . '[' . $i . '] = ' . $js[$i] . ' ^ ' . $key . '; ';
 }
 
 // convert bytes back to string
 $libs .= " var a = new Array($data_name.length); ";
 $libs .= "for (var i=0; i<" . $data_name . ".length; i++) { ";
-$libs .= 'a[i] = String.fromCharCode(' . $data_name .'[i] & 0xFF, ' . $data_name . '[i]>>>8 & 0xFF, ';
+$libs .= 'a[i] = String.fromCharCode(' . $data_name . '[i] & 0xFF, ' . $data_name . '[i]>>>8 & 0xFF, ';
 $libs .= $data_name . '[i]>>>16 & 0xFF, ' . $data_name . '[i]>>>24 & 0xFF); } ';
 $libs .= "return eval(a.join('')); ";
 

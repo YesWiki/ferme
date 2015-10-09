@@ -1,23 +1,44 @@
 <?php
+namespace Ferme;
+
+$loader = require __DIR__ . '/vendor/autoload.php';
 
 session_start();
 
-include("php/ferme.class.php");
-include("php/view.class.php");
-
-$ferme = new Ferme\Ferme("ferme.config.php");
-
-$view = new Ferme\View($ferme);
-
-
-//Pour éviter les problèmes de chemin : 
-$ferme->config['ferme_path'] = "wikis/";
-$ferme->config['admin_path'] = "admin/archives/";
+$ferme = new Ferme("ferme.config.php");
+$view = new View($ferme);
 
 $ferme->refresh(false); //refesh without calculating size (db & files)
 
-//Alert test
-if (isset($_POST['action']) && isset($_POST['wikiName'])) {
+if (isset($_POST['action'])
+    && isset($_POST['wikiName'])
+    && isset($_POST['mail'])
+) {
+
+    //HashCash protection
+    require_once 'app/secret/wp-hashcash.php';
+    if (!isset($_POST["hashcash_value"])
+        || hashcash_field_value() != $_POST["hashcash_value"]) {
+        $view->addAlert(
+            "La plantation de wiki est une activité délicate qui ne doit pas"
+            . " être effectuée par un robot. (Pensez à activer JavaScript)"
+        );
+        header("Location: " . $ferme->getURL());
+        exit();
+    }
+
+    //Une série de tests sur les données.
+    if ($ferme->isValidWikiName($_POST['wikiName'])) {
+        $view->addAlert("Ce nom wiki n'est pas valide.");
+        header("Location: " . $ferme->getURL());
+        exit();
+    }
+
+    if (!filter_var($_POST['mail'], FILTER_VALIDATE_EMAIL)) {
+        $view->addAlert("Cet email n'est pas valide.");
+        header("Location: " . $ferme->getURL());
+        exit();
+    }
 
     try {
         $wiki_path = $ferme->add(
@@ -25,35 +46,19 @@ if (isset($_POST['action']) && isset($_POST['wikiName'])) {
             $_POST['mail'],
             $_POST['description']
         );
-    } catch(Exception $e) {
+    } catch (Exception $e) {
         $view->addAlert($e->getMessage());
-        $view->show();
-        die();
+        header("Location: " . $ferme->getAdminURL());
+        exit;
     }
 
-    /*************************************************************************
-     * Send email.
-     ************************************************************************/
-    mail($_POST["mail"], 
-    "Création du wiki ".$_POST["wikiName"], 
-    "Bonjour, 
+    $view->addAlert(
+        '<a href="' . $ferme->config["base_url"]
+        . $wiki_path . '">Visiter le nouveau wiki</a>'
+    );
 
-Votre wiki : ".$_POST["wikiName"]." a été semé avec succès. 
-Vous le trouverez à l'adresse : ".$ferme->config["base_url"].$wiki_path."
-
-Pour toute information complémentaire n'hésitez pas à contacter :
-- christian.resche@supagro.inra.fr
-- florestan.bredow@supagro.inra.fr
-
-Cordialement.",
-        'From: no-reply@cdrflorac.fr' . "\r\n" );
-        /********************************************************************/
-
-
-    $view->addAlert('<a href="'.$ferme->config["base_url"]
-                    .$wiki_path.'">Visiter le nouveau wiki</a>');
     // Reload page to clean form.
-    header("Location: ".$ferme->getURL());
+    header("Location: " . $ferme->getURL());
     exit;
 }
 

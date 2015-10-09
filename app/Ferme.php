@@ -3,9 +3,6 @@ namespace Ferme;
 
 use Exception;
 
-include_once 'wiki.class.php';
-include_once 'archive.class.php';
-
 class Ferme
 {
     public $config; //TODO : Must be private
@@ -56,7 +53,7 @@ class Ferme
     public function refreshArchives()
     {
         $this->archives = array();
-        $archives_path = $this->config['admin_path'];
+        $archives_path = $this->config['archives_path'];
 
         if ($handle = opendir($archives_path)) {
             while (false !== ($entry = readdir($handle))) {
@@ -131,9 +128,17 @@ class Ferme
      ************************************************************************/
     public function save($name)
     {
-        $this->wikis[$name]->save();
+        try {
+            $this->wikis[$name]->save($this->config['archives_path']);
+        } catch (Exception $e) {
+
+        }
+
     }
 
+    /*************************************************************************
+     * Make wiki backup and get back url to download it
+     ************************************************************************/
     public function restore($name)
     {
         $this->archives[$name]->restore();
@@ -183,7 +188,7 @@ class Ferme
      ************************************************************************/
     public function getAdminURL()
     {
-        return $this->config['base_url'] . "admin/";
+        return $this->config['base_url'] . "admin.php";
     }
 
     /*************************************************************************
@@ -206,7 +211,7 @@ class Ferme
     /*************************************************************************
      * Check wikiname
      ************************************************************************/
-    private function isValidWikiName($name)
+    public function isValidWikiName($name)
     {
         if (preg_match("~^[a-zA-Z0-9]{1,10}$~i", $name)) {
             return false;
@@ -219,30 +224,6 @@ class Ferme
      * **********************************************************************/
     public function add($wikiName, $email, $description)
     {
-        //HashCash protection
-        /********************************************************************/
-        // TODO : Move it to controller !
-        require_once 'php/secret/wp-hashcash.lib';
-        if (!isset($_POST["hashcash_value"])
-            || hashcash_field_value() != $_POST["hashcash_value"]) {
-            throw new \Exception(
-                "La plantation de wiki est une activité
-                délicate qui ne doit pas être effectuée par un robot.
-                (Pensez à activer JavaScript)",
-                1
-            );
-        }
-
-        //Une série de tests sur les données.
-        if ($this->isValidWikiName($wikiName)) {
-            throw new \Exception("Ce nom wiki n'est pas valide.", 1);
-            exit();
-        }
-
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            throw new \Exception("Cet email n'est pas valide.", 1);
-            exit();
-        }
 
         $description = $this->cleanEntry($description);
 

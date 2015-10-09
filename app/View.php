@@ -1,7 +1,7 @@
 <?php
 namespace Ferme;
 
-include_once 'csv.class.php';
+use Ferme\CSV;
 
 /**
  * Classe wiki
@@ -119,7 +119,7 @@ class View
         //TODO : Rendre ce code "portable"
         echo '<!--Protection HashCash -->
         <script type="text/javascript"
-                src="' . $this->ferme->config['base_url'] . 'php/wp-hashcash-js.php?siteurl=' . $this->ferme->config['base_url'] . '">
+                src="' . $this->ferme->config['base_url'] . 'app/wp-hashcash-js.php?siteurl=' . $this->ferme->config['base_url'] . '">
         </script>';
     }
 

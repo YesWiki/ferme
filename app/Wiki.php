@@ -98,8 +98,8 @@ class Wiki
             exit();
         }
         //Supprimer les fichiers
-        $output = shell_exec("rm -r ../wikis/" . $this->config['wakka_name']);
-        if (is_dir("../wikis/" . $this->config['wakka_name'])) {
+        $output = shell_exec("rm -r wikis/" . $this->config['wakka_name']);
+        if (is_dir("wikis/" . $this->config['wakka_name'])) {
             throw new Exception(
                 "Impossible de supprimer les fichiers du wiki",
                 1
@@ -111,60 +111,20 @@ class Wiki
     /**
      * Crée une archive de ce wiki.
      */
-    public function save()
+    public function save($archives_path)
     {
-        $name = $this->config['wakka_name'];
-        $filename = "archives/" . $name . date("YmdHi") . ".tgz";
+        $wiki_name = $this->config['wakka_name'];
+        $wiki_path = $this->path;
 
-        //Création du repertoir temporaire
-        $output = shell_exec("mkdir tmp/" . $name);
-        if (!is_dir("tmp/" . $name)) {
-            throw new \Exception(
-                "Impossible de créer le repertoire temporaire"
-                . " (Vérifiez les droits d'acces sur admin/tmp)",
-                1
-            );
-            exit();
-        }
+        $filename = $archives_path . $wiki_name . date("YmdHi") . '.tgz';
+        $archive_name = $wiki_name . date("YmdHi") . '.tgz';
 
-        //Récupération de la base de donnée
-        $this->dumpDB("tmp/" . $name . "/" . $name . ".sql");
+        $this->dumpDB('/tmp' . $wiki_name . ".sql");
 
-        //Ajout des fichiers du wiki
-        $output = shell_exec("cp -R ../wikis/" . $name . " tmp/" . $name . "/");
-        if (!is_dir("tmp/" . $name . "/" . $name)) {
-            throw new \Exception(
-                "Impossible de copier les fichiers du wiki",
-                1
-            );
-            exit();
-        }
+        $cmd = 'tar -czf ' . $filename . ' -C wikis/ ' . $wiki_name . '/ -C  /tmp/ ' . $wiki_name . '.sql';
+        shell_exec($cmd);
 
-        //Compression des données
-        $output = shell_exec(
-            "cd tmp && tar -cvzf ../"
-            . $filename . " " . $name . " && cd -"
-        );
-
-        if (!is_file($filename)) {
-            throw new Exception(
-                "Impossible de créer le fichier de sauvegarde"
-                . " (Vérifiez les droits d'acces sur admin/archives) ",
-                1
-            );
-            exit();
-        }
-
-        //Nettoyage des fichiers temporaires
-        $output = shell_exec("rm -r tmp/" . $name);
-        if (is_dir("tmp/" . $name)) {
-            throw new Exception(
-                "Impossible de supprimer les fichiers "
-                . "temporaires. Prévenez l'administrateur.",
-                1
-            );
-            exit();
-        }
+        unlink('/tmp' . $wiki_name . '.sql');
     }
 
     /**
