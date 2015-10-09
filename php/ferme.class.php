@@ -3,8 +3,8 @@ namespace Ferme;
 
 use Exception;
 
-include_once('wiki.class.php');
-include_once('archive.class.php');
+include_once 'wiki.class.php';
+include_once 'archive.class.php';
 
 class Ferme
 {
@@ -17,7 +17,7 @@ class Ferme
      * **********************************************************************/
     public function __construct($configPath)
     {
-        include($configPath);
+        include $configPath;
         $this->wikis = array();
         $this->archives = array();
     }
@@ -32,24 +32,22 @@ class Ferme
 
         if ($handle = opendir($ferme_path)) {
             while (false !== ($entry = readdir($handle))) {
-                $entry_path = $ferme_path.$entry;
-                if ($entry != "."
-                    && $entry != ".."
-                    && is_dir($entry_path)
+                $entry_path = $ferme_path . $entry;
+                if ("." != $entry && ".." != $entry && is_dir($entry_path)
                 ) {
-                    
+
                     try {
                         $this->wikis[$entry] = new Wiki($entry_path, $calsize);
                     } catch (Exception $e) {
 
-                    }//TODO : send mail to admin
+                    } //TODO : send mail to admin
                 }
             }
             closedir($handle);
         } else {
-            throw new Exception("Impossible d'accéder à ".$ferme_path, 1);
+            throw new Exception("Impossible d'accéder à " . $ferme_path, 1);
         }
-        
+
     }
 
     /*************************************************************************
@@ -62,10 +60,8 @@ class Ferme
 
         if ($handle = opendir($archives_path)) {
             while (false !== ($entry = readdir($handle))) {
-                $entry_path = $archives_path.$entry;
-                if ($entry != "."
-                    && $entry != ".."
-                    && is_file($entry_path)
+                $entry_path = $archives_path . $entry;
+                if ("." != $entry && ".." != $entry && is_file($entry_path)
                 ) {
 
                     $this->archives[$entry] = new Archive($entry);
@@ -73,7 +69,7 @@ class Ferme
             }
             closedir($handle);
         } else {
-            throw new Exception("Impossible d'accéder à ".$archives_path, 1);
+            throw new Exception("Impossible d'accéder à " . $archives_path, 1);
         }
     }
 
@@ -128,8 +124,6 @@ class Ferme
                 1
             );
         }
-        
-
     }
 
     /*************************************************************************
@@ -178,7 +172,7 @@ class Ferme
     public function deleteArchive($name)
     {
         if (!isset($this->archives[$name])) {
-            throw new Exception("L'archive ".$name." n'existe pas.", 1);
+            throw new Exception("L'archive " . $name . " n'existe pas.", 1);
         } else {
             $this->archives[$name]->delete();
         }
@@ -189,7 +183,7 @@ class Ferme
      ************************************************************************/
     public function getAdminURL()
     {
-        return $this->config['base_url']."admin/";
+        return $this->config['base_url'] . "admin/";
     }
 
     /*************************************************************************
@@ -199,7 +193,7 @@ class Ferme
     {
         return $this->config['base_url'];
     }
-    
+
     /*************************************************************************
      * Clean unwanted characters
      ************************************************************************/
@@ -208,7 +202,7 @@ class Ferme
         //TODO : éliminer les caractère indésirables
         return htmlentities($entry, ENT_QUOTES, "UTF-8");
     }
-    
+
     /*************************************************************************
      * Check wikiname
      ************************************************************************/
@@ -228,13 +222,12 @@ class Ferme
         //HashCash protection
         /********************************************************************/
         // TODO : Move it to controller !
-        require_once('php/secret/wp-hashcash.lib');
+        require_once 'php/secret/wp-hashcash.lib';
         if (!isset($_POST["hashcash_value"])
-            || $_POST["hashcash_value"] != hashcash_field_value()
-        ) {
+            || hashcash_field_value() != $_POST["hashcash_value"]) {
             throw new \Exception(
-                "La plantation de wiki est une activité 
-                délicate qui ne doit pas être effectuée par un robot. 
+                "La plantation de wiki est une activité
+                délicate qui ne doit pas être effectuée par un robot.
                 (Pensez à activer JavaScript)",
                 1
             );
@@ -256,9 +249,8 @@ class Ferme
         // End of part who must move to controller
         /********************************************************************/
 
-        $wiki_path = $this->config['ferme_path'].$wikiName."/";
-        $package_path = "packages/".$this->config['source']."/";
-
+        $wiki_path = $this->config['ferme_path'] . $wikiName . "/";
+        $package_path = "packages/" . $this->config['source'] . "/";
 
         //Vérifie si le wiki n'existe pas déjà
         if (is_dir($wiki_path) || is_file($wiki_path)) {
@@ -268,14 +260,14 @@ class Ferme
 
         $output = shell_exec(
             "cp -r --preserve=mode,ownership "
-            .$package_path."files"
-            ." ".$wiki_path
+            . $package_path . "files"
+            . " " . $wiki_path
         );
 
-        include($package_path."config.php");
-        
+        include $package_path . "config.php";
+
         foreach ($config as $file => $content) {
-            file_put_contents($wiki_path.$file, utf8_encode($content));
+            file_put_contents($wiki_path . $file, utf8_encode($content));
         }
 
         //Création de la base de donnée
@@ -284,14 +276,14 @@ class Ferme
             $this->config['db_user'],
             $this->config['db_password']
         );
-        
+
         mysql_select_db(
             $this->config['db_name'],
             $dblink
         );
-        
-        include($package_path."database.php");
-                
+
+        include $package_path . "database.php";
+
         foreach ($listQuery as $query) {
             $result = mysql_query($query, $dblink);
             if (!$result) {
@@ -310,11 +302,11 @@ class Ferme
     {
         $themesList = array();
 
-        include("packages/".$this->config['source']."/install.config.php");
+        include "packages/" . $this->config['source'] . "/install.config.php";
 
         foreach ($config['themes'] as $key => $value) {
             $themesList[] = array(
-                'name'   => $key,
+                'name' => $key,
                 'thumb' => $value['thumb'],
             );
         }

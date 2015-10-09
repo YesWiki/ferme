@@ -1,28 +1,38 @@
 <?php
 namespace Ferme;
 
-use \PDO;
 use \Exception;
+use \PDO;
 
+/**
+ * Classe wiki
+ *
+ * gère les opération sur un wiki
+ * @package Ferme
+ * @author  Florestan Bredow <florestan.bredow@supagro.fr>
+ * @version 0.1.1 (Git: $Id$)
+ * @copyright 2013 Florestan Bredow
+ */
 class Wiki
 {
     private $path;
     private $config;
     private $infos;
 
-    /*************************************************************************
-     * Constructor
-     ************************************************************************/
+    /**
+     * Constructeur
+     */
     public function __construct($path, $calsize = true)
     {
         $this->path = $path;
 
         //Charge les infos sur le wiki
-        $file_path = $path."/wakka.infos.php";
+        $file_path = $path . "/wakka.infos.php";
         if (file_exists($file_path)) {
-            include($file_path);
+
+            include $file_path;
         } else {
-            $wakkaInfos = array (
+            $wakkaInfos = array(
                 'mail' => 'nomail',
                 'description' => 'Pas de description.',
                 'date' => 0,
@@ -31,12 +41,12 @@ class Wiki
         $this->infos = $wakkaInfos;
 
         //Charge la configuration du wiki
-        $file_path = $path."/wakka.config.php";
+        $file_path = $path . "/wakka.config.php";
         if (!file_exists($file_path)) {
-            throw new Exception("Wiki mal installé (".$path.").", 1);
+            throw new Exception("Wiki mal installé (" . $path . ").", 1);
         }
-            
-        include($file_path);
+
+        include $file_path;
         $this->config = $wakkaConfig;
 
         $this->infos['name'] = $this->config['wakka_name'];
@@ -48,17 +58,20 @@ class Wiki
         }
     }
 
-    /*************************************************************************
-     * Get back wiki informations
-     ************************************************************************/
+    /**
+     * Renvois les informations sur le wiki.
+     *
+     * @return mixed
+     */
     public function getInfos()
     {
         return $this->infos;
     }
 
-    /*************************************************************************
-     * delete this wiki
-     ************************************************************************/
+    /**
+     * Supprime ce wiki.
+     * @todo : trouver une solution pour éviter le shell
+     */
     public function delete()
     {
         //Supprime la base de donnée
@@ -66,7 +79,7 @@ class Wiki
         $tables = $this->getDBTablesList($db);
 
         foreach ($tables as $table_name) {
-            $sth = $db->prepare("DROP TABLE IF EXISTS ".$table_name);
+            $sth = $db->prepare("DROP TABLE IF EXISTS " . $table_name);
             if (!$sth->execute()) {
                 throw new Exception(
                     "Erreur lors de la suppression de la base de donnée",
@@ -84,11 +97,9 @@ class Wiki
             );
             exit();
         }
-        
         //Supprimer les fichiers
-        // TODO : Trouver une solution efficace sans passer par le shell
-        $output = shell_exec("rm -r ../wikis/".$this->config['wakka_name']);
-        if (is_dir("../wikis/".$this->config['wakka_name'])) {
+        $output = shell_exec("rm -r ../wikis/" . $this->config['wakka_name']);
+        if (is_dir("../wikis/" . $this->config['wakka_name'])) {
             throw new Exception(
                 "Impossible de supprimer les fichiers du wiki",
                 1
@@ -97,94 +108,105 @@ class Wiki
         }
     }
 
-    /*************************************************************************
-     * make an archive of this wiki
-     ************************************************************************/
+    /**
+     * Crée une archive de ce wiki.
+     */
     public function save()
     {
         $name = $this->config['wakka_name'];
-        $filename = "archives/".$name.date("YmdHi").".tgz";
+        $filename = "archives/" . $name . date("YmdHi") . ".tgz";
 
         //Création du repertoir temporaire
-        $output = shell_exec("mkdir tmp/".$name);
-        if (!is_dir("tmp/".$name)) {
+        $output = shell_exec("mkdir tmp/" . $name);
+        if (!is_dir("tmp/" . $name)) {
             throw new \Exception(
                 "Impossible de créer le repertoire temporaire"
-                ." (Vérifiez les droits d'acces sur admin/tmp)",
+                . " (Vérifiez les droits d'acces sur admin/tmp)",
                 1
             );
             exit();
         }
 
         //Récupération de la base de donnée
-        $this->dumpDB("tmp/".$name."/".$name.".sql");
-        
+        $this->dumpDB("tmp/" . $name . "/" . $name . ".sql");
+
         //Ajout des fichiers du wiki
-        $output = shell_exec("cp -R ../wikis/".$name." tmp/".$name."/");
-        if (!is_dir("tmp/".$name."/".$name)) {
-            throw new \Exception("Impossible de copier les fichiers du wiki", 1);
+        $output = shell_exec("cp -R ../wikis/" . $name . " tmp/" . $name . "/");
+        if (!is_dir("tmp/" . $name . "/" . $name)) {
+            throw new \Exception(
+                "Impossible de copier les fichiers du wiki",
+                1
+            );
             exit();
         }
-        
+
         //Compression des données
         $output = shell_exec(
             "cd tmp && tar -cvzf ../"
-            .$filename." ".$name." && cd -"
+            . $filename . " " . $name . " && cd -"
         );
 
         if (!is_file($filename)) {
             throw new Exception(
                 "Impossible de créer le fichier de sauvegarde"
-                ." (Vérifiez les droits d'acces sur admin/archives) ",
+                . " (Vérifiez les droits d'acces sur admin/archives) ",
                 1
             );
             exit();
         }
-        
+
         //Nettoyage des fichiers temporaires
-        $output = shell_exec("rm -r tmp/".$name);
-        if (is_dir("tmp/".$name)) {
+        $output = shell_exec("rm -r tmp/" . $name);
+        if (is_dir("tmp/" . $name)) {
             throw new Exception(
                 "Impossible de supprimer les fichiers "
-                ."temporaires. Prévenez l'administrateur.",
+                . "temporaires. Prévenez l'administrateur.",
                 1
             );
             exit();
         }
     }
 
-    /*************************************************************************
-    * SQL Dump of database (this wiki only)
-    *************************************************************************/
-    public function dumpDB($file)
+    /**
+     * Dump la base de donnée
+     * @todo : Trouver une solution PHP only
+     *
+     * @param $file
+     * @return mixed
+     */
+    private function dumpDB($file)
     {
-        $mysqli = $this->connectDB();
-        $tables = $this->getDBTablesList($mysqli);
+        $db = $this->connectDB();
+        $tables = $this->getDBTablesList($db);
 
         $str_list_table = "";
-        while ($table = mysqli_fetch_array($tables)) {
-            $str_list_table .= $table[0]." ";
+        foreach ($tables as $table_name) {
+            $str_list_table .= $table_name . " ";
         }
 
         $output = shell_exec(
-            "mysqldump --host=".$this->config['mysql_host']
-            ." --user=".$this->config['mysql_user']
-            ." --password=".$this->config['mysql_password']
-            ." ".$this->config['mysql_database']
-            ." ".$str_list_table
-            ." > ".$file
+            "mysqldump --host=" . $this->config['mysql_host']
+            . " --user=" . $this->config['mysql_user']
+            . " --password=" . $this->config['mysql_password']
+            . " " . $this->config['mysql_database']
+            . " " . $str_list_table
+            . " > " . $file
         );
 
         return $output;
     }
 
-    /*************************************************************************
-     * Calculate database usage
-     ************************************************************************/
+    /**
+     * Calcul l'espace utilisé par la base de donnée.
+     *
+     * @return mixed
+     */
     private function calDBSize()
     {
         $db = $this->connectDB();
-        $query = "SHOW TABLE STATUS LIKE '".$this->config['table_prefix']."%';";
+        $query = "SHOW TABLE STATUS LIKE '"
+        . $this->config['table_prefix']
+        . "%';";
 
         $result = $db->query($query);
         $result->setFetchMode(PDO::FETCH_OBJ);
@@ -197,13 +219,16 @@ class Wiki
         return $size;
     }
 
-    /*************************************************************************
-     * calculate recursively disk space.
-     ************************************************************************/
+    /**
+     * Cacul l'espace disque utilisé.
+     *
+     * @param $path
+     * @return int
+     */
     private function calFilesSize($path = "")
     {
 
-        if ($path == "") {
+        if ("" == $path) {
             $path = $this->path;
         }
 
@@ -213,8 +238,8 @@ class Wiki
             $size = 0;
             $files = scandir($path);
             foreach ($files as $file) {
-                if ($file != "." && $file != "..") {
-                    $size += $this->calFilesSize($path."/".$file);
+                if ("." != $file && ".." != $file) {
+                    $size += $this->calFilesSize($path . "/" . $file);
                 }
             }
             return $size;
@@ -223,13 +248,15 @@ class Wiki
         }
     }
 
-        /*************************************************************************
-     * Connect to database
-     ************************************************************************/
+    /**
+     * Connection à la base de donnée.
+     *
+     * @return mixed
+     */
     private function connectDB()
     {
-        $dsn = 'mysql:host='.$this->config['mysql_host'].';'
-            .'dbname='.$this->config['mysql_database'].';';
+        $dsn = 'mysql:host=' . $this->config['mysql_host'] . ';'
+        . 'dbname=' . $this->config['mysql_database'] . ';';
 
         try {
             $connexion = new PDO(
@@ -241,15 +268,18 @@ class Wiki
         } catch (PDOException $e) {
             throw new \Exception(
                 "Impossible de se connecter à la base de donnée : "
-                .$e->getMessage(),
+                . $e->getMessage(),
                 1
             );
         }
     }
 
-    /*************************************************************************
-     * get table list for wiki
-     ************************************************************************/
+    /**
+     * Récupère la liste des noms de tables dans la base de donnée pour ce Wiki.
+     *
+     * @param $db
+     * @return mixed
+     */
     private function getDBTablesList($db)
     {
         // Echape le caractère '_' et '%'
@@ -259,8 +289,8 @@ class Wiki
             $search,
             $replace,
             $this->config['table_prefix']
-        ).'%';
-            
+        ) . '%';
+
         $query = "SHOW TABLES LIKE ?";
         $sth = $db->prepare($query);
         $sth->execute(array($table_prefix));
@@ -271,7 +301,7 @@ class Wiki
         foreach ($results as $value) {
             $final_results[] = $value[0];
         }
-        
+
         return $final_results;
     }
 }
