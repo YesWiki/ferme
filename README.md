@@ -5,11 +5,12 @@ Permet de gérer une ferme de wiki avec une interface ouverte permettant la cré
 Installation
 ------------
 Renomer le fichier ferme.config.sample.php en ferme.config.php et le renseigner.
-Protéger le repertoire admin avec un .htaccess
-Donner les droits en écriture sur :
+Protéger le fichier admin.php avec un .htaccess
+créer les dossiers avec les droits écritures : 
  - wikis/
- - admin/tmp/
- - admin/archives/
+ - archives/
+
+Utiliser composer avec 'composer install' pour ajouter les dependances
 
 Note
 ----
@@ -18,6 +19,10 @@ testé avec php 5.6
 
 Changelog : 
 -----------
+09/10/2015 : 
+ - Autoload PSR-4 avec composer
+ - optimisation de la fonction d'archivage
+
 07/10/2015 :
  - Interface admin : La suppression de wiki est à nouveau pleinement fonctionnel
 
