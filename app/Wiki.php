@@ -1,9 +1,6 @@
 <?php
 namespace Ferme;
 
-use \Exception;
-use \PDO;
-
 /**
  * Classe wiki
  *
@@ -17,14 +14,16 @@ class Wiki
 {
     private $path;
     private $config;
+    private $fermeConfig;
     private $infos;
 
     /**
      * Constructeur
      */
-    public function __construct($path, $calsize = true)
+    public function __construct($path, $config, $calsize = true)
     {
         $this->path = $path;
+        $this->fermeConfig = $config;
 
         //Charge les infos sur le wiki
         $file_path = $path . "/wakka.infos.php";
@@ -43,7 +42,7 @@ class Wiki
         //Charge la configuration du wiki
         $file_path = $path . "/wakka.config.php";
         if (!file_exists($file_path)) {
-            throw new Exception("Wiki mal installé (" . $path . ").", 1);
+            throw new \Exception("Wiki mal installé (" . $path . ").", 1);
         }
 
         include $file_path;
@@ -81,7 +80,7 @@ class Wiki
         foreach ($tables as $table_name) {
             $sth = $db->prepare("DROP TABLE IF EXISTS " . $table_name);
             if (!$sth->execute()) {
-                throw new Exception(
+                throw new \Exception(
                     "Erreur lors de la suppression de la base de donnée",
                     1
                 );
@@ -91,7 +90,7 @@ class Wiki
         // Vérifie si la suppression a été effective
         $tables = $this->getDBTablesList($db);
         if (!empty($tables)) {
-            throw new Exception(
+            throw new \Exception(
                 "Erreur lors de la suppression de la base de donnée",
                 1
             );
@@ -100,7 +99,7 @@ class Wiki
         //Supprimer les fichiers
         $output = shell_exec("rm -r wikis/" . $this->config['wakka_name']);
         if (is_dir("wikis/" . $this->config['wakka_name'])) {
-            throw new Exception(
+            throw new \Exception(
                 "Impossible de supprimer les fichiers du wiki",
                 1
             );
@@ -111,20 +110,25 @@ class Wiki
     /**
      * Crée une archive de ce wiki.
      */
-    public function save($archives_path)
+    public function save()
     {
         $wiki_name = $this->config['wakka_name'];
-        $wiki_path = $this->path;
+        $filename = $wiki_name . date("YmdHi") . '.tgz' . $this->fermeConfig->getParameter('archives_path');
+        $ferme_path = $this->fermeConfig->getParameter('ferme_path');
+        $tmp_path = $this->fermeConfig->getParameter('tmp_path');
 
-        $filename = $archives_path . $wiki_name . date("YmdHi") . '.tgz';
-        $archive_name = $wiki_name . date("YmdHi") . '.tgz';
+        // Dump de la base de donnée.
+        $sql_file = $this->dumpDB($tmp_path . $wiki_name . '.sql');
 
-        $this->dumpDB('/tmp' . $wiki_name . ".sql");
+        $cmd = 'tar -czf ' . $filename
+        . ' -C ' . $ferme_path . ' ' . $wiki_name
+        . ' -C  ' . realpath($tmp_path) . ' ' . $wiki_name . '.sql';
 
-        $cmd = 'tar -czf ' . $filename . ' -C wikis/ ' . $wiki_name . '/ -C  /tmp/ ' . $wiki_name . '.sql';
         shell_exec($cmd);
 
-        unlink('/tmp' . $wiki_name . '.sql');
+        unlink($sql_file);
+
+        return $archive_name;
     }
 
     /**
@@ -153,7 +157,7 @@ class Wiki
             . " > " . $file
         );
 
-        return $output;
+        return $file;
     }
 
     /**
@@ -169,7 +173,7 @@ class Wiki
         . "%';";
 
         $result = $db->query($query);
-        $result->setFetchMode(PDO::FETCH_OBJ);
+        $result->setFetchMode(\PDO::FETCH_OBJ);
 
         $size = 0;
         while ($row = $result->fetch()) {
@@ -219,13 +223,13 @@ class Wiki
         . 'dbname=' . $this->config['mysql_database'] . ';';
 
         try {
-            $connexion = new PDO(
+            $connexion = new \PDO(
                 $dsn,
                 $this->config['mysql_user'],
                 $this->config['mysql_password']
             );
             return $connexion;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             throw new \Exception(
                 "Impossible de se connecter à la base de donnée : "
                 . $e->getMessage(),

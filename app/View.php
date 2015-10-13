@@ -1,8 +1,6 @@
 <?php
 namespace Ferme;
 
-use Ferme\CSV;
-
 /**
  * Classe wiki
  *
@@ -17,6 +15,7 @@ class View
     protected $ferme;
     protected $alerts;
     protected $theme;
+    protected $config;
 
     /**
      * Constructeur
@@ -27,8 +26,9 @@ class View
     {
         $this->ferme = $ferme;
         $this->alerts = array();
+        $this->config = $ferme->getConfig();
 
-        $this->theme = $this->ferme->config['template'];
+        $this->theme = $this->config->getParameter('template');
     }
 
     /**
@@ -119,7 +119,10 @@ class View
         //TODO : Rendre ce code "portable"
         echo '<!--Protection HashCash -->
         <script type="text/javascript"
-                src="' . $this->ferme->config['base_url'] . 'app/wp-hashcash-js.php?siteurl=' . $this->ferme->config['base_url'] . '">
+                src="' . $this->config->getParameter('base_url')
+        . 'app/wp-hashcash-js.php?siteurl='
+        . $this->config->getParameter('base_url')
+        . '">
         </script>';
     }
 

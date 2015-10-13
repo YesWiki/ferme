@@ -5,7 +5,8 @@ $loader = require __DIR__ . '/vendor/autoload.php';
 
 session_start();
 
-$ferme = new Ferme("ferme.config.php");
+$config = new Configuration('ferme.config.php');
+$ferme = new Ferme($config);
 $view = new View($ferme);
 
 $ferme->refresh(false); //refesh without calculating size (db & files)
@@ -46,14 +47,14 @@ if (isset($_POST['action'])
             $_POST['mail'],
             $_POST['description']
         );
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
         $view->addAlert($e->getMessage());
-        header("Location: " . $ferme->getAdminURL());
+        header("Location: " . $ferme->getURL());
         exit;
     }
 
     $view->addAlert(
-        '<a href="' . $ferme->config["base_url"]
+        '<a href="' . $config->getParameter('base_url')
         . $wiki_path . '">Visiter le nouveau wiki</a>'
     );
 

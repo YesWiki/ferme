@@ -1,12 +1,12 @@
 <?php
-
 namespace Ferme;
 
 session_start();
 
 $loader = require __DIR__ . '/vendor/autoload.php';
 
-$ferme = new Ferme("ferme.config.php");
+$config = new Configuration('ferme.config.php');
+$ferme = new Ferme($config);
 $view = new View($ferme);
 
 $ferme->refresh();
@@ -37,7 +37,7 @@ if (isset($_GET['action'])) {
                         "Wiki " . $_GET['name']
                         . " : Sauvegardé avec succès"
                     );
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $view->addAlert($e->getMessage(), "error");
                 }
             }
@@ -53,7 +53,7 @@ if (isset($_GET['action'])) {
                         "Archive : " . $_GET['name']
                         . " : Restaurée avec succès"
                     );
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $view->addAlert($e->getMessage(), "error");
                 }
                 header("Location: " . $ferme->getAdminURL());
@@ -68,7 +68,7 @@ if (isset($_GET['action'])) {
                         "Archive : " . $_GET['name']
                         . " : Supprimé avec succès"
                     );
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $view->addAlert($e->getMessage(), "error");
                 }
                 header("Location: " . $ferme->getAdminURL());

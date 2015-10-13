@@ -51,8 +51,8 @@ class CSV
      */
     public function printFile($filename)
     {
-        header("Content-type: text/CSV");
-        header("Content-disposition: attachment; filename=" . $filename . ".csv");
+        header('Content-type: text/CSV');
+        header('Content-disposition: attachment; filename=' . $filename);
         print $this->csv;
         exit;
     }

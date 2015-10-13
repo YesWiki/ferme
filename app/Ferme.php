@@ -1,20 +1,19 @@
 <?php
 namespace Ferme;
 
-use Exception;
-
 class Ferme
 {
-    public $config; //TODO : Must be private
+
+    private $config; //TODO : Must be private
     private $wikis;
     private $archives;
 
     /*************************************************************************
      * constructor
      * **********************************************************************/
-    public function __construct($configPath)
+    public function __construct($config)
     {
-        include $configPath;
+        $this->config = $config;
         $this->wikis = array();
         $this->archives = array();
     }
@@ -25,26 +24,24 @@ class Ferme
     public function refresh($calsize = true)
     {
         $this->wikis = array();
-        $ferme_path = $this->config['ferme_path'];
+        $ferme_path = $this->config->getParameter('ferme_path');
 
         if ($handle = opendir($ferme_path)) {
             while (false !== ($entry = readdir($handle))) {
                 $entry_path = $ferme_path . $entry;
                 if ("." != $entry && ".." != $entry && is_dir($entry_path)
                 ) {
-
-                    try {
-                        $this->wikis[$entry] = new Wiki($entry_path, $calsize);
-                    } catch (Exception $e) {
-
-                    } //TODO : send mail to admin
+                    $this->wikis[$entry] = new Wiki(
+                        $entry_path,
+                        $this->config,
+                        $calsize
+                    );
                 }
             }
             closedir($handle);
         } else {
-            throw new Exception("Impossible d'accéder à " . $ferme_path, 1);
+            throw new \Exception("Impossible d'accéder à " . $ferme_path, 1);
         }
-
     }
 
     /*************************************************************************
@@ -53,20 +50,19 @@ class Ferme
     public function refreshArchives()
     {
         $this->archives = array();
-        $archives_path = $this->config['archives_path'];
+        $archives_path = $this->config->getParameter('archives_path');
 
         if ($handle = opendir($archives_path)) {
             while (false !== ($entry = readdir($handle))) {
                 $entry_path = $archives_path . $entry;
                 if ("." != $entry && ".." != $entry && is_file($entry_path)
                 ) {
-
-                    $this->archives[$entry] = new Archive($entry);
+                    $this->archives[$entry] = new Archive($entry, $this->config);
                 }
             }
             closedir($handle);
         } else {
-            throw new Exception("Impossible d'accéder à " . $archives_path, 1);
+            throw new \Exception("Impossible d'accéder à " . $archives_path, 1);
         }
     }
 
@@ -78,6 +74,11 @@ class Ferme
     public function nbArchives()
     {
         return count($this->archives);
+    }
+
+    public function getConfig()
+    {
+        return $this->config;
     }
 
     /*************************************************************************
@@ -116,7 +117,7 @@ class Ferme
         if (isset($this->wikis[$name])) {
             $this->wikis[$name]->delete();
         } else {
-            throw new Exception(
+            throw new \Exception(
                 "Impossible de supprimé le wiki $name. Il n'éxiste pas.",
                 1
             );
@@ -128,12 +129,7 @@ class Ferme
      ************************************************************************/
     public function save($name)
     {
-        try {
-            $this->wikis[$name]->save($this->config['archives_path']);
-        } catch (Exception $e) {
-
-        }
-
+        $this->wikis[$name]->save($this->config->getParameter('archives_path'));
     }
 
     /*************************************************************************
@@ -177,7 +173,7 @@ class Ferme
     public function deleteArchive($name)
     {
         if (!isset($this->archives[$name])) {
-            throw new Exception("L'archive " . $name . " n'existe pas.", 1);
+            throw new \Exception("L'archive " . $name . " n'existe pas.", 1);
         } else {
             $this->archives[$name]->delete();
         }
@@ -188,7 +184,7 @@ class Ferme
      ************************************************************************/
     public function getAdminURL()
     {
-        return $this->config['base_url'] . "admin.php";
+        return $this->config->getParameter('base_url') . "admin.php";
     }
 
     /*************************************************************************
@@ -196,7 +192,7 @@ class Ferme
      ************************************************************************/
     public function getURL()
     {
-        return $this->config['base_url'];
+        return $this->config->getParameter('base_url');
     }
 
     /*************************************************************************
@@ -229,13 +225,15 @@ class Ferme
 
         // End of part who must move to controller
         /********************************************************************/
-
-        $wiki_path = $this->config['ferme_path'] . $wikiName . "/";
-        $package_path = "packages/" . $this->config['source'] . "/";
+        $ferme_path = $this->config->getParameter('ferme_path');
+        $wiki_path = $ferme_path . $wikiName . "/";
+        $package_path = "packages/"
+        . $this->config->getParameter('source')
+        . "/";
 
         //Vérifie si le wiki n'existe pas déjà
         if (is_dir($wiki_path) || is_file($wiki_path)) {
-            throw new Exception("Ce nom de wiki est déjà utilisé", 1);
+            throw new \Exception("Ce nom de wiki est déjà utilisé", 1);
             exit();
         }
 
@@ -251,15 +249,17 @@ class Ferme
             file_put_contents($wiki_path . $file, utf8_encode($content));
         }
 
+        //TODO : PDO
+
         //Création de la base de donnée
         $dblink = mysql_connect(
-            $this->config['db_host'],
-            $this->config['db_user'],
-            $this->config['db_password']
+            $this->config->getParameter('db_host'),
+            $this->config->getParameter('db_user'),
+            $this->config->getParameter('db_password')
         );
 
         mysql_select_db(
-            $this->config['db_name'],
+            $this->config->getParameter('db_name'),
             $dblink
         );
 
@@ -283,7 +283,9 @@ class Ferme
     {
         $themesList = array();
 
-        include "packages/" . $this->config['source'] . "/install.config.php";
+        include "packages/"
+        . $this->config->getParameter('source')
+        . "/install.config.php";
 
         foreach ($config['themes'] as $key => $value) {
             $themesList[] = array(

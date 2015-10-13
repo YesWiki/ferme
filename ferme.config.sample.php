@@ -8,6 +8,7 @@ $this->config = array(
     'source' => "yeswiki-cercopitheque", //
     'ferme_path' => "./wikis/",
     'archives_path' => "./archives/",
+    'tmp_path' => '/tmp/',
     'template' => "default", // Template used
     'admin_password' => md5("password"), // Default md5 password for installed wikis
 );
