@@ -77,6 +77,8 @@ class Wiki
         $db = $this->connectDB();
         $tables = $this->getDBTablesList($db);
 
+        $ferme_path = $this->fermeConfig->getParameter('ferme_path');
+
         foreach ($tables as $table_name) {
             $sth = $db->prepare("DROP TABLE IF EXISTS " . $table_name);
             if (!$sth->execute()) {
@@ -97,8 +99,10 @@ class Wiki
             exit();
         }
         //Supprimer les fichiers
-        $output = shell_exec("rm -r wikis/" . $this->config['wakka_name']);
-        if (is_dir("wikis/" . $this->config['wakka_name'])) {
+        $output = shell_exec(
+            'rm -r ' . $ferme_path . $this->config['wakka_name']
+        );
+        if (is_dir($ferme_path . $this->config['wakka_name'])) {
             throw new \Exception(
                 "Impossible de supprimer les fichiers du wiki",
                 1
@@ -113,7 +117,8 @@ class Wiki
     public function save()
     {
         $wiki_name = $this->config['wakka_name'];
-        $filename = $wiki_name . date("YmdHi") . '.tgz' . $this->fermeConfig->getParameter('archives_path');
+        $filename = $this->fermeConfig->getParameter('archives_path')
+        . $wiki_name . date("YmdHi") . '.tgz';
         $ferme_path = $this->fermeConfig->getParameter('ferme_path');
         $tmp_path = $this->fermeConfig->getParameter('tmp_path');
 
@@ -128,7 +133,7 @@ class Wiki
 
         unlink($sql_file);
 
-        return $archive_name;
+        return $filename;
     }
 
     /**

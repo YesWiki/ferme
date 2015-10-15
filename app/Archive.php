@@ -103,12 +103,17 @@ class Archive
      ************************************************************************/
     public function delete()
     {
-        if (!unlink('archives/' . $this->filename)) {
+        if (!unlink(
+            $this->config->getParameter('archives_path') . $this->filename
+        )) {
             throw new \Exception('Impossible de supprimer l\'archive', 1);
             exit();
         }
     }
 
+    /*************************************************************************
+     * calcul le poid d'un fichier
+     ************************************************************************/
     private function calFilesSize()
     {
         return filesize(
