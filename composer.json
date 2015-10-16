@@ -1,0 +1,16 @@
+{
+    "name": "ferme",
+    "description": "Ferme de wikis",
+    "require": { },
+    "authors": [
+        {
+            "name": "Florestan Bredow",
+            "email": "florestan.bredow@supagro.fr"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+          "Ferme\\": "app"
+        }
+    }
+}
