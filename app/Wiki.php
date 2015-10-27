@@ -194,25 +194,18 @@ class Wiki
      */
     private function calFilesSize($path = "")
     {
-
         if ("" == $path) {
             $path = $this->path;
         }
 
-        if (is_file($path)) {
-            return filesize($path);
-        } elseif (is_dir($path)) {
-            $size = 0;
-            $files = scandir($path);
-            foreach ($files as $file) {
-                if ("." != $file && ".." != $file) {
-                    $size += $this->calFilesSize($path . "/" . $file);
-                }
-            }
-            return $size;
-        } else {
-            return 0;
+        if (is_file($path) or is_dir($path)) {
+            $output = shell_exec('du -s ' . $path);
+            $size = intval(explode("\t", $output)[0]);
+            // Résultat en octet
+            return $size * 1024;
         }
+
+        return 0;
     }
 
     /**

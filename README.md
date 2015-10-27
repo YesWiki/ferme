@@ -19,6 +19,10 @@ testé avec php 5.6
 
 Changelog : 
 -----------
+27/10/2015 :
+ - Utilisation de Twig pour les templates
+ - Utilisation de 'du' pour calculer l'espace occupé par les wikis afin d'optimiser la vitesse d'affichage 
+
 09/10/2015 : 
  - Autoload PSR-4 avec composer
  - optimisation de la fonction d'archivage
