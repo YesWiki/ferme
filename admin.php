@@ -9,7 +9,7 @@ $config = new Configuration('ferme.config.php');
 $ferme = new Ferme($config);
 $view = new View($ferme);
 
-$ferme->refresh();
+$ferme->refresh(true);
 $ferme->refreshArchives();
 
 if (isset($_GET['action'])) {
@@ -85,4 +85,4 @@ if (isset($_GET['action'])) {
     }
 }
 
-$view->show("admin");
+$view->show("admin.html");

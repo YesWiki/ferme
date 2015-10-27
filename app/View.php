@@ -10,12 +10,15 @@ namespace Ferme;
  * @version 0.1.1 (Git: $Id$)
  * @copyright 2013 Florestan Bredow
  */
+
 class View
 {
     protected $ferme;
     protected $alerts;
     protected $theme;
     protected $config;
+    protected $twig_loader;
+    protected $twig;
 
     /**
      * Constructeur
@@ -27,8 +30,11 @@ class View
         $this->ferme = $ferme;
         $this->alerts = array();
         $this->config = $ferme->getConfig();
-
         $this->theme = $this->config->getParameter('template');
+        $this->twig_loader = new \Twig_Loader_Filesystem(
+            'themes/' . $this->theme
+        );
+        $this->twig = new \Twig_Environment($this->twig_loader);
     }
 
     /**
@@ -37,78 +43,82 @@ class View
      *
      * @param $template
      */
-    public function show($template = "")
+    public function show($template = 'default.html')
     {
-        if ("" == $template) {
-            $template = $this->theme;
-        } else {
-            $this->theme = $template;
+        $wiki_name = '';
+        $description = '';
+        $mail = '';
+
+        if (isset($_POST['wikiName'])) {
+            $wiki_name = $_POST['wikiName'];
         }
 
-        $squelette_path = "themes/" . $template . "/squelette/" . $template . ".phtml";
-
-        if (!is_file($squelette_path)) {
-            die("Template introuvable. (" . $squelette_path . ").");
+        if (isset($_POST['description'])) {
+            $wiki_name = $_POST['description'];
         }
-        include $squelette_path;
+
+        if (isset($_POST['mail'])) {
+            $wiki_name = $_POST['mail'];
+        }
+
+        echo $this->twig->render(
+            $template,
+            array(
+                'list_css' => $this->getCSS(),
+                'list_alerts' => $this->getAlerts(),
+                'list_js' => $this->getJS(),
+                'list_themes' => $this->ferme->getThemesList(),
+                'list_archives' => $this->getArchives(),
+                'list_wikis' => $this->getWikis(),
+                'wiki_name' => $wiki_name,
+                'mail' => $mail,
+                'description' => $description,
+                'hashcash_url' => $this->HashCash(),
+                'go' => 'here',
+            )
+        );
     }
 
     /**
-     * Affiche la liste des Themes selon le template fournis
-     *
-     * @param $template
-     */
-    private function printThemes($template = "theme.phtml")
-    {
-        $themesList = $this->ferme->getThemesList();
-
-        $i = 0;
-        foreach ($themesList as $theme) {
-            include "themes/" . $this->theme . "/squelette/" . $template;
-        }
-        unset($themesList);
-    }
-
-    /**
-     * Affiche la liste des Wikis selon le template fournis
+     * Retourne un tableau avec la liste des wikis
      *
      * @param $template
      * @return null
      */
-    private function printWikis($template = "wiki.phtml")
+    private function getWikis()
     {
-        if ($this->ferme->nbWikis() <= 0) {
-            return;
-        }
+        $list_wikis = array();
 
         $this->ferme->resetIndex();
         do {
             $wiki = $this->ferme->getCur();
-            $infos = $wiki->getInfos();
-            include "themes/" . $this->theme . "/squelette/" . $template;
-
+            $list_wikis[] = $wiki->getInfos();
         } while ($this->ferme->getNext());
+
+        return $list_wikis;
     }
 
     /**
-     * Affiche la liste des Archives selon le template fournis
+     * Retourne un tableau avec la liste des archives
      *
      * @param $template
      * @return null
      */
-    private function printArchives($template = "archive.phtml")
+    private function getArchives()
     {
-        if ($this->ferme->nbArchives() <= 0) {
-            return;
+        $list_archives = array();
+
+        // Si c'est la page principale les archives ne sont pas prises en
+        // compte
+        if ($this->ferme->nbArchives() != 0) {
+            $this->ferme->resetIndexArchives();
+            do {
+                $archive = $this->ferme->getCurArchive();
+                $list_archives[] = $archive->getInfos();
+            } while ($this->ferme->getNextArchive());
         }
 
-        $this->ferme->resetIndexArchives();
-        do {
-            $archive = $this->ferme->getCurArchive();
-            $infos = $archive->getInfos();
-            include "themes/" . $this->theme . "/squelette/" . $template;
-
-        } while ($this->ferme->getNextArchive());
+        return $list_archives;
     }
 
     /**
@@ -116,32 +126,12 @@ class View
      */
     private function hashCash()
     {
-        //TODO : Rendre ce code "portable"
-        echo '<!--Protection HashCash -->
-        <script type="text/javascript"
-                src="' . $this->config->getParameter('base_url')
+        $hashcash_url =
+        $this->config->getParameter('base_url')
         . 'app/wp-hashcash-js.php?siteurl='
-        . $this->config->getParameter('base_url')
-        . '">
-        </script>';
-    }
+        . $this->config->getParameter('base_url');
 
-    /**
-     * Affiche la liste des alertes selon le template fournis.
-     *
-     * @param $template
-     */
-    public function printAlerts($template = "alert.phtml")
-    {
-        //Affichage des alertes
-        if (isset($_SESSION['alerts'])) {
-            $i = 0;
-            foreach ($_SESSION['alerts'] as $key => $alert) {
-                $id = "alert" . $key;
-                include "themes/" . $this->theme . "/squelette/" . $template;
-            }
-        }
-        unset($_SESSION['alerts']); //pour éviter qu'elle ne s'accumulent.
+        return $hashcash_url;
     }
 
     /**
@@ -178,23 +168,51 @@ class View
     /**
      * Ajoute les CSS du themes
      */
-    public function printCSS()
+    public function getCSS()
     {
         $css_path = "themes/" . $this->theme . "/css/";
+        $list_css = array();
         foreach ($this->getFiles($css_path) as $file) {
-            print("<link href=\"" . $file . "\" rel=\"stylesheet\">\n");
+            $list_css[] = $file;
         }
+        return $list_css;
     }
 
     /**
      * Ajoute les JavaScript du themes
      */
-    public function printJS()
+    public function getJS()
     {
         $js_path = "themes/" . $this->theme . "/js/";
+        $list_js = array();
         foreach ($this->getFiles($js_path) as $file) {
-            print("<script src=\"" . $file . "\"></script>\n");
+            $list_js[] = $file;
         }
+        return $list_js;
+    }
+
+    /**
+     * Affiche la liste des alertes selon le template fournis.
+     *
+     * @param $template
+     */
+    public function getAlerts()
+    {
+        $list_alerts = array();
+
+        //Affichage des alertes
+        if (isset($_SESSION['alerts'])) {
+            $i = 0;
+            foreach ($_SESSION['alerts'] as $key => $alert) {
+                $list_alerts[] = array(
+                    'id' => "alert" . $key,
+                    'text' => $alert['text'],
+                );
+            }
+        }
+        unset($_SESSION['alerts']); //pour éviter qu'elle ne s'accumulent.
+
+        return $list_alerts;
     }
 
     /**
@@ -229,7 +247,7 @@ class View
 
     /**
      * Liste des fichiers dans un repertoire
-     * @todo Filtrer les résultat par extension
+     * @todo Filtrer les résultat par extension (css ou js)
      *
      * @param $path
      * @return mixed

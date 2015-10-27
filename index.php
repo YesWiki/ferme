@@ -15,7 +15,6 @@ if (isset($_POST['action'])
     && isset($_POST['wikiName'])
     && isset($_POST['mail'])
 ) {
-
     //HashCash protection
     require_once 'app/secret/wp-hashcash.php';
     if (!isset($_POST["hashcash_value"])

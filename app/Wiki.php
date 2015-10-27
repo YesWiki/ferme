@@ -28,7 +28,6 @@ class Wiki
         //Charge les infos sur le wiki
         $file_path = $path . "/wakka.infos.php";
         if (file_exists($file_path)) {
-
             include $file_path;
         } else {
             $wakkaInfos = array(
@@ -152,7 +151,6 @@ class Wiki
         foreach ($tables as $table_name) {
             $str_list_table .= $table_name . " ";
         }
-
         $output = shell_exec(
             "mysqldump --host=" . $this->config['mysql_host']
             . " --user=" . $this->config['mysql_user']
@@ -175,7 +173,7 @@ class Wiki
         $db = $this->connectDB();
         $query = "SHOW TABLE STATUS LIKE '"
         . $this->config['table_prefix']
-        . "%';";
+            . "%';";
 
         $result = $db->query($query);
         $result->setFetchMode(\PDO::FETCH_OBJ);

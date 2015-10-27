@@ -1,7 +1,9 @@
 {
     "name": "ferme",
     "description": "Ferme de wikis",
-    "require": { },
+    "require": {
+        "twig/twig": "~1.0"
+    },
     "authors": [
         {
             "name": "Florestan Bredow",
