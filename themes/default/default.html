@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html class="no-js" lang="fr">
+
+<head>
+  <title>Ferme de Wiki</title>
+
+  <meta charset="utf-8">
+  <meta name="description" content="Ferme de Wikis">
+  <meta name="author" content="Florestan Bredow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  {% for css in list_css %}
+  <link href="{{ css }}" rel="stylesheet" />
+  {% endfor %}
+</head>
+<body>
+
+{% if logged %}
+connecté : {{ username }}
+<a href="?action=logout">Deconnexion</a>
+{% else %}
+<form method="post" action="?view=admin&action=login">
+<label for="username">Utilisateur</label>
+  <input type="text" name="username">
+<label for="password">Mot de passe</label>
+  <input type="password" name="password">
+  <input type="submit" value="Connexion">
+</form>
+{% endif %}
+
+
+<div class="navbar navbar-fixed-top navbar-inverse">
+  <div class="navbar-inner">
+    <div class="container">
+      <span class="brand">Ferme de Wikis</span>
+      <div class="nav-collapse collapse">
+        <ul class="nav">
+          <li><a href="#">Nouveau Wiki</a></li>
+          <li><a href="#liste">Liste des Wikis</a></li>
+        </ul>
+      </div>
+      <div class="nav-collapse collapse pull-right">
+        <ul class="nav">
+          <li>
+            <a href="?view=admin">
+              <i class="icon-lock"></i> Administration
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  {% for alert in list_alerts %}
+  <div id="{{ alert['id'] }}" class="alert" onClick="hide(this)">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    {{ alert['text']|raw }}
+  </div>
+  {% endfor %}
+
+  <h1 class="title">Nouveau Wiki</h1>
+  <div id="nouveau" class="row">
+    <div class="span6">
+    
+      <!-- Attention il ne faut pas changer class et id du formulaire 
+      sinon hashcash ne fonctionne plus.-->    
+
+      <form id="newWiki" 
+          class="newForm well well-small form-horizontal" 
+          action="?action=addWiki"
+          method="post">
+
+        <div class="control-group">
+          <label class="control-label" for="wikiName">
+            Nom du wiki : 
+          </label>
+
+          <div class="controls">
+            <input  type="text" name="wikiName" 
+                placeholder="10 caractères max" 
+                required="required" 
+                maxlength="10"
+                {% if mail %}
+                  value = "{{ wiki_name }}" 
+                {% endif %} />
+            <img class="tooltip_aide" 
+              title="10 caractères maximum, uniquement des alpha numériques." 
+              src="themes/default/img/aide.png" 
+              width="16" 
+              height="16" 
+              alt="image aide" />
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="mail">
+            Votre adresse email : 
+          </label>
+
+          <div class="controls">
+            <input  type="email" name="mail" 
+                placeholder="Votre adresse mail" 
+                required="required"
+                {% if mail %}
+                  value = "{{ mail }}" 
+                {% endif %}
+            />
+            <img  class="tooltip_aide" 
+                  title="Saisissez votre adresse, nous l'utiliserons pour vous contacter." 
+                  src="themes/default/img/aide.png" 
+                  width="16" 
+                  height="16" 
+                  alt="image aide" />
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="description">
+            Description du Wiki : 
+          </label>
+        
+          <div class="controls">
+            <textarea name="description" 
+                  placeholder="Une courte description de votre projet (140 caractères max)." 
+                  maxlength="140" >{{ description }}</textarea> 
+            <img    class="tooltip_aide" 
+                title="Décrivez rapidement le projet auquel est rattaché ce wiki. (140 caractères maximum)" 
+                src="themes/default/img/aide.png" 
+                width="16" 
+                height="16" 
+                alt="image aide" />
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="theme">
+            Thème : 
+          </label>
+        
+          <div class="controls">
+            <select id="theme" name="theme" onChange="changeThumb()">
+              {% for theme in list_themes %}
+                <option thumb="{{ theme['thumb'] }}" >{{ theme['name'] }}</option>
+              {% endfor %}
+            </select> 
+            <img class="tooltip_aide" 
+               title="Choisissez le thème de votre nouveau Wiki"
+               src="themes/default/img/aide.png" 
+               width="16" 
+               height="16" 
+               alt="image aide" />
+          </div>
+        </div>
+
+        <div class="control-group">
+          <div class="controls">
+            <!--Protection HashCash -->
+            <script type="text/javascript" src="{{ hashcash_url }}"></script>
+            <script type="text/javascript">
+              document.write('<input type="submit" name="action" class="btn" value="Semer !" id="submit"/>');
+            </script>
+            <noscript>Formulaire protégé via JavaScript, <br />Merci de l'activer.</noscript>
+          </div>
+        </div>
+      </form>
+    </div>
+
+
+    <div id="thumbdiv" class="span6">
+      <img id="thumb" class="img-polaroid" src="" />
+    </div>
+  </div> <!-- Fin row-->
+
+
+  <h1 class="title">Liste des Wikis</h1>
+
+  <div id="liste" class="row">
+    <table id="listeWikis" 
+      class="wiki-list table table-hover table-condensed 
+           span12 tablesorter">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Description</th>
+          <th>Date de création</th>
+        </tr>
+      </thead>
+      <tbody> 
+        {% for wiki in list_wikis %}
+        <tr class="clickable" onclick='document.location.href="{{ wiki['url'] }}"'>    
+          <td class="span2"><strong>{{ wiki['name'] }}</strong></td>
+          <td class="span8">{{ wiki['description'] }}</td>
+          <td class="span2">
+            {{ wiki['date']|date("Y-m-d H:i", timezone="Europe/Paris") }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div> <!--Fin container -->
+
+  <script src="http://code.jquery.com/jquery.js"></script>
+  {% for js in list_js %}
+  <script src="{{ js }}"></script>
+  {% endfor %}  
+  <script type="text/JavaScript">
+    function changeThumb(){
+      var thumb = document
+            .getElementById('theme')
+            .options[document
+            .getElementById('theme')
+            .selectedIndex]
+            .getAttribute('thumb');
+      document.getElementById('thumb').src = thumb;
+    }
+
+    $(document).ready(changeThumb());
+
+    $(document).ready(function() { 
+      $("#listeWikis").tablesorter(
+        {sortList: [[0,0]]}
+        ); 
+    }); 
+  </script>
+
+</body>
+</html>
