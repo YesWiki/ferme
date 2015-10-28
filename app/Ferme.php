@@ -184,7 +184,7 @@ class Ferme
      ************************************************************************/
     public function getAdminURL()
     {
-        return $this->config->getParameter('base_url') . "admin.php";
+        return $this->config->getParameter('base_url') . "?view=admin";
     }
 
     /*************************************************************************
@@ -205,17 +205,6 @@ class Ferme
     }
 
     /*************************************************************************
-     * Check wikiname
-     ************************************************************************/
-    public function isValidWikiName($name)
-    {
-        if (preg_match("~^[a-zA-Z0-9]{1,10}$~i", $name)) {
-            return false;
-        }
-        return true;
-    }
-
-    /*************************************************************************
      * Wiki installation
      * **********************************************************************/
     public function add($wikiName, $email, $description)
@@ -223,13 +212,11 @@ class Ferme
 
         $description = $this->cleanEntry($description);
 
-        // End of part who must move to controller
-        /********************************************************************/
         $ferme_path = $this->config->getParameter('ferme_path');
         $wiki_path = $ferme_path . $wikiName . "/";
         $package_path = "packages/"
         . $this->config->getParameter('source')
-        . "/";
+            . "/";
 
         //Vérifie si le wiki n'existe pas déjà
         if (is_dir($wiki_path) || is_file($wiki_path)) {
@@ -285,7 +272,7 @@ class Ferme
 
         include "packages/"
         . $this->config->getParameter('source')
-        . "/install.config.php";
+            . "/install.config.php";
 
         foreach ($config['themes'] as $key => $value) {
             $themesList[] = array(

@@ -90,12 +90,12 @@
               <i class=" icon-eye-open"></i>
             </a>
             <a  class="save btn btn-mini btn-success" 
-                href="?action=save&name={{ wiki['name'] }}">
+                href="?view=admin&action=save&name={{ wiki['name'] }}">
               <i class="icon-circle-arrow-down icon-white"></i>
             </a>
             <a  class="delete btn btn-mini btn-danger"
                 onclick="return(confirm('Etes-vous sûr de vouloir supprimer le wiki : {{ wiki['name'] }} ?'));"
-                href="?action=delete&name={{ wiki['name'] }}">
+                href="?view=admin&action=delete&name={{ wiki['name'] }}">
               <i class="icon-trash icon-white"></i>
             </a> 
           </div>
@@ -144,12 +144,12 @@
                 <i class="icon-download-alt"></i>
               </a>
               <a class="save btn btn-mini btn-primary" 
-                href="admin.php?action=restore&name={{ archive['filename'] }}">
+                href="?view=admin&action=restore&name={{ archive['filename'] }}">
                 <i class="icon-circle-arrow-up icon-white"></i> 
               </a>
               <a class="delete btn btn-mini btn-danger "
                   onclick="return(confirm('Êtes-vous sûr de vouloir supprimer l\'archive : {{ archive['filename'] }} ?'));" 
-                  href="admin.php?action=deleteArchive&name={{ archive['filename'] }}">
+                  href="?view=admin&action=deleteArchive&name={{ archive['filename'] }}">
                 <i class="icon-trash icon-white"></i>
               </a>
             </div>
