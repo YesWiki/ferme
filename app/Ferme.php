@@ -7,6 +7,7 @@ class Ferme
     private $config; //TODO : Must be private
     private $wikis;
     private $archives;
+    private $user_controller;
 
     /*************************************************************************
      * constructor
@@ -14,6 +15,7 @@ class Ferme
     public function __construct($config)
     {
         $this->config = $config;
+        $this->user_controller = new UserController($config);
         $this->wikis = array();
         $this->archives = array();
     }
@@ -113,12 +115,13 @@ class Ferme
      ************************************************************************/
     public function delete($name)
     {
+        $this->isAuthorized();
         //TODO : gestion des erreurs.
         if (isset($this->wikis[$name])) {
             $this->wikis[$name]->delete();
         } else {
             throw new \Exception(
-                "Impossible de supprimé le wiki $name. Il n'éxiste pas.",
+                "Impossible de supprimer le wiki $name. Il n'existe pas.",
                 1
             );
         }
@@ -129,6 +132,7 @@ class Ferme
      ************************************************************************/
     public function save($name)
     {
+        $this->isAuthorized();
         $this->wikis[$name]->save($this->config->getParameter('archives_path'));
     }
 
@@ -137,6 +141,7 @@ class Ferme
      ************************************************************************/
     public function restore($name)
     {
+        $this->isAuthorized();
         $this->archives[$name]->restore();
     }
 
@@ -159,17 +164,19 @@ class Ferme
         reset($this->archives);
     }
 
-    /*************************************************************************
-     * Get back current wiki information
-     ************************************************************************/
+    /**
+     * Renvoi
+     * @return [type] [description]
+     */
     public function getCurArchive()
     {
         return current($this->archives);
     }
 
-    /*************************************************************************
-     * Delete an archive
-     ************************************************************************/
+    /**
+     * Supprime une archive
+     * @param  string $name nom de l'archive a supprimer
+     */
     public function deleteArchive($name)
     {
         if (!isset($this->archives[$name])) {
@@ -179,34 +186,43 @@ class Ferme
         }
     }
 
-    /*************************************************************************
-     * Get back backoffice url
-     ************************************************************************/
+    /**
+     * Renvoie l'URL de l'interface d'administration
+     * @return string url de l'insterface d'administration
+     */
     public function getAdminURL()
     {
         return $this->config->getParameter('base_url') . "?view=admin";
     }
 
-    /*************************************************************************
-     * Get back farm URL
-     ************************************************************************/
+    /**
+     * Renvoie l'URL de la page d'acceuil
+     * @return string url de la page d'acceuil
+     */
     public function getURL()
     {
         return $this->config->getParameter('base_url');
     }
 
-    /*************************************************************************
-     * Clean unwanted characters
-     ************************************************************************/
+    /**
+     * Nettoie une chaine de caractère
+     * @param  string $entry Chaine a nettoyer
+     * @return string        Chaine de caractères nettoyées
+     */
     private function cleanEntry($entry)
     {
         //TODO : éliminer les caractère indésirables
         return htmlentities($entry, ENT_QUOTES, "UTF-8");
     }
 
-    /*************************************************************************
-     * Wiki installation
-     * **********************************************************************/
+    /**
+     * Installe un nouveau Wiki
+     * @param string $wikiName    Nom du nouveau wiki
+     * @param string $email       Email du créateur
+     * @param string $description Description du nouveau Wiki
+     *
+     * @return string chemin vers le nouveau wiki.
+     */
     public function add($wikiName, $email, $description)
     {
 
@@ -237,7 +253,6 @@ class Ferme
         }
 
         //TODO : PDO
-
         //Création de la base de donnée
         $dblink = mysql_connect(
             $this->config->getParameter('db_host'),
@@ -263,9 +278,10 @@ class Ferme
         return $wiki_path;
     }
 
-    /*************************************************************************
-     * Get back themes list
-     * **********************************************************************/
+    /**
+     * Retourne la liste des thèmes.
+     * @return array tableau de tableau avec deux clés : name et thumb
+     */
     public function getThemesList()
     {
         $themesList = array();
@@ -283,14 +299,40 @@ class Ferme
         return $themesList;
     }
 
-    /*************************************************************************
-     * Check ACL on directories
-     * **********************************************************************/
-    public function checkInstall()
+    /**
+     * Vérifie si un utilisateur est connecté
+     * @return Vrai si un utilisateur est connecté, faux sinon.
+     */
+    public function isLogged()
     {
-        //TODO :
-        $is_valid = true;
+        return $this->user_controller->isLogged();
+    }
 
-        return $is_valid;
+    /**
+     * Connecte un utilisateur
+     * @param  string $username Identifiant
+     * @param  string $password Mot de passe
+     * @return boolean          Vrai si la connexion a réussie, Faux sinon
+     */
+    public function login($username, $password)
+    {
+        return $this->user_controller->login($username, $password);
+    }
+
+    public function logout()
+    {
+        $this->user_controller->logout();
+    }
+
+    public function whoIsLogged()
+    {
+        return $this->user_controller->whoIsLogged();
+    }
+
+    private function isAuthorized()
+    {
+        if (!$this->isLogged()) {
+            throw new \Exception("Accès interdit", 1);
+        }
     }
 }

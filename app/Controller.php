@@ -49,6 +49,21 @@ class Controller
                 case 'addWiki':
                     $this->addWiki();
                     break;
+                case 'login':
+                    if (isset($_POST['username'])
+                        and isset($_POST['password'])
+                    ) {
+                        $this->ferme->login(
+                            $_POST['username'],
+                            $_POST['password']
+                        );
+                    }
+                    break;
+
+                case 'logout':
+                    $this->ferme->logout();
+                    break;
+
                 case 'delete':
                     if (isset($_GET['name'])) {
                         try {
@@ -57,11 +72,12 @@ class Controller
                                 "Wiki " . $_GET['name']
                                 . " : Supprimé avec succès"
                             );
-                        } catch (Exception $e) {
+                        } catch (\Exception $e) {
                             $this->view->addAlert($e->getMessage(), "error");
                         }
                     }
                     break;
+
                 case 'save':
                     if (isset($_GET['name'])) {
                         try {
@@ -75,6 +91,7 @@ class Controller
                         }
                     }
                     break;
+
                 case 'restore':
                     if (isset($_GET['name'])) {
                         try {
@@ -88,6 +105,7 @@ class Controller
                         }
                     }
                     break;
+
                 case 'deleteArchive':
                     if (isset($_GET['name'])) {
                         try {
@@ -113,6 +131,11 @@ class Controller
 
         switch ($view) {
             case 'admin':
+                if (!$this->ferme->isLogged()) {
+                    $this->view->addAlert('Accès refusé', 'error');
+                    $this->reload();
+                    break;
+                }
                 $this->view->show('admin.html');
                 break;
 

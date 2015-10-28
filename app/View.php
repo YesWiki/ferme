@@ -74,7 +74,8 @@ class View
                 'mail' => $mail,
                 'description' => $description,
                 'hashcash_url' => $this->HashCash(),
-                'go' => 'here',
+                'username' => $this->ferme->whoIsLogged(),
+                'logged' => $this->ferme->isLogged(),
             )
         );
     }
@@ -140,7 +141,7 @@ class View
      * @param $text
      * @param $type
      */
-    public function addAlert($text, $type = "default")
+    public function addAlert($text, $type)
     {
         if (!isset($_SESSION['alerts'])) {
             $_SESSION['alerts'] = array();
