@@ -13,8 +13,7 @@ namespace Ferme;
 
 class View
 {
-    protected $ferme;
-    protected $alerts;
+    protected $model;
     protected $theme;
     protected $config;
     protected $twig_loader;
@@ -23,13 +22,13 @@ class View
     /**
      * Constructeur
      *
-     * @param $ferme
+     * @param $model
      */
-    public function __construct($ferme)
+    public function __construct($model)
     {
-        $this->ferme = $ferme;
+        $this->model = $model;
         $this->alerts = array();
-        $this->config = $ferme->getConfig();
+        $this->config = $model->getConfig();
         $this->theme = $this->config->getParameter('template');
         $this->twig_loader = new \Twig_Loader_Filesystem(
             'themes/' . $this->theme
@@ -65,17 +64,17 @@ class View
             $template,
             array(
                 'list_css' => $this->getCSS(),
-                'list_alerts' => $this->getAlerts(),
+                'list_alerts' => $this->model->getListAlerts(),
                 'list_js' => $this->getJS(),
-                'list_themes' => $this->ferme->getThemesList(),
+                'list_themes' => $this->model->getThemesList(),
                 'list_archives' => $this->getArchives(),
                 'list_wikis' => $this->getWikis(),
                 'wiki_name' => $wiki_name,
                 'mail' => $mail,
                 'description' => $description,
                 'hashcash_url' => $this->HashCash(),
-                'username' => $this->ferme->whoIsLogged(),
-                'logged' => $this->ferme->isLogged(),
+                'username' => $this->model->whoIsLogged(),
+                'logged' => $this->model->isLogged(),
             )
         );
     }
@@ -90,11 +89,11 @@ class View
     {
         $list_wikis = array();
 
-        $this->ferme->resetIndex();
+        $this->model->resetIndex();
         do {
-            $wiki = $this->ferme->getCur();
+            $wiki = $this->model->getCur();
             $list_wikis[] = $wiki->getInfos();
-        } while ($this->ferme->getNext());
+        } while ($this->model->getNext());
 
         return $list_wikis;
     }
@@ -111,12 +110,12 @@ class View
 
         // Si c'est la page principale les archives ne sont pas prises en
         // compte
-        if ($this->ferme->nbArchives() != 0) {
-            $this->ferme->resetIndexArchives();
+        if ($this->model->nbArchives() != 0) {
+            $this->model->resetIndexArchives();
             do {
-                $archive = $this->ferme->getCurArchive();
+                $archive = $this->model->getCurArchive();
                 $list_archives[] = $archive->getInfos();
-            } while ($this->ferme->getNextArchive());
+            } while ($this->model->getNextArchive());
         }
 
         return $list_archives;
@@ -133,24 +132,6 @@ class View
         . $this->config->getParameter('base_url');
 
         return $hashcash_url;
-    }
-
-    /**
-     * Ajoute une alerte a afficher.
-     *
-     * @param $text
-     * @param $type
-     */
-    public function addAlert($text, $type)
-    {
-        if (!isset($_SESSION['alerts'])) {
-            $_SESSION['alerts'] = array();
-        }
-
-        $_SESSION['alerts'][] = array(
-            'text' => $text,
-            'type' => $type,
-        );
     }
 
     /**
@@ -193,30 +174,6 @@ class View
     }
 
     /**
-     * Affiche la liste des alertes selon le template fournis.
-     *
-     * @param $template
-     */
-    public function getAlerts()
-    {
-        $list_alerts = array();
-
-        //Affichage des alertes
-        if (isset($_SESSION['alerts'])) {
-            $i = 0;
-            foreach ($_SESSION['alerts'] as $key => $alert) {
-                $list_alerts[] = array(
-                    'id' => "alert" . $key,
-                    'text' => $alert['text'],
-                );
-            }
-        }
-        unset($_SESSION['alerts']); //pour éviter qu'elle ne s'accumulent.
-
-        return $list_alerts;
-    }
-
-    /**
      * Envois un fichier CSV contenant la liste des couples adresse mail / wiki
      *
      * @param string $filename nom du fichier exporté.
@@ -225,14 +182,14 @@ class View
     {
         $csv = new CSV();
 
-        if ($this->ferme->nbWikis() <= 0) {
+        if ($this->model->nbWikis() <= 0) {
             $csv->printFile($filename);
             exit;
         }
 
-        $this->ferme->resetIndex();
+        $this->model->resetIndex();
         do {
-            $wiki = $this->ferme->getCur();
+            $wiki = $this->model->getCur();
             $infos = $wiki->getInfos();
             $csv->insert(
                 array(
@@ -241,7 +198,7 @@ class View
                     str_replace('wakka.php?wiki=', '', $infos['url']),
                 )
             );
-        } while ($this->ferme->getNext());
+        } while ($this->model->getNext());
 
         $csv->printFile($filename);
     }

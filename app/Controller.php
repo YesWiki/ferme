@@ -68,12 +68,12 @@ class Controller
                     if (isset($_GET['name'])) {
                         try {
                             $this->ferme->delete($_GET['name']);
-                            $this->view->addAlert(
+                            $this->ferme->addAlert(
                                 "Wiki " . $_GET['name']
                                 . " : Supprimé avec succès"
                             );
                         } catch (\Exception $e) {
-                            $this->view->addAlert($e->getMessage(), "error");
+                            $this->ferme->addAlert($e->getMessage(), "error");
                         }
                     }
                     break;
@@ -82,12 +82,12 @@ class Controller
                     if (isset($_GET['name'])) {
                         try {
                             $this->ferme->save($_GET['name']);
-                            $this->view->addAlert(
+                            $this->ferme->addAlert(
                                 "Wiki " . $_GET['name']
                                 . " : Sauvegardé avec succès"
                             );
                         } catch (\Exception $e) {
-                            $this->view->addAlert($e->getMessage(), "error");
+                            $this->ferme->addAlert($e->getMessage(), "error");
                         }
                     }
                     break;
@@ -96,12 +96,12 @@ class Controller
                     if (isset($_GET['name'])) {
                         try {
                             $this->ferme->restore($_GET['name']);
-                            $this->view->addAlert(
+                            $this->ferme->addAlert(
                                 "Archive : " . $_GET['name']
                                 . " : Restaurée avec succès"
                             );
                         } catch (\Exception $e) {
-                            $this->view->addAlert($e->getMessage(), "error");
+                            $this->ferme->addAlert($e->getMessage(), "error");
                         }
                     }
                     break;
@@ -110,12 +110,12 @@ class Controller
                     if (isset($_GET['name'])) {
                         try {
                             $this->ferme->deleteArchive($_GET['name']);
-                            $this->view->addAlert(
+                            $this->ferme->addAlert(
                                 "Archive : " . $_GET['name']
                                 . " : Supprimé avec succès"
                             );
                         } catch (\Exception $e) {
-                            $this->view->addAlert($e->getMessage(), "error");
+                            $this->ferme->addAlert($e->getMessage(), "error");
                         }
                     }
                     break;
@@ -132,7 +132,7 @@ class Controller
         switch ($view) {
             case 'admin':
                 if (!$this->ferme->isLogged()) {
-                    $this->view->addAlert('Accès refusé', 'error');
+                    $this->ferme->addAlert('Accès refusé', 'error');
                     $this->reload();
                     break;
                 }
@@ -150,7 +150,7 @@ class Controller
         //HashCash protection
         require_once 'app/secret/wp-hashcash.php';
         if (!$this->isHashcashValid()) {
-            $this->view->addAlert(
+            $this->ferme->addAlert(
                 'La plantation de wiki est une activité délicate qui'
                 . ' ne doit pas être effectuée par un robot. (Pensez à'
                 . ' activer JavaScript)'
@@ -162,18 +162,18 @@ class Controller
             or !isset($_POST['mail'])
             or !isset($_POST['description'])
         ) {
-            $this->view->addAlert("Formulaire incomplet.");
+            $this->ferme->addAlert("Formulaire incomplet.");
             $this->reload();
         }
 
         //Une série de tests sur les données.
         if ($this->isValidWikiName($_POST['wikiName'])) {
-            $this->view->addAlert("Ce nom wiki n'est pas valide.");
+            $this->ferme->addAlert("Ce nom wiki n'est pas valide.");
             $this->reload();
         }
 
         if (!filter_var($_POST['mail'], FILTER_VALIDATE_EMAIL)) {
-            $this->view->addAlert("Cet email n'est pas valide.");
+            $this->ferme->addAlert("Cet email n'est pas valide.");
             $this->reload();
         }
 
@@ -184,11 +184,11 @@ class Controller
                 $_POST['description']
             );
         } catch (\Exception $e) {
-            $this->view->addAlert($e->getMessage());
+            $this->ferme->addAlert($e->getMessage());
             $this->reload();
         }
 
-        $this->view->addAlert(
+        $this->ferme->addAlert(
             '<a href="' . $this->config->getParameter('base_url')
             . $wiki_path . '">Visiter le nouveau wiki</a>'
         );

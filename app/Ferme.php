@@ -7,6 +7,7 @@ class Ferme
     private $config; //TODO : Must be private
     private $wikis;
     private $archives;
+    private $list_alerts;
     private $user_controller;
 
     /*************************************************************************
@@ -18,6 +19,7 @@ class Ferme
         $this->user_controller = new UserController($config);
         $this->wikis = array();
         $this->archives = array();
+        $this->list_alerts = new Alerts();
     }
 
     /*************************************************************************
@@ -308,12 +310,9 @@ class Ferme
         return $this->user_controller->isLogged();
     }
 
-    /**
-     * Connecte un utilisateur
-     * @param  string $username Identifiant
-     * @param  string $password Mot de passe
-     * @return boolean          Vrai si la connexion a réussie, Faux sinon
-     */
+    /*************************************************************************
+     * Gestion des utilisateurs
+     ************************************************************************/
     public function login($username, $password)
     {
         return $this->user_controller->login($username, $password);
@@ -334,5 +333,20 @@ class Ferme
         if (!$this->isLogged()) {
             throw new \Exception("Accès interdit", 1);
         }
+    }
+
+    /*************************************************************************
+     * Gestion des alertes
+     ************************************************************************/
+    public function addAlert($text, $type = "notice")
+    {
+        $this->list_alerts->add($text, $type);
+    }
+
+    public function getListAlerts()
+    {
+        $list_alerts = $this->list_alerts->getAll();
+        $this->list_alerts->removeAll();
+        return $list_alerts;
     }
 }
