@@ -6,7 +6,6 @@
 
   <meta charset="utf-8">
   <meta name="description" content="Ferme de Wikis">
-  <meta name="author" content="Florestan Bredow">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   {% for css in list_css %}
@@ -14,20 +13,6 @@
   {% endfor %}
 </head>
 <body>
-
-{% if logged %}
-connecté : {{ username }}
-<a href="?action=logout">Deconnexion</a>
-{% else %}
-<form method="post" action="?view=admin&action=login">
-<label for="username">Utilisateur</label>
-  <input type="text" name="username">
-<label for="password">Mot de passe</label>
-  <input type="password" name="password">
-  <input type="submit" value="Connexion">
-</form>
-{% endif %}
-
 
 <div class="navbar navbar-fixed-top navbar-inverse">
   <div class="navbar-inner">
@@ -43,9 +28,17 @@ connecté : {{ username }}
         <ul class="nav">
           <li>
             <a href="?view=admin">
-              <i class="icon-lock"></i> Administration
+              Administration
+              {% if not logged %}
+              <i class="icon-lock icon-white"></i>
+              {% endif %}
             </a>
+          {% if logged %}
           </li>
+          <li>
+            <a href="?action=logout">{{ username }}</a>
+          </li>
+          {% endif %}
         </ul>
       </div>
     </div>
@@ -203,7 +196,7 @@ connecté : {{ username }}
   </div>
 </div> <!--Fin container -->
 
-  <script src="http://code.jquery.com/jquery.js"></script>
+  <script src="http://code.jquery.com/jquery.min.js"></script>
   {% for js in list_js %}
   <script src="{{ js }}"></script>
   {% endfor %}  

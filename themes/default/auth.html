@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html class="no-js" lang="fr">
+
+<head>
+  <title>Ferme de Wiki</title>
+
+  <meta charset="utf-8">
+  <meta name="description" content="Ferme de Wikis">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  {% for css in list_css %}
+  <link href="{{ css }}" rel="stylesheet" />
+  {% endfor %}
+</head>
+<body>
+
+<div class="navbar navbar-inverse navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+      <span class="brand">Administration de la ferme</span>
+      <div class="nav-collapse collapse pull-right">
+        <ul class="nav">
+          <li><a href="./">Retour</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container auth well">
+  <form 
+    class='auth form-horizontal' 
+    method="post" 
+    action="?view=admin&action=login"
+  >
+    <div class="control-group">
+      <label class='control-label' for="username">Utilisateur</label>
+      <div class="controls">
+        <input type="text" name="username">
+      </div>
+    </div>
+    <div class="control-group">
+      <label class='control-label' for="password">Mot de passe</label>
+      <div class="controls">
+        <input type="password" name="password">
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="controls">
+        <input class='btn btn-primary' type="submit" value="Connexion">
+      </div>
+    </div>
+  </form>
+</div> <!--Fin container -->
+
+  {% for js in list_js %}
+  <script src="{{ js }}"></script>
+  {% endfor %}  
+</body>
+</html>

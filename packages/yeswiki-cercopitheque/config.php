@@ -4,10 +4,10 @@
  * Valeur -> Contenu du fichier
  ***************************************************************************/
 
-$table_prefix = $wikiName . "_";
+$table_prefix = $wiki_name . "_";
 $wiki_url = $this->config->getParameter('base_url')
 . $this->config->getParameter('ferme_path')
-. $wikiName . "/wakka.php?wiki=";
+    . $wiki_name . "/wakka.php?wiki=";
 $WikiAdminPasswordMD5 = $this->config->getParameter('admin_password');
 $date = time();
 
@@ -32,7 +32,7 @@ $config = array(
 	'base_url' => '$wiki_url',
 	'rewrite_mode' => '0',
 	'meta_keywords' => 'MotCleDuSite',
-	'meta_description' => '$wikiName',
+	'meta_description' => '$wiki_name',
 	'action_path' => 'actions',
 	'handler_path' => 'handlers',
 	'header_action' => 'header',
@@ -46,7 +46,7 @@ $config = array(
 	'preview_before_save' => '0',
 	'allow_raw_html' => '1',
 	'root_page' => 'PagePrincipale',
-	'wakka_name' => '$wikiName',
+	'wakka_name' => '$wiki_name',
 	'default_language' => 'fr',
 	'favorite_theme' => '" . $theme[$_POST['theme']]['theme'] . "',
 	'favorite_style' => '" . $theme[$_POST['theme']]['style'] . "',
@@ -57,7 +57,7 @@ $config = array(
     'wakka.infos.php' =>
     "<?php\n"
     . "\t\$wakkaInfos = array (\n"
-    . "\t\t'mail' => '$email',\n"
+    . "\t\t'mail' => '$mail',\n"
     . "\t\t'description' => '$description',\n"
     . "\t\t'date' => '$date',\n"
     . "\t\t'version' => 'cercopitheque',\n"

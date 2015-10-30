@@ -65,6 +65,29 @@ class Ferme
         return $this->wikis_factory->search($args);
     }
 
+    public function createWiki($wikiname, $mail, $desc)
+    {
+        //Une série de tests sur les données.
+        if ($this->isValidWikiName($wikiname)) {
+            throw new Exception("Ce nom n'est pas valide.", 1);
+        }
+
+        if (!filter_var($_POST['mail'], FILTER_VALIDATE_EMAIL)) {
+            throw new Exception("Cet email n'est pas valide.", 1);
+        }
+
+        return $this->wikis_factory->create(
+            array(
+                'name' => $this->cleanEntry($wikiname),
+                'mail' => $this->cleanEntry($mail),
+                'desc' => $this->cleanEntry($desc),
+            )
+        );
+    }
+
+    /*************************************************************************
+     * Gestion des archives
+     ************************************************************************/
     public function archiveWiki($name)
     {
         $this->isAuthorized();
@@ -72,9 +95,6 @@ class Ferme
         $this->archives_factory->create($list_wikis[0]);
     }
 
-    /*************************************************************************
-     * Gestion des archives
-     ************************************************************************/
     public function loadArchives()
     {
         $this->archives_factory->load();
@@ -190,17 +210,6 @@ class Ferme
         return $this->config->getParameter('base_url');
     }
 
-    /**
-     * Nettoie une chaine de caractère
-     * @param  string $entry Chaine a nettoyer
-     * @return string        Chaine de caractères nettoyées
-     */
-    private function cleanEntry($entry)
-    {
-        //TODO : éliminer les caractère indésirables
-        return htmlentities($entry, ENT_QUOTES, "UTF-8");
-    }
-
     public function getConfig()
     {
         return $this->config;
@@ -225,5 +234,28 @@ class Ferme
             );
         }
         return $themesList;
+    }
+
+    /**
+     * Définis si le nom d'un wiki est valide
+     * @param  strin   $name Nom potentiel du wiki.
+     * @return boolean       Vrai si le nom est valide, faux sinon
+     */
+    private function isValidWikiName($name)
+    {
+        if (preg_match("~^[a-zA-Z0-9]{1,10}$~i", $name)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Nettoie une chaine de caractère
+     * @param  string $entry Chaine a nettoyer
+     * @return string        Chaine de caractères nettoyées
+     */
+    private function cleanEntry($entry)
+    {
+        return htmlentities($entry, ENT_QUOTES, "UTF-8");
     }
 }

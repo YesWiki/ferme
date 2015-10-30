@@ -61,7 +61,7 @@ class WikisFactory extends Factory
     public function create($args = null)
     {
         if (!isset($args['name'])
-            or !isset($args['email'])
+            or !isset($args['mail'])
             or !isset($args['desc'])
         ) {
             throw new Exception(
@@ -70,16 +70,18 @@ class WikisFactory extends Factory
             );
         }
 
-        $description = $this->cleanEntry($args['desc']);
+        $wiki_name = $args['name'];
+        $mail = $args['mail'];
+        $description = $args['desc'];
+
         $wiki_path = $this->config->getParameter('ferme_path')
-            . $wikiName
+            . $wiki_name
             . "/";
         $package_path = "packages/"
         . $this->config->getParameter('source')
             . "/";
 
         // Vérifie si le wiki n'existe pas déjà
-        // TODO : Utiliser une recherche dans la liste ?
         if (is_dir($wiki_path) || is_file($wiki_path)) {
             throw new \Exception("Ce nom de wiki est déjà utilisé", 1);
             exit();

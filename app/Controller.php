@@ -133,8 +133,7 @@ class Controller
         switch ($view) {
             case 'admin':
                 if (!$this->ferme->isLogged()) {
-                    $this->ferme->addAlert('Accès refusé', 'error');
-                    $this->reload();
+                    $this->view->show('auth.html');
                     break;
                 }
                 $this->view->show('admin.html');
@@ -148,8 +147,6 @@ class Controller
 
     private function addWiki()
     {
-        //HashCash protection
-        require_once 'app/secret/wp-hashcash.php';
         if (!$this->isHashcashValid()) {
             $this->ferme->addAlert(
                 'La plantation de wiki est une activité délicate qui'
@@ -167,19 +164,8 @@ class Controller
             $this->reload();
         }
 
-        //Une série de tests sur les données.
-        if ($this->isValidWikiName($_POST['wikiName'])) {
-            $this->ferme->addAlert("Ce nom wiki n'est pas valide.");
-            $this->reload();
-        }
-
-        if (!filter_var($_POST['mail'], FILTER_VALIDATE_EMAIL)) {
-            $this->ferme->addAlert("Cet email n'est pas valide.");
-            $this->reload();
-        }
-
         try {
-            $wiki_path = $this->ferme->add(
+            $wiki_path = $this->ferme->createWiki(
                 $_POST['wikiName'],
                 $_POST['mail'],
                 $_POST['description']
@@ -193,19 +179,6 @@ class Controller
             '<a href="' . $this->config->getParameter('base_url')
             . $wiki_path . '">Visiter le nouveau wiki</a>'
         );
-    }
-
-    /**
-     * Définis si le nom d'un wiki est valide
-     * @param  strin   $name Nom potentiel du wiki.
-     * @return boolean       Vrai si le nom est valide, faux sinon
-     */
-    private function isValidWikiName($name)
-    {
-        if (preg_match("~^[a-zA-Z0-9]{1,10}$~i", $name)) {
-            return false;
-        }
-        return true;
     }
 
     private function isHashcashValid()

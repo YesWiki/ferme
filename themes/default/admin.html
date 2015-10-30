@@ -6,7 +6,6 @@
 
   <meta charset="utf-8">
   <meta name="description" content="Ferme de Wikis">
-  <meta name="author" content="Florestan Bredow">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   {% for css in list_css %}
@@ -27,6 +26,11 @@
       </div>
       <div class="nav-collapse collapse pull-right">
         <ul class="nav">
+          {% if logged %}
+          <li>
+            <a href="?action=logout">{{ username }}</a>
+          </li>
+          {% endif %}
           <li><a href="./">Retour</a></li>
         </ul>
       </div>
@@ -161,7 +165,7 @@
     </table>
   </div>
 
-  <script src="http://code.jquery.com/jquery.js"></script>
+  <script src="http://code.jquery.com/jquery.min.js"></script>
   {% for js in list_js %}
   <script src="{{ js }}"></script>
   {% endfor %}
