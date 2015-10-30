@@ -14,11 +14,15 @@ Utiliser composer avec 'composer install' pour ajouter les dependances
 
 Note
 ----
-Nécessite l'accès au shell (commandes cp, mv, rm, tar, mysql, mysqldump)
+Nécessite l'accès au shell (commandes cp, du, mv, mysql, mysqldump, rm, tar)
 testé avec php 5.6
 
 Changelog : 
 -----------
+28/10/2015 :
+ - Ajout mecanisme d'authentification pour l'interface d'administration
+ - Fusion de index.php et admin.php au profit d'une entrée unique et d'un controleur.
+
 27/10/2015 :
  - Utilisation de Twig pour les templates
  - Utilisation de 'du' pour calculer l'espace occupé par les wikis afin d'optimiser la vitesse d'affichage 

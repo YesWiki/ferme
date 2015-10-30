@@ -33,14 +33,14 @@ class Controller
 
         switch ($view) {
             case 'admin':
-                $this->ferme->refresh(true);
-                $this->ferme->refreshArchives();
+                $this->ferme->loadWikis(true);
+                $this->ferme->loadArchives();
                 break;
 
             default:
                 // Rafraichis sans calculer les données volumétriques
                 // (économie de temps)
-                $this->ferme->refresh(false);
+                $this->ferme->loadWikis(false);
                 break;
         }
 
@@ -78,10 +78,10 @@ class Controller
                     }
                     break;
 
-                case 'save':
+                case 'archive':
                     if (isset($_GET['name'])) {
                         try {
-                            $this->ferme->save($_GET['name']);
+                            $this->ferme->archiveWiki($_GET['name']);
                             $this->ferme->addAlert(
                                 "Wiki " . $_GET['name']
                                 . " : Sauvegardé avec succès"
@@ -111,7 +111,8 @@ class Controller
                         try {
                             $this->ferme->deleteArchive($_GET['name']);
                             $this->ferme->addAlert(
-                                "Archive : " . $_GET['name']
+                                "Archive : "
+                                . $_GET['name']
                                 . " : Supprimé avec succès"
                             );
                         } catch (\Exception $e) {

@@ -13,7 +13,7 @@ namespace Ferme;
 class Wiki
 {
     private $path;
-    private $config;
+    private $config; //TODO : Utiliser la class Configuration
     private $fermeConfig;
     private $infos;
 
@@ -113,7 +113,7 @@ class Wiki
     /**
      * Crée une archive de ce wiki.
      */
-    public function save()
+    public function archive()
     {
         $wiki_name = $this->config['wakka_name'];
         $filename = $this->fermeConfig->getParameter('archives_path')
@@ -124,6 +124,7 @@ class Wiki
         // Dump de la base de donnée.
         $sql_file = $this->dumpDB($tmp_path . $wiki_name . '.sql');
 
+        // TODO : Solution portable est optimisée
         $cmd = 'tar -czf ' . $filename
         . ' -C ' . $ferme_path . ' ' . $wiki_name
         . ' -C  ' . realpath($tmp_path) . ' ' . $wiki_name . '.sql';

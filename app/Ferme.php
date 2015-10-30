@@ -3,10 +3,9 @@ namespace Ferme;
 
 class Ferme
 {
-
-    private $config; //TODO : Must be private
-    private $wikis;
-    private $archives;
+    private $config;
+    private $wikis_factory = null;
+    private $archives_factory = null;
     private $list_alerts;
     private $user_controller;
 
@@ -17,289 +16,112 @@ class Ferme
     {
         $this->config = $config;
         $this->user_controller = new UserController($config);
-        $this->wikis = array();
+        $this->wikis_factory = new WikisFactory(
+            array('config' => $this->config)
+        );
+        $this->archives_factory = new ArchivesFactory(
+            array('config' => $this->config)
+        );
         $this->archives = array();
         $this->list_alerts = new Alerts();
     }
 
     /*************************************************************************
-     * Load wiki list and configuration
+     * Gestion des Wikis
      ************************************************************************/
-    public function refresh($calsize = true)
+    public function loadWikis($calsize = false)
     {
-        $this->wikis = array();
-        $ferme_path = $this->config->getParameter('ferme_path');
-
-        if ($handle = opendir($ferme_path)) {
-            while (false !== ($entry = readdir($handle))) {
-                $entry_path = $ferme_path . $entry;
-                if ("." != $entry && ".." != $entry && is_dir($entry_path)
-                ) {
-                    $this->wikis[$entry] = new Wiki(
-                        $entry_path,
-                        $this->config,
-                        $calsize
-                    );
-                }
-            }
-            closedir($handle);
-        } else {
-            throw new \Exception("Impossible d'accéder à " . $ferme_path, 1);
-        }
+        $this->wikis_factory->load($calsize);
     }
 
-    /*************************************************************************
-     * Load archives 's list
-     ************************************************************************/
-    public function refreshArchives()
+    public function countWikis()
     {
-        $this->archives = array();
-        $archives_path = $this->config->getParameter('archives_path');
-
-        if ($handle = opendir($archives_path)) {
-            while (false !== ($entry = readdir($handle))) {
-                $entry_path = $archives_path . $entry;
-                if ("." != $entry && ".." != $entry && is_file($entry_path)
-                ) {
-                    $this->archives[$entry] = new Archive($entry, $this->config);
-                }
-            }
-            closedir($handle);
-        } else {
-            throw new \Exception("Impossible d'accéder à " . $archives_path, 1);
-        }
+        return $this->wikis_factory->count();
     }
 
-    public function nbWikis()
-    {
-        return count($this->wikis);
-    }
-
-    public function nbArchives()
-    {
-        return count($this->archives);
-    }
-
-    public function getConfig()
-    {
-        return $this->config;
-    }
-
-    /*************************************************************************
-     * Next wiki in wiki's list
-     ************************************************************************/
-    public function getNext()
-    {
-        if (!next($this->wikis)) {
-            return false;
-        }
-        return current($this->wikis);
-    }
-
-    /*************************************************************************
-     * Reset index on wiki's list
-     ************************************************************************/
-    public function resetIndex()
-    {
-        reset($this->wikis);
-    }
-
-    /*************************************************************************
-     * Give current wiki information
-     ************************************************************************/
-    public function getCur()
-    {
-        return current($this->wikis);
-    }
-
-    /*************************************************************************
-     * delete a wiki
-     ************************************************************************/
     public function delete($name)
     {
         $this->isAuthorized();
-        //TODO : gestion des erreurs.
-        if (isset($this->wikis[$name])) {
-            $this->wikis[$name]->delete();
-        } else {
-            throw new \Exception(
-                "Impossible de supprimer le wiki $name. Il n'existe pas.",
-                1
-            );
-        }
+        $this->wikis_factory->remove($name);
     }
 
-    /*************************************************************************
-     * Make wiki backup and get back url to download it
-     ************************************************************************/
-    public function save($name)
+    public function resetIndexWikis()
+    {
+        $this->wikis_factory->resetIndex();
+    }
+
+    public function getCurrentWiki()
+    {
+        return $this->wikis_factory->getCurrent();
+    }
+
+    public function getNextWiki()
+    {
+        return $this->wikis_factory->getNext();
+    }
+
+    public function searchWikis($args = '*')
+    {
+        return $this->wikis_factory->search($args);
+    }
+
+    public function archiveWiki($name)
     {
         $this->isAuthorized();
-        $this->wikis[$name]->save($this->config->getParameter('archives_path'));
+        $list_wikis = $this->wikis_factory->search($name);
+        $this->archives_factory->create($list_wikis[0]);
     }
 
     /*************************************************************************
-     * Make wiki backup and get back url to download it
+     * Gestion des archives
      ************************************************************************/
+    public function loadArchives()
+    {
+        $this->archives_factory->load();
+    }
+
+    public function countArchives()
+    {
+        return $this->archives_factory->count();
+        return 0;
+    }
+
+    public function deleteArchive($name)
+    {
+        $this->isAuthorized();
+        $this->archives_factory->remove($name);
+    }
+
+    public function resetIndexArchives()
+    {
+        $this->archives_factory->resetIndex();
+    }
+
+    public function getCurrentArchive()
+    {
+        return $this->archives_factory->getCurrent();
+    }
+
+    public function getNextArchive()
+    {
+        return $this->archives_factory->getNext();
+    }
+
+    public function searchArchives($args = '*')
+    {
+        return $this->archives_factory->search($args);
+    }
+
     public function restore($name)
     {
         $this->isAuthorized();
-        $this->archives[$name]->restore();
+        $list_archives = $this->archives_factory->search($name);
+        $list_archives[0]->restore();
     }
 
     /*************************************************************************
-     * Next Wiki in wiki list
+     * Gestion des utilisateurs
      ************************************************************************/
-    public function getNextArchive()
-    {
-        if (!next($this->archives)) {
-            return false;
-        }
-        return current($this->archives);
-    }
-
-    /*************************************************************************
-     * Reset index on archive list
-     ************************************************************************/
-    public function resetIndexArchives()
-    {
-        reset($this->archives);
-    }
-
-    /**
-     * Renvoi
-     * @return [type] [description]
-     */
-    public function getCurArchive()
-    {
-        return current($this->archives);
-    }
-
-    /**
-     * Supprime une archive
-     * @param  string $name nom de l'archive a supprimer
-     */
-    public function deleteArchive($name)
-    {
-        if (!isset($this->archives[$name])) {
-            throw new \Exception("L'archive " . $name . " n'existe pas.", 1);
-        } else {
-            $this->archives[$name]->delete();
-        }
-    }
-
-    /**
-     * Renvoie l'URL de l'interface d'administration
-     * @return string url de l'insterface d'administration
-     */
-    public function getAdminURL()
-    {
-        return $this->config->getParameter('base_url') . "?view=admin";
-    }
-
-    /**
-     * Renvoie l'URL de la page d'acceuil
-     * @return string url de la page d'acceuil
-     */
-    public function getURL()
-    {
-        return $this->config->getParameter('base_url');
-    }
-
-    /**
-     * Nettoie une chaine de caractère
-     * @param  string $entry Chaine a nettoyer
-     * @return string        Chaine de caractères nettoyées
-     */
-    private function cleanEntry($entry)
-    {
-        //TODO : éliminer les caractère indésirables
-        return htmlentities($entry, ENT_QUOTES, "UTF-8");
-    }
-
-    /**
-     * Installe un nouveau Wiki
-     * @param string $wikiName    Nom du nouveau wiki
-     * @param string $email       Email du créateur
-     * @param string $description Description du nouveau Wiki
-     *
-     * @return string chemin vers le nouveau wiki.
-     */
-    public function add($wikiName, $email, $description)
-    {
-
-        $description = $this->cleanEntry($description);
-
-        $ferme_path = $this->config->getParameter('ferme_path');
-        $wiki_path = $ferme_path . $wikiName . "/";
-        $package_path = "packages/"
-        . $this->config->getParameter('source')
-            . "/";
-
-        //Vérifie si le wiki n'existe pas déjà
-        if (is_dir($wiki_path) || is_file($wiki_path)) {
-            throw new \Exception("Ce nom de wiki est déjà utilisé", 1);
-            exit();
-        }
-
-        $output = shell_exec(
-            "cp -r --preserve=mode,ownership "
-            . $package_path . "files"
-            . " " . $wiki_path
-        );
-
-        include $package_path . "config.php";
-
-        foreach ($config as $file => $content) {
-            file_put_contents($wiki_path . $file, utf8_encode($content));
-        }
-
-        //TODO : PDO
-        //Création de la base de donnée
-        $dblink = mysql_connect(
-            $this->config->getParameter('db_host'),
-            $this->config->getParameter('db_user'),
-            $this->config->getParameter('db_password')
-        );
-
-        mysql_select_db(
-            $this->config->getParameter('db_name'),
-            $dblink
-        );
-
-        include $package_path . "database.php";
-
-        foreach ($listQuery as $query) {
-            $result = mysql_query($query, $dblink);
-            if (!$result) {
-                die('Requête invalide : ' . mysql_error());
-            }
-        }
-        mysql_close($dblink);
-
-        return $wiki_path;
-    }
-
-    /**
-     * Retourne la liste des thèmes.
-     * @return array tableau de tableau avec deux clés : name et thumb
-     */
-    public function getThemesList()
-    {
-        $themesList = array();
-
-        include "packages/"
-        . $this->config->getParameter('source')
-            . "/install.config.php";
-
-        foreach ($config['themes'] as $key => $value) {
-            $themesList[] = array(
-                'name' => $key,
-                'thumb' => $value['thumb'],
-            );
-        }
-        return $themesList;
-    }
 
     /**
      * Vérifie si un utilisateur est connecté
@@ -310,9 +132,6 @@ class Ferme
         return $this->user_controller->isLogged();
     }
 
-    /*************************************************************************
-     * Gestion des utilisateurs
-     ************************************************************************/
     public function login($username, $password)
     {
         return $this->user_controller->login($username, $password);
@@ -348,5 +167,63 @@ class Ferme
         $list_alerts = $this->list_alerts->getAll();
         $this->list_alerts->removeAll();
         return $list_alerts;
+    }
+
+    /*************************************************************************
+     * Gestion des URLs
+     ************************************************************************/
+    /**
+     * Renvoie l'URL de l'interface d'administration
+     * @return string url de l'insterface d'administration
+     */
+    public function getAdminURL()
+    {
+        return $this->config->getParameter('base_url') . "?view=admin";
+    }
+
+    /**
+     * Renvoie l'URL de la page d'acceuil
+     * @return string url de la page d'acceuil
+     */
+    public function getURL()
+    {
+        return $this->config->getParameter('base_url');
+    }
+
+    /**
+     * Nettoie une chaine de caractère
+     * @param  string $entry Chaine a nettoyer
+     * @return string        Chaine de caractères nettoyées
+     */
+    private function cleanEntry($entry)
+    {
+        //TODO : éliminer les caractère indésirables
+        return htmlentities($entry, ENT_QUOTES, "UTF-8");
+    }
+
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    /**
+     * Retourne la liste des thèmes.
+     * @return array tableau de tableau avec deux clés : name et thumb
+     */
+    public function getThemesList()
+    {
+        $themesList = array();
+
+        include "packages/"
+        . $this->config->getParameter('source')
+            . "/install.config.php";
+
+        foreach ($config['themes'] as $key => $value) {
+            $themesList[] = array(
+                'name' => $key,
+                'thumb' => $value['thumb'],
+            );
+        }
+        return $themesList;
     }
 }

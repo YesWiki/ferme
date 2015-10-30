@@ -13,7 +13,7 @@ namespace Ferme;
 
 class View
 {
-    protected $model;
+    protected $ferme;
     protected $theme;
     protected $config;
     protected $twig_loader;
@@ -22,13 +22,13 @@ class View
     /**
      * Constructeur
      *
-     * @param $model
+     * @param $ferme
      */
-    public function __construct($model)
+    public function __construct($ferme)
     {
-        $this->model = $model;
+        $this->ferme = $ferme;
         $this->alerts = array();
-        $this->config = $model->getConfig();
+        $this->config = $ferme->getConfig();
         $this->theme = $this->config->getParameter('template');
         $this->twig_loader = new \Twig_Loader_Filesystem(
             'themes/' . $this->theme
@@ -64,17 +64,17 @@ class View
             $template,
             array(
                 'list_css' => $this->getCSS(),
-                'list_alerts' => $this->model->getListAlerts(),
+                'list_alerts' => $this->ferme->getListAlerts(),
                 'list_js' => $this->getJS(),
-                'list_themes' => $this->model->getThemesList(),
+                'list_themes' => $this->ferme->getThemesList(),
                 'list_archives' => $this->getArchives(),
                 'list_wikis' => $this->getWikis(),
                 'wiki_name' => $wiki_name,
                 'mail' => $mail,
                 'description' => $description,
                 'hashcash_url' => $this->HashCash(),
-                'username' => $this->model->whoIsLogged(),
-                'logged' => $this->model->isLogged(),
+                'username' => $this->ferme->whoIsLogged(),
+                'logged' => $this->ferme->isLogged(),
             )
         );
     }
@@ -89,11 +89,11 @@ class View
     {
         $list_wikis = array();
 
-        $this->model->resetIndex();
+        $this->ferme->resetIndexWikis();
         do {
-            $wiki = $this->model->getCur();
+            $wiki = $this->ferme->getCurrentWiki();
             $list_wikis[] = $wiki->getInfos();
-        } while ($this->model->getNext());
+        } while ($this->ferme->getNextWiki());
 
         return $list_wikis;
     }
@@ -110,12 +110,12 @@ class View
 
         // Si c'est la page principale les archives ne sont pas prises en
         // compte
-        if ($this->model->nbArchives() != 0) {
-            $this->model->resetIndexArchives();
+        if ($this->ferme->countArchives() != 0) {
+            $this->ferme->resetIndexArchives();
             do {
-                $archive = $this->model->getCurArchive();
+                $archive = $this->ferme->getCurrentArchive();
                 $list_archives[] = $archive->getInfos();
-            } while ($this->model->getNextArchive());
+            } while ($this->ferme->getNextArchive());
         }
 
         return $list_archives;
@@ -132,19 +132,6 @@ class View
         . $this->config->getParameter('base_url');
 
         return $hashcash_url;
-    }
-
-    /**
-     * Envois un email de confirmation
-     * @todo : ne valider l'envois que si le paramêtre mail est a 1 dans la
-     * configuration
-     *
-     * @param $mail
-     * @param $wikiName
-     */
-    public function sendConfirmationMail($mail, $wikiName)
-    {
-
     }
 
     /**
@@ -182,14 +169,14 @@ class View
     {
         $csv = new CSV();
 
-        if ($this->model->nbWikis() <= 0) {
+        if ($this->ferme->nbWikis() <= 0) {
             $csv->printFile($filename);
             exit;
         }
 
-        $this->model->resetIndex();
+        $this->ferme->resetIndex();
         do {
-            $wiki = $this->model->getCur();
+            $wiki = $this->ferme->getCur();
             $infos = $wiki->getInfos();
             $csv->insert(
                 array(
@@ -198,7 +185,7 @@ class View
                     str_replace('wakka.php?wiki=', '', $infos['url']),
                 )
             );
-        } while ($this->model->getNext());
+        } while ($this->ferme->getNext());
 
         $csv->printFile($filename);
     }
