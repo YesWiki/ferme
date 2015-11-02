@@ -169,14 +169,14 @@ class View
     {
         $csv = new CSV();
 
-        if ($this->ferme->nbWikis() <= 0) {
+        if ($this->ferme->countWikis() <= 0) {
             $csv->printFile($filename);
             exit;
         }
 
-        $this->ferme->resetIndex();
+        $this->ferme->resetIndexWikis();
         do {
-            $wiki = $this->ferme->getCur();
+            $wiki = $this->ferme->getCurrentWiki();
             $infos = $wiki->getInfos();
             $csv->insert(
                 array(
@@ -185,7 +185,7 @@ class View
                     str_replace('wakka.php?wiki=', '', $infos['url']),
                 )
             );
-        } while ($this->ferme->getNext());
+        } while ($this->ferme->getNextWiki());
 
         $csv->printFile($filename);
     }
