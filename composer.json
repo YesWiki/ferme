@@ -4,6 +4,9 @@
     "require": {
         "twig/twig": "~1.0"
     },
+    "require-dev": {
+        "phpdocumentor/phpdocumentor": "2.*"
+    },
     "authors": [
         {
             "name": "Florestan Bredow",
