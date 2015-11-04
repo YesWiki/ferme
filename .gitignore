@@ -1,5 +1,10 @@
 ferme.config.php
 wikis/*
 img/.directory
-admin/tmp/*
-admin/archives/*
+.phpintel/*
+archives/*
+composer.lock
+doc/*
+ferme.sublime-project
+ferme.sublime-workspace
+vendor/
