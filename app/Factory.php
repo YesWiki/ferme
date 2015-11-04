@@ -55,25 +55,32 @@ abstract class Factory
     }
 
     /**
-     * Renvois un wiki ou un tableau de wiki en fonction de la recherche
+     * Renvois un wiki ou un tableau de wiki dont le nom contient la
      * @todo  Améliorer les fonctions de recherche
      * @param  string $args nom d'un wiki ou '*' pour les avoir tous
      * @return array       liste des wikis correspondant a la recherche
      */
-    public function search($args = null)
+    public function search($string = '*')
     {
-        if (is_null($args) or !is_string($args)) {
+        if (!is_string($string)) {
             return array();
         }
 
-        if ('*' == $args) {
+        if ('*' === $string) {
             return $this->list;
         }
 
-        if ($this->isExist($args)) {
-            return array($this->list[$args]);
+        if ($this->isExist($string)) {
+            return array($this->list[$string]);
         }
 
-        return array();
+        $selected = array();
+        foreach ($this->list as $name => $object) {
+            if (strstr($name, $string)) {
+                $selected[$name] = $object;
+            }
+        }
+
+        return $selected;
     }
 }
