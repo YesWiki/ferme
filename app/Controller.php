@@ -38,8 +38,6 @@ class Controller
                 break;
 
             default:
-                // Rafraichis sans calculer les données volumétriques
-                // (économie de temps)
                 $this->ferme->loadWikis(false);
                 break;
         }
@@ -138,7 +136,34 @@ class Controller
                 }
                 $this->view->show('admin.html');
                 break;
+            case 'ajax':
+                if (isset($_GET['query'])) {
+                    switch ($_GET['query']) {
+                        case 'search':
+                            $string = '*';
+                            if (isset($_GET['string'])) {
+                                $string = $_GET['string'];
+                                if ('' === $string) {
+                                    $string = '*';
+                                }
+                            }
 
+                            $this->view->ajax(
+                                $_GET['query'],
+                                'views/list_wikis.html',
+                                array('string' => $string)
+                            );
+                            break;
+
+                        default:
+                            # code...
+                            break;
+                    }
+
+                    break;
+                }
+            // Si query n'est pas définis on utiliser le traitement par
+            // défaut.
             default:
                 $this->view->show();
                 break;

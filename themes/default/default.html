@@ -34,9 +34,19 @@
               {% endif %}
             </a>
           {% if logged %}
-          </li>
           <li>
-            <a href="?action=logout">{{ username }}</a>
+            <div class="btn-group">
+              <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+                <span class="glyphicon  glyphicon-cog icon-cog"></span>
+            </a>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+              <li>
+                <span class="dropdown-item">Utilisateur : {{ username }}</span>
+              </li>
+              <li>
+                <a href="?action=logout">Déconnexion</a>
+              </li>
+            </ul>
           </li>
           {% endif %}
         </ul>
@@ -166,33 +176,23 @@
       <img id="thumb" class="img-polaroid" src="" />
     </div>
   </div> <!-- Fin row-->
-
-
-  <h1 class="title">Liste des Wikis</h1>
-
+ 
+  <div class="row">
+  <div class="span6">
+    <h1 class="title">Liste des Wikis</h1>
+  </div>
+  <div class="span6 control-group form-search list-filter">
+    <div class="controls">
+      <label for="filter">Filtre :</label> 
+      <input id="filter" type="text" name="filter" />
+    </div>
+  </div>
+  </div>
+  
   <div id="liste" class="row">
-    <table id="listeWikis" 
-      class="wiki-list table table-hover table-condensed 
-           span12 tablesorter">
-      <thead>
-        <tr>
-          <th>Nom</th>
-          <th>Description</th>
-          <th>Date de création</th>
-        </tr>
-      </thead>
-      <tbody> 
-        {% for wiki in list_wikis %}
-        <tr class="clickable" onclick='document.location.href="{{ wiki['url'] }}"'>    
-          <td class="span2"><strong>{{ wiki['name'] }}</strong></td>
-          <td class="span8">{{ wiki['description'] }}</td>
-          <td class="span2">
-            {{ wiki['date']|date("Y-m-d H:i", timezone="Europe/Paris") }}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+      
+        {% include 'views/list_wikis.html' %}
+        
   </div>
 </div> <!--Fin container -->
 
@@ -211,12 +211,33 @@
       document.getElementById('thumb').src = thumb;
     }
 
+    function lookup(inputString) {
+      $.get("", {
+        view: "ajax", 
+        query: "search", 
+        string: ""+$("#filter").val()+""
+      }, function(data){ // on envoit la valeur du champ texte dans la variable post queryString au fichier ajax.php
+        if(data.length >0) {
+          $('#listeWikis').replaceWith(data); 
+          initTableSorter();
+        }
+      });
+      initTableSorter();
+    }
+
+    function initTableSorter() {
+      $("#listeWikis").tablesorter(
+        {sortList: [[0,0]]}
+       );
+    }
+
     $(document).ready(changeThumb());
 
     $(document).ready(function() { 
-      $("#listeWikis").tablesorter(
-        {sortList: [[0,0]]}
-        ); 
+      initTableSorter();
+      $("#filter").keyup( function() {
+        lookup($(this).val()) 
+      });
     }); 
   </script>
 

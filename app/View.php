@@ -7,7 +7,7 @@ namespace Ferme;
  * Gère l'afficahge de la Ferme
  * @package Ferme
  * @author  Florestan Bredow <florestan.bredow@supagro.fr>
- * @version 0.1.1 (Git: $Id$)
+ * @version 0.2.1 (Git: $Id$)
  * @copyright 2013 Florestan Bredow
  */
 
@@ -37,92 +37,127 @@ class View
     }
 
     /**
-     * Affiche le wiki. ($template permet de forcer le theme)
+     * Affiche un template twig
      * @todo Ajouter choix du template
      *
      * @param $template
      */
     public function show($template = 'default.html')
     {
-        $wiki_name = '';
-        $description = '';
-        $mail = '';
+        $list_infos = array();
 
-        if (isset($_POST['wikiName'])) {
-            $wiki_name = $_POST['wikiName'];
+        if ('admin.html' === $template) {
+            $list_infos['list_archives'] =
+            $this->object2Infos($this->ferme->searchArchives());
         }
 
-        if (isset($_POST['description'])) {
-            $wiki_name = $_POST['description'];
+        if ('default.html' === $template) {
+            $this->addPostInfos($list_infos);
+            $list_infos['hashcash_url'] = $this->HashCash();
         }
 
-        if (isset($_POST['mail'])) {
-            $wiki_name = $_POST['mail'];
-        }
+        $this->addThemesInfos($list_infos);
+        $this->addUserInfos($list_infos);
 
-        echo $this->twig->render(
-            $template,
+        $list_infos['list_wikis'] =
+        $this->object2Infos($this->ferme->searchWikis());
+
+        echo $this->twig->render($template, $list_infos);
+    }
+
+    /**
+     * Affiche le résultat d'une requete ajax
+     * @todo  Premier jet a améliorer et completer.
+     *
+     * @param  string $query    [description]
+     * @param  string $template [description]
+     * @param  array $args     [description]
+     */
+    public function ajax($query, $template, $args = null)
+    {
+        $string = isset($args['string']) ? $args['string'] : '*';
+
+        $list_infos = array();
+
+        $list_infos['list_wikis'] =
+        $this->object2Infos($this->ferme->searchWikis($string));
+
+        echo $this->twig->render($template, $list_infos);
+    }
+
+    /**
+     * Ajout les informations contenu dans la variable $_POST (permet de
+     * conserver le contenu des formulaires non validé)
+     * @param array $infos le tableau d'information a completer.
+     */
+    private function addPostInfos(&$infos)
+    {
+        $infos['wiki_name'] =
+        isset($_POST['wikiName']) ? $_POST['wikiName'] : '';
+
+        $infos['description'] =
+        isset($_POST['description']) ? $_POST['description'] : '';
+
+        $infos['mail'] =
+        isset($_POST['mail']) ? $_POST['mail'] : '';
+
+        return ($infos);
+    }
+
+    /**
+     * Ajoute les informations sur le thème courant (js, css...)
+     * @param [type] &$infos le tableau d'information a completer.
+     */
+    private function addThemesInfos(&$infos)
+    {
+        $infos = array_merge(
+            $infos,
             array(
                 'list_css' => $this->getCSS(),
                 'list_alerts' => $this->ferme->getListAlerts(),
                 'list_js' => $this->getJS(),
                 'list_themes' => $this->ferme->getThemesList(),
-                'list_archives' => $this->getArchives(),
-                'list_wikis' => $this->getWikis(),
-                'wiki_name' => $wiki_name,
-                'mail' => $mail,
-                'description' => $description,
-                'hashcash_url' => $this->HashCash(),
+            )
+        );
+        return $infos;
+    }
+
+    /**
+     * Ajoute les informations concernant l'utilisateur connecté.
+     * @param  array  $infos le tableau a completer.
+     * @return array
+     */
+    private function addUserInfos(&$infos)
+    {
+        $infos = array_merge(
+            $infos,
+            array(
                 'username' => $this->ferme->whoIsLogged(),
                 'logged' => $this->ferme->isLogged(),
             )
         );
+        return $infos;
     }
 
     /**
-     * Retourne un tableau avec la liste des wikis
-     *
-     * @param $template
-     * @return null
+     * Génère un tableau d'information sur les objets a partir de la liste
+     * de ces objets (Archive ou Wiki)
+     * @param  array $list_objects liste d'objets dont il faut récupérer les
+     * informations
+     * @return array               Information sur les objets
      */
-    private function getWikis()
+    private function object2Infos($list_objects)
     {
-        $list_wikis = array();
-
-        $this->ferme->resetIndexWikis();
-        do {
-            $wiki = $this->ferme->getCurrentWiki();
-            $list_wikis[] = $wiki->getInfos();
-        } while ($this->ferme->getNextWiki());
-
-        return $list_wikis;
-    }
-
-    /**
-     * Retourne un tableau avec la liste des archives
-     *
-     * @param $template
-     * @return null
-     */
-    private function getArchives()
-    {
-        $list_archives = array();
-
-        // Si c'est la page principale les archives ne sont pas prises en
-        // compte
-        if ($this->ferme->countArchives() != 0) {
-            $this->ferme->resetIndexArchives();
-            do {
-                $archive = $this->ferme->getCurrentArchive();
-                $list_archives[] = $archive->getInfos();
-            } while ($this->ferme->getNextArchive());
+        $list_infos = array();
+        foreach ($list_objects as $name => $object) {
+            $list_infos[$name] = $object->getInfos();
         }
-
-        return $list_archives;
+        return $list_infos;
     }
 
     /**
-     * HASH-CASH : Charge le JavaScript qui génére la clé.
+     * Génère l'URL vers le javascript qui calcule le hash
+     * @return string URL vers le javascript
      */
     private function hashCash()
     {
@@ -132,32 +167,6 @@ class View
         . $this->config->getParameter('base_url');
 
         return $hashcash_url;
-    }
-
-    /**
-     * Ajoute les CSS du themes
-     */
-    public function getCSS()
-    {
-        $css_path = "themes/" . $this->theme . "/css/";
-        $list_css = array();
-        foreach ($this->getFiles($css_path) as $file) {
-            $list_css[] = $file;
-        }
-        return $list_css;
-    }
-
-    /**
-     * Ajoute les JavaScript du themes
-     */
-    public function getJS()
-    {
-        $js_path = "themes/" . $this->theme . "/js/";
-        $list_js = array();
-        foreach ($this->getFiles($js_path) as $file) {
-            $list_js[] = $file;
-        }
-        return $list_js;
     }
 
     /**
@@ -188,6 +197,32 @@ class View
         } while ($this->ferme->getNextWiki());
 
         $csv->printFile($filename);
+    }
+
+    /**
+     * Ajoute les CSS du themes
+     */
+    private function getCSS()
+    {
+        $css_path = "themes/" . $this->theme . "/css/";
+        $list_css = array();
+        foreach ($this->getFiles($css_path) as $file) {
+            $list_css[] = $file;
+        }
+        return $list_css;
+    }
+
+    /**
+     * Ajoute les JavaScript du themes
+     */
+    private function getJS()
+    {
+        $js_path = "themes/" . $this->theme . "/js/";
+        $list_js = array();
+        foreach ($this->getFiles($js_path) as $file) {
+            $list_js[] = $file;
+        }
+        return $list_js;
     }
 
     /**

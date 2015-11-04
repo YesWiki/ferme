@@ -17,3 +17,15 @@ div.auth {
     max-width: 500px;
     margin: auto;
 }
+
+div.list-filter {
+    text-align: right;
+    margin-top: 35px;
+}
+
+span.dropdown-item {
+    clear: both;
+    display: block;
+    padding: 3px 20px;
+    white-space: nowrap;
+}

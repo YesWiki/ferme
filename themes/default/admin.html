@@ -26,12 +26,23 @@
       </div>
       <div class="nav-collapse collapse pull-right">
         <ul class="nav">
+          <li><a href="./">Retour</a></li>
           {% if logged %}
           <li>
-            <a href="?action=logout">{{ username }}</a>
+            <div class="btn-group">
+              <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+                <span class="glyphicon  glyphicon-cog icon-cog"></span>
+            </a>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+              <li>
+                <span class="dropdown-item">Utilisateur : {{ username }}</span>
+              </li>
+              <li>
+                <a href="?action=logout">Déconnexion</a>
+              </li>
+            </ul>
           </li>
           {% endif %}
-          <li><a href="./">Retour</a></li>
         </ul>
       </div>
     </div>
