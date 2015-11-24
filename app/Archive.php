@@ -42,11 +42,20 @@ class Archive
             intval(substr($str_date, 6, 2)),
             intval(substr($str_date, 0, 4))
         );
-        $tab_infos['url'] = $this->config->getParameter('archives_path') . $this->filename;
-
+        $tab_infos['url'] = $this->getURL();
         $tab_infos['size'] = $this->calFilesSize();
-
         return $tab_infos;
+    }
+
+    /**
+     * Génère l'URL de téléchargement d'une archive
+     * @return string URL pour télécharger le fichier.
+     */
+    public function getURL()
+    {
+        $name = substr($this->filename, 0, -4);
+        $url = '?action=download&archive=' . $name;
+        return $url;
     }
 
     /**

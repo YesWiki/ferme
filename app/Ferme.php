@@ -31,7 +31,13 @@ class Ferme
      ************************************************************************/
     public function loadWikis($calsize = false)
     {
-        $this->wikis_factory->load($calsize);
+        try {
+            $this->wikis_factory->load($calsize);
+        } catch (Exception $e) {
+            // TODO : plutot envoyer un mail a l'admin.
+            $this->ferme->addAlert($e->getMessage(), "error");
+        }
+
     }
 
     public function countWikis()
