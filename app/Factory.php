@@ -1,7 +1,7 @@
 <?php
 namespace Ferme;
 
-abstract class Factory
+abstract class Factory implements \ArrayAccess
 {
     protected $list = null;
 
@@ -14,6 +14,30 @@ abstract class Factory
     abstract protected function init($args = null);
     abstract public function create($args = null);
     abstract public function remove($key);
+
+    public function offsetSet($offset, $value)
+    {
+        if (is_null($offset)) {
+            $this->list[] = $value;
+        } else {
+            $this->list[$offset] = $value;
+        }
+    }
+
+    public function offsetExists($offset)
+    {
+        return isset($this->list[$offset]);
+    }
+
+    public function offsetUnset($offset)
+    {
+        unset($this->list[$offset]);
+    }
+
+    public function offsetGet($offset)
+    {
+        return isset($this->list[$offset]) ? $this->list[$offset] : null;
+    }
 
     /**
      * Remets a zéro l'index sur la liste.
@@ -36,12 +60,9 @@ abstract class Factory
         return current($this->list);
     }
 
-    public function isExist($key)
+    public function exist($key)
     {
-        if (array_key_exists($key, $this->list)) {
-            return true;
-        }
-        return false;
+        return $this->offsetExists($key);
     }
 
     public function getCurrent()
@@ -70,7 +91,7 @@ abstract class Factory
             return $this->list;
         }
 
-        if ($this->isExist($string)) {
+        if ($this->offsetExists($string)) {
             return array($this->list[$string]);
         }
 
