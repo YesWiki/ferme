@@ -5,8 +5,8 @@ class Ferme
 {
     private $config;
     private $db_connexion;
-    private $wikis_factory = null;
-    private $archives_factory = null;
+    public $wikis_factory = null;
+    public $archives_factory = null;
     private $list_alerts;
     private $user_controller;
 
@@ -43,7 +43,7 @@ class Ferme
 
     public function countWikis()
     {
-        return $this->wikis_factory->count();
+        return count($this->wikis_factory);
     }
 
     public function delete($name)
@@ -60,17 +60,17 @@ class Ferme
 
     public function resetIndexWikis()
     {
-        $this->wikis_factory->resetIndex();
+        reset($this->wikis_factory);
     }
 
     public function getCurrentWiki()
     {
-        return $this->wikis_factory->getCurrent();
+        return current($this->wikis_factory);
     }
 
     public function getNextWiki()
     {
-        return $this->wikis_factory->getNext();
+        return next($this->wikis_factory);
     }
 
     public function searchWikis($args = '*')
@@ -115,7 +115,7 @@ class Ferme
 
     public function countArchives()
     {
-        return $this->archives_factory->count();
+        return count($this->archives_factory);
         return 0;
     }
 
@@ -127,17 +127,17 @@ class Ferme
 
     public function resetIndexArchives()
     {
-        $this->archives_factory->resetIndex();
+        reset($this->archives_factory);
     }
 
     public function getCurrentArchive()
     {
-        return $this->archives_factory->getCurrent();
+        return current($this->archives_factory);
     }
 
     public function getNextArchive()
     {
-        return $this->archives_factory->getNext();
+        return next($this->archives_factory);
     }
 
     public function searchArchives($args = '*')
@@ -247,6 +247,11 @@ class Ferme
             );
         }
         return $themesList;
+    }
+
+    public function checkIntegrity()
+    {
+
     }
 
     /**

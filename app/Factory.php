@@ -39,40 +39,9 @@ abstract class Factory implements \ArrayAccess
         return isset($this->list[$offset]) ? $this->list[$offset] : null;
     }
 
-    /**
-     * Remets a zéro l'index sur la liste.
-     */
-    public function resetIndex()
-    {
-        reset($this->list);
-    }
-
-    /**
-     * Passe a l'objet suivant et le retourne
-     * @return bool Si il n'y a pas d'objet
-     * @return Objet Une instance d'un objet de la list
-     */
-    public function getNext()
-    {
-        if (!next($this->list)) {
-            return false;
-        }
-        return current($this->list);
-    }
-
     public function exist($key)
     {
         return $this->offsetExists($key);
-    }
-
-    public function getCurrent()
-    {
-        return current($this->list);
-    }
-
-    public function count()
-    {
-        return count($this->list);
     }
 
     /**
