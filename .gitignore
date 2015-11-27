@@ -1,6 +1,7 @@
 ferme.config.php
 wikis/*
 img/.directory
+ferme.log
 .phpintel/*
 archives/*
 composer.lock
