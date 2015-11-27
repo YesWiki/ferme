@@ -25,7 +25,10 @@ class ArchivesFactory extends Factory
         if ($handle = opendir($archives_path)) {
             while (false !== ($archive = readdir($handle))) {
                 $archive_path = $archives_path . $archive;
-                if ("." != $archive && ".." != $archive && is_file($archive_path)
+                if ("." != $archive
+                    and ".." != $archive
+                    and "tgz" === pathinfo($archive, PATHINFO_EXTENSION)
+                    and is_file($archive_path)
                 ) {
                     $this->list[$archive] = new Archive($archive, $this->config);
                 }
