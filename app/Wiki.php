@@ -13,20 +13,40 @@ namespace Ferme;
 class Wiki
 {
     private $path;
-    private $config; //TODO : Utiliser la class Configuration
-    private $fermeConfig;
-    private $infos;
+    private $config;
+    private $ferme_config;
+    private $db_connexion;
+    private $infos = null;
 
     /**
      * Constructeur
+     * @param string        $path         chemin vers le wiki
+     * @param Configuration $config       configuration de la ferme
+     * @param PDO           $db_connexion connexion vers la base de donnée (déjà
+     * établie)
      */
-    public function __construct($path, $config, $calsize = true)
+    public function __construct($path, $config, $db_connexion)
     {
         $this->path = $path;
-        $this->fermeConfig = $config;
+        $this->ferme_config = $config;
+        $this->db_connexion = $db_connexion;
+    }
 
-        //Charge les infos sur le wiki
-        $file_path = $path . "/wakka.infos.php";
+    public function loadConfiguration()
+    {
+        $file_path = $this->path . "/wakka.config.php";
+        if (!file_exists($file_path)) {
+            return false;
+        }
+        $this->config = new Configuration($file_path);
+        return $this->config;
+    }
+
+    private function loadInfos()
+    {
+        unset($this->infos);
+
+        $file_path = $this->path . "/wakka.infos.php";
         if (file_exists($file_path)) {
             include $file_path;
         } else {
@@ -36,33 +56,39 @@ class Wiki
                 'date' => 0,
             );
         }
+
         $this->infos = $wakkaInfos;
-
-        //Charge la configuration du wiki
-        $file_path = $path . "/wakka.config.php";
-        if (!file_exists($file_path)) {
-            throw new \Exception("Wiki mal installé (" . $path . ").", 1);
-        }
-
-        include $file_path;
-        $this->config = $wakkaConfig;
-
         $this->infos['name'] = $this->config['wakka_name'];
         $this->infos['url'] = $this->config['base_url'];
 
-        if ($calsize) {
-            $this->infos['db_size'] = $this->calDBSize();
-            $this->infos['files_size'] = $this->calFilesSize();
+        return $this->infos;
+    }
+
+    /**
+     * Calcule la taille occupée par les fichiers et la base de donnée du wiki
+     * @return array Liste des informations sur le wiki avec au moins la taille
+     * de la base de donnée et des fichiers
+     */
+    public function calSize()
+    {
+        if (is_null($this->infos)) {
+            $this->loadInfos();
         }
+        $this->infos['db_size'] = $this->calDBSize();
+        $this->infos['files_size'] = $this->calFilesSize();
+        return $this->infos;
     }
 
     /**
      * Renvois les informations sur le wiki.
      *
-     * @return mixed
+     * @return array
      */
     public function getInfos()
     {
+        if (is_null($this->infos)) {
+            return $this->loadInfos();
+        }
         return $this->infos;
     }
 
@@ -73,10 +99,10 @@ class Wiki
     public function delete()
     {
         //Supprime la base de donnée
-        $db = $this->connectDB();
+        $db = $this->db_connexion;
         $tables = $this->getDBTablesList($db);
 
-        $ferme_path = $this->fermeConfig->getParameter('ferme_path');
+        $ferme_path = $this->ferme_config['ferme_path'];
 
         foreach ($tables as $table_name) {
             $sth = $db->prepare("DROP TABLE IF EXISTS " . $table_name);
@@ -116,10 +142,10 @@ class Wiki
     public function archive()
     {
         $wiki_name = $this->config['wakka_name'];
-        $filename = $this->fermeConfig->getParameter('archives_path')
+        $filename = $this->ferme_config['archives_path']
         . $wiki_name . date("YmdHi") . '.tgz';
-        $ferme_path = $this->fermeConfig->getParameter('ferme_path');
-        $tmp_path = $this->fermeConfig->getParameter('tmp_path');
+        $ferme_path = $this->ferme_config['ferme_path'];
+        $tmp_path = $this->ferme_config['tmp_path'];
 
         // Dump de la base de donnée.
         $sql_file = $this->dumpDB($tmp_path . $wiki_name . '.sql');
@@ -145,7 +171,7 @@ class Wiki
      */
     private function dumpDB($file)
     {
-        $db = $this->connectDB();
+        $db = $this->db_connexion;
         $tables = $this->getDBTablesList($db);
 
         $str_list_table = "";
@@ -153,10 +179,10 @@ class Wiki
             $str_list_table .= $table_name . " ";
         }
         $output = shell_exec(
-            "mysqldump --host=" . $this->config['mysql_host']
-            . " --user=" . $this->config['mysql_user']
-            . " --password=" . $this->config['mysql_password']
-            . " " . $this->config['mysql_database']
+            "mysqldump --host=" . $this->ferme_config['db_host']
+            . " --user=" . $this->ferme_config['db_user']
+            . " --password=" . $this->ferme_config['db_password']
+            . " " . $this->ferme_config['db_name']
             . " " . $str_list_table
             . " > " . $file
         );
@@ -171,7 +197,7 @@ class Wiki
      */
     private function calDBSize()
     {
-        $db = $this->connectDB();
+        $db = $this->db_connexion;
         $query = "SHOW TABLE STATUS LIKE '"
         . $this->config['table_prefix']
             . "%';";
@@ -210,29 +236,20 @@ class Wiki
     }
 
     /**
-     * Connection à la base de donnée.
-     *
-     * @return mixed
+     * [updateConfiguration description]
+     * @return [type] [description]
      */
-    private function connectDB()
+    public function updateConfiguration()
     {
-        $dsn = 'mysql:host=' . $this->config['mysql_host'] . ';'
-        . 'dbname=' . $this->config['mysql_database'] . ';';
-
-        try {
-            $connexion = new \PDO(
-                $dsn,
-                $this->config['mysql_user'],
-                $this->config['mysql_password']
-            );
-            return $connexion;
-        } catch (\PDOException $e) {
-            throw new \Exception(
-                "Impossible de se connecter à la base de donnée : "
-                . $e->getMessage(),
-                1
-            );
-        }
+        $this->config['mysql_host'] = $this->ferme_config['db_host'];
+        $this->config['mysql_database'] = $this->ferme_config['db_name'];
+        $this->config['mysql_user'] = $this->ferme_config['db_user'];
+        $this->config['mysql_password'] = $this->ferme_config['db_password'];
+        $this->config['base_url'] = $this->ferme_config['base_url'];
+        $this->config['base_url'] .= $this->path;
+        $this->config['base_url'] .= '/wakka.php?wiki=';
+        $this->config->write($this->path . "/wakka.config.php");
+        return $this->config;
     }
 
     /**
@@ -241,8 +258,9 @@ class Wiki
      * @param $db
      * @return mixed
      */
-    private function getDBTablesList($db)
+    private function getDBTablesList()
     {
+        $db = $this->db_connexion;
         // Echape le caractère '_' et '%'
         $search = array('%', '_');
         $replace = array('\%', '\_');

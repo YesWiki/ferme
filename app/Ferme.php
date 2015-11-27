@@ -52,6 +52,12 @@ class Ferme
         $this->wikis_factory->remove($name);
     }
 
+    public function updateConfiguration($name)
+    {
+        $this->isAuthorized();
+        $this->wikis_factory->updateConfiguration($name);
+    }
+
     public function resetIndexWikis()
     {
         $this->wikis_factory->resetIndex();

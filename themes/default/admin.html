@@ -108,6 +108,10 @@
                 href="?view=admin&action=archive&name={{ wiki['name'] }}">
               <i class="icon-circle-arrow-down icon-white"></i>
             </a>
+            <a  class="save btn btn-mini btn-warning" 
+                href="?view=admin&action=updateConfiguration&name={{ wiki['name'] }}">
+              <i class="icon-refresh icon-white"></i>
+            </a>
             <a  class="delete btn btn-mini btn-danger"
                 onclick="return(confirm('Etes-vous sûr de vouloir supprimer le wiki : {{ wiki['name'] }} ?'));"
                 href="?view=admin&action=delete&name={{ wiki['name'] }}">

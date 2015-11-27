@@ -132,7 +132,19 @@ class Controller
                     }
                 }
                 break;
-
+            case 'updateConfiguration':
+                if (isset($_GET['name'])) {
+                    try {
+                        $this->ferme->updateConfiguration($_GET['name']);
+                        $this->ferme->addAlert(
+                            "Wiki " . $_GET['name']
+                            . " : configuration mise à jour avec succès"
+                        );
+                    } catch (\Exception $e) {
+                        $this->ferme->addAlert($e->getMessage(), "error");
+                    }
+                }
+                break;
             case 'archive':
                 if (isset($_GET['name'])) {
                     try {

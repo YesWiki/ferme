@@ -4,6 +4,7 @@ namespace Ferme;
 class WikisFactory extends Factory
 {
     protected $config;
+    protected $db_connexion = null;
 
     /**
      * Initialise la classe (appelé par le constructeur)
@@ -12,7 +13,7 @@ class WikisFactory extends Factory
     protected function init($args = null)
     {
         if (!isset($args['config'])) {
-            throw new Exception(
+            throw new \Exception(
                 "Paramètre manquant lors de l'instantiation de "
                 . get_class($this),
                 1
@@ -23,28 +24,37 @@ class WikisFactory extends Factory
 
     /**
      * Charge la liste des Wikis et leurs informations.
-     * @param  boolean $calsize Si vrai calcule la taille de la base de donnée
+     * @param  boolean $calculate_size Si vrai calcule la taille de la base de donnée
      * et l'espace occupé sur le disque.
      */
-    public function load($calsize = false)
+    public function load($eval_size = false)
     {
-        $ferme_path = $this->config->getParameter('ferme_path');
+        $this->dbConnect();
+        $ferme_path = $this->config['ferme_path'];
         if ($handle = opendir($ferme_path)) {
             while (false !== ($wiki = readdir($handle))) {
                 $wiki_path = $ferme_path . $wiki;
-                if ("." != $wiki && ".." != $wiki && is_dir($wiki_path)
+                if ("." != $wiki and ".." != $wiki and is_dir($wiki_path)
                 ) {
                     $this->list[$wiki] = new Wiki(
                         $wiki_path,
                         $this->config,
-                        $calsize
+                        $this->db_connexion
                     );
+                    // Gère le cas ou le wiki a été partiellement installé.
+                    if (!$this->list[$wiki]->loadConfiguration()) {
+                        unset($this->list[$wiki]);
+                    } else {
+                        if ($eval_size) {
+                            $this->list[$wiki]->calSize();
+                        }
+                    }
                 }
             }
             closedir($handle);
         } else {
             throw new \Exception(
-                "Impossible d'accéder à " . $this->ferme_path,
+                "Impossible d'accéder à " . $ferme_path,
                 1
             );
         }
@@ -60,6 +70,8 @@ class WikisFactory extends Factory
      */
     public function create($args = null)
     {
+        $this->dbConnect();
+
         if (!isset($args['name'])
             or !isset($args['mail'])
             or !isset($args['desc'])
@@ -74,26 +86,22 @@ class WikisFactory extends Factory
         $mail = $args['mail'];
         $description = $args['desc'];
 
-        $wiki_path = $this->config->getParameter('ferme_path')
+        $wiki_path = $this->config['ferme_path']
             . $wiki_name
             . "/";
         $package_path = "packages/"
-        . $this->config->getParameter('source')
+        . $this->config['source']
             . "/";
 
         // Vérifie si le wiki n'existe pas déjà
         if (is_dir($wiki_path) || is_file($wiki_path)) {
-            throw new \Exception("Ce nom de wiki est déjà utilisé", 1);
-            exit();
+            throw new \Exception(
+                "Ce nom de wiki est déjà utilisé (" . $args['name'] . ")",
+                1
+            );
         }
 
-        // TODO : trouver une solution portable et optimisée
-        $output = shell_exec(
-            "cp -r --preserve=mode,ownership "
-            . $package_path
-            . "files"
-            . " " . $wiki_path
-        );
+        $this->copyFiles($package_path . "files", $wiki_path);
 
         // TODO : Utiliser la class Configuration pour gérer cela ou pas...
         // A reflechir...
@@ -103,29 +111,15 @@ class WikisFactory extends Factory
             file_put_contents($wiki_path . $file, utf8_encode($content));
         }
 
-        //TODO : PDO
         //Création de la base de donnée
-        $dblink = mysql_connect(
-            $this->config->getParameter('db_host'),
-            $this->config->getParameter('db_user'),
-            $this->config->getParameter('db_password')
-        );
-
-        mysql_select_db(
-            $this->config->getParameter('db_name'),
-            $dblink
-        );
-
         include $package_path . "database.php";
 
         foreach ($listQuery as $query) {
-            $result = mysql_query($query, $dblink);
-            if (!$result) {
+            $sth = $this->db_connexion->prepare($query);
+            if (!$sth->execute()) {
                 die('Requête invalide : ' . mysql_error());
             }
         }
-        mysql_close($dblink);
-
         return $wiki_path;
     }
 
@@ -143,5 +137,72 @@ class WikisFactory extends Factory
                 1
             );
         }
+    }
+
+    public function updateConfiguration($key)
+    {
+        if (isset($this->list[$key])) {
+            $this->list[$key]->updateConfiguration();
+        } else {
+            throw new \Exception(
+                "Impossible de mettre à jour la configuration du wiki "
+                . " $key. Il n'existe pas.",
+                1
+            );
+        }
+    }
+
+    /**
+     * Établis la connexion a la base de donnée si ce n'est pas déjà fait.
+     * @return \PDO la connexion a la base de donnée
+     */
+    private function dbConnect()
+    {
+        if (!is_null($this->db_connexion)) {
+            return $this->db_connexion;
+        }
+
+        $dsn = 'mysql:host='
+        . $this->config['db_host']
+        . ';dbname='
+        . $this->config['db_name']
+            . ';';
+
+        try {
+            $this->db_connexion = new \PDO(
+                $dsn,
+                $this->config['db_user'],
+                $this->config['db_password']
+            );
+            return $this->db_connexion;
+        } catch (\PDOException $e) {
+            throw new \Exception(
+                "Impossible de se connecter à la base de donnée : "
+                . $e->getMessage(),
+                1
+            );
+        }
+    }
+
+    /**
+     * Copie les fichiers
+     * @param  string $source      Dossier source
+     * @param  string $destination Dossier de destination
+     * @return bool              Vrai si l'opération à réussi
+     */
+    private function copyFiles($source, $destination)
+    {
+        // TODO : trouver une solution portable et optimisée
+        $output = array();
+        $command = "cp -r --preserve=mode,ownership "
+            . $source . " "
+            . $destination;
+        exec($command, $output, $return_var);
+
+        if (0 != $return_var) {
+            shell_exec("rm -r " . $destination);
+            throw new \Exception("Erreur lors de la copie des fichiers", 1);
+        }
+        return true;
     }
 }

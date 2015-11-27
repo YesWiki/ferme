@@ -48,11 +48,17 @@ class Configuration implements \ArrayAccess
     }
 
     /**
-     * [save description]
+     * écris le fichier de configuration
      * @return [type] [description]
      */
-    public function save()
+    public function write($file, $array_name = "wakkaConfig")
     {
-
+        $content = "<?php\n";
+        $content .= "\$$array_name = array(\n";
+        foreach ($this->config as $key => $value) {
+            $content .= "\t\"" . $key . "\" => \"" . $value . "\",\n";
+        }
+        $content .= ");\n";
+        file_put_contents($file, $content);
     }
 }
