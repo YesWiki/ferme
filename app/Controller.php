@@ -221,7 +221,7 @@ class Controller
         }
 
         $this->ferme->addAlert(
-            '<a href="' . $this->config->getParameter('base_url')
+            '<a href="' . $this->config['base_url']
             . $wiki_path . '">Visiter le nouveau wiki</a>'
         );
     }

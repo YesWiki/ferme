@@ -29,7 +29,7 @@ class View
         $this->ferme = $ferme;
         $this->alerts = array();
         $this->config = $ferme->getConfig();
-        $this->theme = $this->config->getParameter('template');
+        $this->theme = $this->config['template'];
         $this->twig_loader = new \Twig_Loader_Filesystem(
             'themes/' . $this->theme
         );
@@ -162,9 +162,9 @@ class View
     private function hashCash()
     {
         $hashcash_url =
-        $this->config->getParameter('base_url')
+        $this->config['base_url']
         . 'app/wp-hashcash-js.php?siteurl='
-        . $this->config->getParameter('base_url');
+        . $this->config['base_url'];
 
         return $hashcash_url;
     }

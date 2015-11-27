@@ -20,7 +20,7 @@ class ArchivesFactory extends Factory
     public function load()
     {
         $this->list = array();
-        $archives_path = $this->config->getParameter('archives_path');
+        $archives_path = $this->config['archives_path'];
 
         if ($handle = opendir($archives_path)) {
             while (false !== ($archive = readdir($handle))) {

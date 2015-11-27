@@ -1,49 +1,58 @@
 <?php
 namespace Ferme;
 
-class Configuration
+class Configuration implements \ArrayAccess
 {
     /**
      *
      * @var array
      */
     private $config;
+    private $file;
 
     /**
-     * @param string $file
+     * [__construct description]
+     * @param [type] $file [description]
      */
     public function __construct($file)
     {
+        $this->file = $file;
         include $file;
         if (isset($wakkaConfig)) {
             $this->config = $wakkaConfig;
         }
     }
 
-    /**
-     * @param $parameter_name
-     */
-    public function getParameter($parameter_name)
+    public function offsetSet($offset, $value)
     {
-        if ($this->isExist($parameter_name)) {
-            return $this->config[$parameter_name];
+        if (is_null($offset)) {
+            $this->config[] = $value;
+        } else {
+            $this->config[$offset] = $value;
         }
-        throw new \Exception(
-            'Le paramètre ' . $parameter_name . ' n\'est pas défini.',
-            1
-        );
+    }
 
+    public function offsetExists($offset)
+    {
+        return isset($this->config[$offset]);
+    }
+
+    public function offsetUnset($offset)
+    {
+        unset($this->config[$offset]);
+    }
+
+    public function offsetGet($offset)
+    {
+        return isset($this->config[$offset]) ? $this->config[$offset] : null;
     }
 
     /**
-     * @param $parameter_name
+     * [save description]
+     * @return [type] [description]
      */
-    public function isExist($parameter_name)
+    public function save()
     {
-        if (isset($this->config[$parameter_name])) {
-            return true;
-        } else {
-            return false;
-        }
+
     }
 }

@@ -64,10 +64,10 @@ class Archive
     public function restore()
     {
         $name = substr($this->filename, 0, -16);
-        $ferme_path = $this->config->getParameter('ferme_path');
+        $ferme_path = $this->config['ferme_path'];
         $wiki_path = $ferme_path . $name . '/';
-        $tmp_path = $this->config->getParameter('tmp_path');
-        $archives_path = $this->config->getParameter('archives_path');
+        $tmp_path = $this->config['tmp_path'];
+        $archives_path = $this->config['archives_path'];
         $sql_file = $ferme_path . $name . '.sql';
 
         //Vérifier si le wiki n'est pas déjà existant
@@ -113,7 +113,7 @@ class Archive
     public function delete()
     {
         if (!unlink(
-            $this->config->getParameter('archives_path') . $this->filename
+            $this->config['archives_path'] . $this->filename
         )) {
             throw new \Exception('Impossible de supprimer l\'archive', 1);
             exit();
@@ -126,7 +126,7 @@ class Archive
     private function calFilesSize()
     {
         return filesize(
-            $this->config->getParameter('archives_path')
+            $this->config['archives_path']
             . $this->filename
         );
     }

@@ -35,7 +35,7 @@ class UserController
      */
     public function login($username, $password)
     {
-        $list_user = $this->configuration->getParameter('users');
+        $list_user = $this->configuration['users'];
         foreach ($list_user as $valid_username => $hash) {
             if (($valid_username == $username)
                 and password_verify($password, $hash)

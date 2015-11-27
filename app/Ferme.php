@@ -4,6 +4,7 @@ namespace Ferme;
 class Ferme
 {
     private $config;
+    private $db_connexion;
     private $wikis_factory = null;
     private $archives_factory = null;
     private $list_alerts;
@@ -204,7 +205,7 @@ class Ferme
      */
     public function getAdminURL()
     {
-        return $this->config->getParameter('base_url') . "?view=admin";
+        return $this->config['base_url'] . "?view=admin";
     }
 
     /**
@@ -213,7 +214,7 @@ class Ferme
      */
     public function getURL()
     {
-        return $this->config->getParameter('base_url');
+        return $this->config['base_url'];
     }
 
     public function getConfig()
@@ -230,7 +231,7 @@ class Ferme
         $themesList = array();
 
         include "packages/"
-        . $this->config->getParameter('source')
+        . $this->config['source']
             . "/install.config.php";
 
         foreach ($config['themes'] as $key => $value) {

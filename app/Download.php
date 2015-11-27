@@ -10,7 +10,7 @@ class Download
     {
         $config = $ferme->getConfig();
         $this->name = $name . '.tgz';
-        $this->path = $config->getParameter('archives_path');
+        $this->path = $config['archives_path'];
 
         if (!file_exists($this->path . $this->name)) {
             throw new \Exception("Le fichier n'existe pas.", 1);
