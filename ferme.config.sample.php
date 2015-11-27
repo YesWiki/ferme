@@ -6,6 +6,7 @@ $this->config = array(
     'db_password' => 'XXXXXXXXXX',
     'base_url' => 'http://localhost/ferme/',
     'source' => 'yeswiki-cercopitheque',
+    'log_file' => 'ferme.log',
     'ferme_path' => 'wikis/',
     'archives_path' => 'archives/',
     'tmp_path' => '/tmp/',

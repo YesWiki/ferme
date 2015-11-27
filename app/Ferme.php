@@ -9,6 +9,7 @@ class Ferme
     public $archives_factory = null;
     private $list_alerts;
     private $user_controller;
+    private $log;
 
     /*************************************************************************
      * constructor
@@ -23,7 +24,7 @@ class Ferme
         $this->archives_factory = new ArchivesFactory(
             array('config' => $this->config)
         );
-        $this->archives = array();
+        $this->log = new Log($this->config['log_file']);
         $this->list_alerts = new Alerts();
     }
 
@@ -49,12 +50,18 @@ class Ferme
     public function delete($name)
     {
         $this->isAuthorized();
+        $this->log->write($this->whoIsLogged(), "Suppression du wiki '$name'");
         $this->wikis_factory->remove($name);
+
     }
 
     public function updateConfiguration($name)
     {
         $this->isAuthorized();
+        $this->log->write(
+            $this->whoIsLogged(),
+            "Mise a jour de configuration de '$name'"
+        );
         $this->wikis_factory->updateConfiguration($name);
     }
 
@@ -105,6 +112,10 @@ class Ferme
     {
         $this->isAuthorized();
         $list_wikis = $this->wikis_factory->search($name);
+        $this->log->write(
+            $this->whoIsLogged(),
+            "Archive le wiki '$name'"
+        );
         $this->archives_factory->create($list_wikis[0]);
     }
 
@@ -122,6 +133,10 @@ class Ferme
     public function deleteArchive($name)
     {
         $this->isAuthorized();
+        $this->log->write(
+            $this->whoIsLogged(),
+            "Suppression de l'archive '$name'"
+        );
         $this->archives_factory->remove($name);
     }
 
@@ -149,6 +164,10 @@ class Ferme
     {
         $this->isAuthorized();
         $list_archives = $this->archives_factory->search($name);
+        $this->log->write(
+            $this->whoIsLogged(),
+            "Restauration de l'archive '$name'"
+        );
         $list_archives[0]->restore();
     }
 
