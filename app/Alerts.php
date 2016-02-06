@@ -42,20 +42,19 @@ class Alerts
      */
     public function getAll()
     {
-        $list_alerts = array();
+        $listAlerts = array();
 
         //Affichage des alertes
         if (isset($_SESSION['alerts'])) {
-            $i = 0;
             foreach ($_SESSION['alerts'] as $key => $alert) {
-                $list_alerts[] = array(
+                $listAlerts[] = array(
                     'id' => "alert" . $key,
                     'text' => $alert['text'],
                     'type' => $alert['type'],
                 );
             }
         }
-        return $list_alerts;
+        return $listAlerts;
     }
 
     /**

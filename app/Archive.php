@@ -31,20 +31,20 @@ class Archive
      */
     public function getInfos()
     {
-        $tab_infos['name'] = substr($this->filename, 0, -16);
-        $tab_infos['filename'] = $this->filename;
-        $str_date = substr($this->filename, -16, 12);
-        $tab_infos['date'] = mktime(
-            intval(substr($str_date, 8, 2)),
-            intval(substr($str_date, 10, 2)),
+        $tabInfos['name'] = substr($this->filename, 0, -16);
+        $tabInfos['filename'] = $this->filename;
+        $strDate = substr($this->filename, -16, 12);
+        $tabInfos['date'] = mktime(
+            intval(substr($strDate, 8, 2)),
+            intval(substr($strDate, 10, 2)),
             0,
-            intval(substr($str_date, 4, 2)),
-            intval(substr($str_date, 6, 2)),
-            intval(substr($str_date, 0, 4))
+            intval(substr($strDate, 4, 2)),
+            intval(substr($strDate, 6, 2)),
+            intval(substr($strDate, 0, 4))
         );
-        $tab_infos['url'] = $this->getURL();
-        $tab_infos['size'] = $this->calFilesSize();
-        return $tab_infos;
+        $tabInfos['url'] = $this->getURL();
+        $tabInfos['size'] = $this->calFilesSize();
+        return $tabInfos;
     }
 
     /**
@@ -64,37 +64,34 @@ class Archive
     public function restore()
     {
         $name = substr($this->filename, 0, -16);
-        $ferme_path = $this->config['ferme_path'];
-        $wiki_path = $ferme_path . $name . '/';
-        $tmp_path = $this->config['tmp_path'];
-        $archives_path = $this->config['archives_path'];
-        $sql_file = $ferme_path . $name . '.sql';
+        $fermePath = $this->config['ferme_path'];
+        $wikiPath = $fermePath . $name . '/';
+        $archivesPath = $this->config['archives_path'];
+        $sqlFile = $fermePath . $name . '.sql';
 
         //Vérifier si le wiki n'est pas déjà existant
-        if (file_exists($wiki_path)) {
+        if (file_exists($wikiPath)) {
             throw new \Exception('Un wiki du meme nom existe déjà.', 1);
-            exit();
         }
 
         $output = shell_exec(
-            'tar -C ' . $ferme_path
-            . ' -xvzf ' . $archives_path . $this->filename
+            'tar -C ' . $fermePath
+            . ' -xvzf ' . $archivesPath . $this->filename
         );
 
         // Vérifie si les fichiers sont bien de retour au bon endroit
-        if (!is_dir($wiki_path)) {
+        if (!is_dir($wikiPath)) {
             throw new \Exception(
                 'Impossible d\'extraire l\'archive',
                 1
             );
-            exit();
         }
 
         //restaurer la base de donnée
-        include $wiki_path . "wakka.config.php";
+        include $wikiPath . "wakka.config.php";
 
         $output = shell_exec(
-            'cat ' . $sql_file . ' | '
+            'cat ' . $sqlFile . ' | '
             . '/usr/bin/mysql'
             . ' --host=' . $wakkaConfig['mysql_host']
             . ' --user=' . $wakkaConfig['mysql_user']
@@ -104,7 +101,7 @@ class Archive
 
         //Effacer les fichiers temporaires
 
-        unlink($sql_file);
+        unlink($sqlFile);
     }
 
     /*************************************************************************
@@ -116,7 +113,6 @@ class Archive
             $this->config['archives_path'] . $this->filename
         )) {
             throw new \Exception('Impossible de supprimer l\'archive', 1);
-            exit();
         }
     }
 

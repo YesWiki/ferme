@@ -14,31 +14,31 @@ class Wiki
 {
     private $path;
     private $config;
-    private $ferme_config;
-    private $db_connexion;
+    private $fermeConfig;
+    private $dbConnexion;
     private $infos = null;
 
     /**
      * Constructeur
      * @param string        $path         chemin vers le wiki
      * @param Configuration $config       configuration de la ferme
-     * @param PDO           $db_connexion connexion vers la base de donnée (déjà
+     * @param PDO           $dbConnexion connexion vers la base de donnée (déjà
      * établie)
      */
-    public function __construct($path, $config, $db_connexion)
+    public function __construct($path, $config, $dbConnexion)
     {
         $this->path = $path;
-        $this->ferme_config = $config;
-        $this->db_connexion = $db_connexion;
+        $this->fermeConfig = $config;
+        $this->dbConnexion = $dbConnexion;
     }
 
     public function loadConfiguration()
     {
-        $file_path = $this->path . "/wakka.config.php";
-        if (!file_exists($file_path)) {
+        $filePath = $this->path . "/wakka.config.php";
+        if (!file_exists($filePath)) {
             return false;
         }
-        $this->config = new Configuration($file_path);
+        $this->config = new Configuration($filePath);
         return $this->config;
     }
 
@@ -46,15 +46,16 @@ class Wiki
     {
         unset($this->infos);
 
-        $file_path = $this->path . "/wakka.infos.php";
-        if (file_exists($file_path)) {
-            include $file_path;
-        } else {
-            $wakkaInfos = array(
-                'mail' => 'nomail',
-                'description' => 'Pas de description.',
-                'date' => 0,
-            );
+        $filePath = $this->path . "/wakka.infos.php";
+
+        $wakkaInfos = array(
+            'mail' => 'nomail',
+            'description' => 'Pas de description.',
+            'date' => 0,
+        );
+
+        if (file_exists($filePath)) {
+            include $filePath;
         }
 
         $this->infos = $wakkaInfos;
@@ -99,19 +100,18 @@ class Wiki
     public function delete()
     {
         //Supprime la base de donnée
-        $db = $this->db_connexion;
+        $database = $this->dbConnexion;
         $tables = $this->getDBTablesList($db);
 
-        $ferme_path = $this->ferme_config['ferme_path'];
+        $fermePath = $this->fermeConfig['ferme_path'];
 
-        foreach ($tables as $table_name) {
-            $sth = $db->prepare("DROP TABLE IF EXISTS " . $table_name);
+        foreach ($tables as $tableName) {
+            $sth = $database->prepare("DROP TABLE IF EXISTS " . $tableName);
             if (!$sth->execute()) {
                 throw new \Exception(
                     "Erreur lors de la suppression de la base de donnée",
                     1
                 );
-                exit();
             }
         }
         // Vérifie si la suppression a été effective
@@ -121,18 +121,16 @@ class Wiki
                 "Erreur lors de la suppression de la base de donnée",
                 1
             );
-            exit();
         }
         //Supprimer les fichiers
-        $output = shell_exec(
-            'rm -r ' . $ferme_path . $this->config['wakka_name']
+        shell_exec(
+            'rm -r ' . $fermePath . $this->config['wakka_name']
         );
-        if (is_dir($ferme_path . $this->config['wakka_name'])) {
+        if (is_dir($fermePath . $this->config['wakka_name'])) {
             throw new \Exception(
                 "Impossible de supprimer les fichiers du wiki",
                 1
             );
-            exit();
         }
     }
 
@@ -141,23 +139,23 @@ class Wiki
      */
     public function archive()
     {
-        $wiki_name = $this->config['wakka_name'];
-        $filename = $this->ferme_config['archives_path']
-        . $wiki_name . date("YmdHi") . '.tgz';
-        $ferme_path = $this->ferme_config['ferme_path'];
-        $tmp_path = $this->ferme_config['tmp_path'];
+        $wikiName = $this->config['wakka_name'];
+        $filename = $this->fermeConfig['archives_path']
+        . $wikiName . date("YmdHi") . '.tgz';
+        $fermePath = $this->fermeConfig['ferme_path'];
+        $tmpPath = $this->fermeConfig['tmp_path'];
 
         // Dump de la base de donnée.
-        $sql_file = $this->dumpDB($tmp_path . $wiki_name . '.sql');
+        $sqlFile = $this->dumpDB($tmpPath . $wikiName . '.sql');
 
         // TODO : Solution portable est optimisée
         $cmd = 'tar -czf ' . $filename
-        . ' -C ' . $ferme_path . ' ' . $wiki_name
-        . ' -C  ' . realpath($tmp_path) . ' ' . $wiki_name . '.sql';
+        . ' -C ' . $fermePath . ' ' . $wikiName
+        . ' -C  ' . realpath($tmpPath) . ' ' . $wikiName . '.sql';
 
         shell_exec($cmd);
 
-        unlink($sql_file);
+        unlink($sqlFile);
 
         return $filename;
     }
@@ -171,19 +169,19 @@ class Wiki
      */
     private function dumpDB($file)
     {
-        $db = $this->db_connexion;
-        $tables = $this->getDBTablesList($db);
+        $database = $this->dbConnexion;
+        $tables = $this->getDBTablesList($database);
 
-        $str_list_table = "";
-        foreach ($tables as $table_name) {
-            $str_list_table .= $table_name . " ";
+        $strListTable = "";
+        foreach ($tables as $tableName) {
+            $strListTable .= $tableName . " ";
         }
-        $output = shell_exec(
-            "mysqldump --host=" . $this->ferme_config['db_host']
-            . " --user=" . $this->ferme_config['db_user']
-            . " --password=" . $this->ferme_config['db_password']
-            . " " . $this->ferme_config['db_name']
-            . " " . $str_list_table
+        shell_exec(
+            "mysqldump --host=" . $this->fermeConfig['db_host']
+            . " --user=" . $this->fermeConfig['db_user']
+            . " --password=" . $this->fermeConfig['db_password']
+            . " " . $this->fermeConfig['db_name']
+            . " " . $strListTable
             . " > " . $file
         );
 
@@ -197,12 +195,12 @@ class Wiki
      */
     private function calDBSize()
     {
-        $db = $this->db_connexion;
+        $database = $this->dbConnexion;
         $query = "SHOW TABLE STATUS LIKE '"
         . $this->config['table_prefix']
             . "%';";
 
-        $result = $db->query($query);
+        $result = $database->query($query);
         $result->setFetchMode(\PDO::FETCH_OBJ);
 
         $size = 0;
@@ -241,11 +239,11 @@ class Wiki
      */
     public function updateConfiguration()
     {
-        $this->config['mysql_host'] = $this->ferme_config['db_host'];
-        $this->config['mysql_database'] = $this->ferme_config['db_name'];
-        $this->config['mysql_user'] = $this->ferme_config['db_user'];
-        $this->config['mysql_password'] = $this->ferme_config['db_password'];
-        $this->config['base_url'] = $this->ferme_config['base_url'];
+        $this->config['mysql_host'] = $this->fermeConfig['db_host'];
+        $this->config['mysql_database'] = $this->fermeConfig['db_name'];
+        $this->config['mysql_user'] = $this->fermeConfig['db_user'];
+        $this->config['mysql_password'] = $this->fermeConfig['db_password'];
+        $this->config['base_url'] = $this->fermeConfig['base_url'];
         $this->config['base_url'] .= $this->path;
         $this->config['base_url'] .= '/wakka.php?wiki=';
         $this->config->write($this->path . "/wakka.config.php");
@@ -260,27 +258,27 @@ class Wiki
      */
     private function getDBTablesList()
     {
-        $db = $this->db_connexion;
+        $database = $this->dbConnexion;
         // Echape le caractère '_' et '%'
         $search = array('%', '_');
         $replace = array('\%', '\_');
-        $table_prefix = str_replace(
+        $tablePrefix = str_replace(
             $search,
             $replace,
             $this->config['table_prefix']
         ) . '%';
 
         $query = "SHOW TABLES LIKE ?";
-        $sth = $db->prepare($query);
-        $sth->execute(array($table_prefix));
+        $sth = $database->prepare($query);
+        $sth->execute(array($tablePrefix));
 
         $results = $sth->fetchAll();
 
-        $final_results = array();
+        $finalResults = array();
         foreach ($results as $value) {
-            $final_results[] = $value[0];
+            $finalResults[] = $value[0];
         }
 
-        return $final_results;
+        return $finalResults;
     }
 }

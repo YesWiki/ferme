@@ -27,9 +27,9 @@ class Configuration implements \ArrayAccess
     {
         if (is_null($offset)) {
             $this->config[] = $value;
-        } else {
-            $this->config[$offset] = $value;
+            return;
         }
+        $this->config[$offset] = $value;
     }
 
     public function offsetExists($offset)
@@ -51,10 +51,10 @@ class Configuration implements \ArrayAccess
      * écris le fichier de configuration
      * @return [type] [description]
      */
-    public function write($file, $array_name = "wakkaConfig")
+    public function write($file, $arrayName = "wakkaConfig")
     {
         $content = "<?php\n";
-        $content .= "\$$array_name = array(\n";
+        $content .= "\$$arrayName = array(\n";
         foreach ($this->config as $key => $value) {
             $content .= "\t\"" . $key . "\" => \"" . $value . "\",\n";
         }

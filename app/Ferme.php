@@ -4,11 +4,10 @@ namespace Ferme;
 class Ferme
 {
     private $config;
-    private $db_connexion;
-    public $wikis_factory = null;
-    public $archives_factory = null;
-    private $list_alerts;
-    private $user_controller;
+    public $wikisFactory = null;
+    public $archivesFactory = null;
+    private $listAlerts;
+    private $userController;
     private $log;
 
     /*************************************************************************
@@ -17,15 +16,15 @@ class Ferme
     public function __construct($config)
     {
         $this->config = $config;
-        $this->user_controller = new UserController($config);
-        $this->wikis_factory = new WikisFactory(
+        $this->userController = new UserController($config);
+        $this->wikisFactory = new WikisFactory(
             array('config' => $this->config)
         );
-        $this->archives_factory = new ArchivesFactory(
+        $this->archivesFactory = new ArchivesFactory(
             array('config' => $this->config)
         );
         $this->log = new Log($this->config['log_file']);
-        $this->list_alerts = new Alerts();
+        $this->listAlerts = new Alerts();
     }
 
     /*************************************************************************
@@ -34,24 +33,23 @@ class Ferme
     public function loadWikis($calsize = false)
     {
         try {
-            $this->wikis_factory->load($calsize);
+            $this->wikisFactory->load($calsize);
         } catch (Exception $e) {
-            // TODO : plutot envoyer un mail a l'admin.
+            // TODO : plutot envoyer un mail à l'admin.
             $this->ferme->addAlert($e->getMessage(), "error");
         }
-
     }
 
     public function countWikis()
     {
-        return count($this->wikis_factory);
+        return count($this->wikisFactory);
     }
 
     public function delete($name)
     {
         $this->isAuthorized();
         $this->log->write($this->whoIsLogged(), "Suppression du wiki '$name'");
-        $this->wikis_factory->remove($name);
+        $this->wikisFactory->remove($name);
 
     }
 
@@ -62,27 +60,27 @@ class Ferme
             $this->whoIsLogged(),
             "Mise a jour de configuration de '$name'"
         );
-        $this->wikis_factory->updateConfiguration($name);
+        $this->wikisFactory->updateConfiguration($name);
     }
 
     public function resetIndexWikis()
     {
-        reset($this->wikis_factory);
+        reset($this->wikisFactory);
     }
 
     public function getCurrentWiki()
     {
-        return current($this->wikis_factory);
+        return current($this->wikisFactory);
     }
 
     public function getNextWiki()
     {
-        return next($this->wikis_factory);
+        return next($this->wikisFactory);
     }
 
     public function searchWikis($args = '*')
     {
-        return $this->wikis_factory->search($args);
+        return $this->wikisFactory->search($args);
     }
 
     public function createWiki($wikiname, $mail, $desc)
@@ -92,11 +90,11 @@ class Ferme
             throw new Exception("Ce nom n'est pas valide.", 1);
         }
 
-        if (!filter_var($_POST['mail'], FILTER_VALIDATE_EMAIL)) {
+        if (!filter_var($mail, FILTER_VALIDATE_EMAIL)) {
             throw new Exception("Cet email n'est pas valide.", 1);
         }
 
-        return $this->wikis_factory->create(
+        return $this->wikisFactory->create(
             array(
                 'name' => $this->cleanEntry($wikiname),
                 'mail' => $this->cleanEntry($mail),
@@ -111,22 +109,22 @@ class Ferme
     public function archiveWiki($name)
     {
         $this->isAuthorized();
-        $list_wikis = $this->wikis_factory->search($name);
+        $listWikis = $this->wikisFactory->search($name);
         $this->log->write(
             $this->whoIsLogged(),
             "Archive le wiki '$name'"
         );
-        $this->archives_factory->create($list_wikis[0]);
+        $this->archivesFactory->create($listWikis[0]);
     }
 
     public function loadArchives()
     {
-        $this->archives_factory->load();
+        $this->archivesFactory->load();
     }
 
     public function countArchives()
     {
-        return count($this->archives_factory);
+        return count($this->archivesFactory);
         return 0;
     }
 
@@ -137,38 +135,38 @@ class Ferme
             $this->whoIsLogged(),
             "Suppression de l'archive '$name'"
         );
-        $this->archives_factory->remove($name);
+        $this->archivesFactory->remove($name);
     }
 
     public function resetIndexArchives()
     {
-        reset($this->archives_factory);
+        reset($this->archivesFactory);
     }
 
     public function getCurrentArchive()
     {
-        return current($this->archives_factory);
+        return current($this->archivesFactory);
     }
 
     public function getNextArchive()
     {
-        return next($this->archives_factory);
+        return next($this->archivesFactory);
     }
 
     public function searchArchives($args = '*')
     {
-        return $this->archives_factory->search($args);
+        return $this->archivesFactory->search($args);
     }
 
     public function restore($name)
     {
         $this->isAuthorized();
-        $list_archives = $this->archives_factory->search($name);
+        $listArchives = $this->archivesFactory->search($name);
         $this->log->write(
             $this->whoIsLogged(),
             "Restauration de l'archive '$name'"
         );
-        $list_archives[0]->restore();
+        $listArchives[0]->restore();
     }
 
     /*************************************************************************
@@ -181,22 +179,22 @@ class Ferme
      */
     public function isLogged()
     {
-        return $this->user_controller->isLogged();
+        return $this->userController->isLogged();
     }
 
     public function login($username, $password)
     {
-        return $this->user_controller->login($username, $password);
+        return $this->userController->login($username, $password);
     }
 
     public function logout()
     {
-        $this->user_controller->logout();
+        $this->userController->logout();
     }
 
     public function whoIsLogged()
     {
-        return $this->user_controller->whoIsLogged();
+        return $this->userController->whoIsLogged();
     }
 
     private function isAuthorized()
@@ -211,14 +209,14 @@ class Ferme
      ************************************************************************/
     public function addAlert($text, $type = "notice")
     {
-        $this->list_alerts->add($text, $type);
+        $this->listAlerts->add($text, $type);
     }
 
     public function getListAlerts()
     {
-        $list_alerts = $this->list_alerts->getAll();
-        $this->list_alerts->removeAll();
-        return $list_alerts;
+        $listAlerts = $this->listAlerts->getAll();
+        $this->listAlerts->removeAll();
+        return $listAlerts;
     }
 
     /*************************************************************************
@@ -256,7 +254,7 @@ class Ferme
         $themesList = array();
 
         include "packages/"
-        . $this->config['source']
+            . $this->config['source']
             . "/install.config.php";
 
         foreach ($config['themes'] as $key => $value) {
@@ -266,11 +264,6 @@ class Ferme
             );
         }
         return $themesList;
-    }
-
-    public function checkIntegrity()
-    {
-
     }
 
     /**

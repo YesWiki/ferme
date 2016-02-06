@@ -4,7 +4,7 @@ namespace Ferme;
 /**
  * Classe Controller
  *
- * gère les entrées ($_POST et $_GET)
+ * gère les entrées ($this->post et $this->get)
  * @package Ferme
  * @author  Florestan Bredow <florestan.bredow@supagro.fr>
  * @version 0.0.1 (Git: $Id$)
@@ -14,9 +14,13 @@ class Controller
 {
     private $config;
     private $ferme;
+    private $get;
+    private $post;
 
-    public function __construct()
+    public function __construct($get, $post)
     {
+        $this->get = $get;
+        $this->post = $post;
         $this->config = new Configuration('ferme.config.php');
         $this->ferme = new Ferme($this->config);
     }
@@ -25,8 +29,8 @@ class Controller
     {
         // Si la vue n'est pas définie dans l'URL.
         $view = 'default';
-        if (isset($_GET['view'])) {
-            $view = $_GET['view'];
+        if (isset($this->get['view'])) {
+            $view = $this->get['view'];
         }
 
         switch ($view) {
@@ -48,8 +52,8 @@ class Controller
                 break;
         }
 
-        if (isset($_GET['action'])) {
-            $this->runAction($_GET['action']);
+        if (isset($this->get['action'])) {
+            $this->runAction($this->get['action']);
             $this->reload($view);
         }
 
@@ -64,19 +68,19 @@ class Controller
                 break;
             case 'ajax':
                 $this->view = new View($this->ferme);
-                if (isset($_GET['query'])) {
-                    switch ($_GET['query']) {
+                if (isset($this->get['query'])) {
+                    switch ($this->get['query']) {
                         case 'search':
                             $string = '*';
-                            if (isset($_GET['string'])) {
-                                $string = $_GET['string'];
+                            if (isset($this->get['string'])) {
+                                $string = $this->get['string'];
                                 if ('' === $string) {
                                     $string = '*';
                                 }
                             }
 
                             $this->view->ajax(
-                                $_GET['query'],
+                                $this->get['query'],
                                 'views/list_wikis.html',
                                 array('string' => $string)
                             );
@@ -105,12 +109,12 @@ class Controller
                 $this->addWiki();
                 break;
             case 'login':
-                if (isset($_POST['username'])
-                    and isset($_POST['password'])
+                if (isset($this->post['username'])
+                    and isset($this->post['password'])
                 ) {
                     $this->ferme->login(
-                        $_POST['username'],
-                        $_POST['password']
+                        $this->post['username'],
+                        $this->post['password']
                     );
                 }
                 break;
@@ -120,11 +124,11 @@ class Controller
                 break;
 
             case 'delete':
-                if (isset($_GET['name'])) {
+                if (isset($this->get['name'])) {
                     try {
-                        $this->ferme->delete($_GET['name']);
+                        $this->ferme->delete($this->get['name']);
                         $this->ferme->addAlert(
-                            "Wiki " . $_GET['name']
+                            "Wiki " . $this->get['name']
                             . " : Supprimé avec succès"
                         );
                     } catch (\Exception $e) {
@@ -133,11 +137,11 @@ class Controller
                 }
                 break;
             case 'updateConfiguration':
-                if (isset($_GET['name'])) {
+                if (isset($this->get['name'])) {
                     try {
-                        $this->ferme->updateConfiguration($_GET['name']);
+                        $this->ferme->updateConfiguration($this->get['name']);
                         $this->ferme->addAlert(
-                            "Wiki " . $_GET['name']
+                            "Wiki " . $this->get['name']
                             . " : configuration mise à jour avec succès"
                         );
                     } catch (\Exception $e) {
@@ -146,11 +150,11 @@ class Controller
                 }
                 break;
             case 'archive':
-                if (isset($_GET['name'])) {
+                if (isset($this->get['name'])) {
                     try {
-                        $this->ferme->archiveWiki($_GET['name']);
+                        $this->ferme->archiveWiki($this->get['name']);
                         $this->ferme->addAlert(
-                            "Wiki " . $_GET['name']
+                            "Wiki " . $this->get['name']
                             . " : Sauvegardé avec succès"
                         );
                     } catch (\Exception $e) {
@@ -160,11 +164,11 @@ class Controller
                 break;
 
             case 'restore':
-                if (isset($_GET['name'])) {
+                if (isset($this->get['name'])) {
                     try {
-                        $this->ferme->restore($_GET['name']);
+                        $this->ferme->restore($this->get['name']);
                         $this->ferme->addAlert(
-                            "Archive : " . $_GET['name']
+                            "Archive : " . $this->get['name']
                             . " : Restaurée avec succès"
                         );
                     } catch (\Exception $e) {
@@ -174,12 +178,12 @@ class Controller
                 break;
 
             case 'deleteArchive':
-                if (isset($_GET['name'])) {
+                if (isset($this->get['name'])) {
                     try {
-                        $this->ferme->deleteArchive($_GET['name']);
+                        $this->ferme->deleteArchive($this->get['name']);
                         $this->ferme->addAlert(
                             "Archive : "
-                            . $_GET['name']
+                            . $this->get['name']
                             . " : Supprimé avec succès"
                         );
                     } catch (\Exception $e) {
@@ -191,8 +195,8 @@ class Controller
                 $this->view->exportMailing("mailing.csv");
                 break;
             case 'download':
-                if (isset($_GET['archive'])) {
-                    $download = new Download($_GET['archive'], $this->ferme);
+                if (isset($this->get['archive'])) {
+                    $download = new Download($this->get['archive'], $this->ferme);
                     $download->serve();
                 }
                 break;
@@ -213,19 +217,19 @@ class Controller
             $this->reload();
         }
 
-        if (!isset($_POST['wikiName'])
-            or !isset($_POST['mail'])
-            or !isset($_POST['description'])
+        if (!isset($this->post['wikiName'])
+            or !isset($this->post['mail'])
+            or !isset($this->post['description'])
         ) {
             $this->ferme->addAlert("Formulaire incomplet.");
             $this->reload();
         }
 
         try {
-            $wiki_path = $this->ferme->createWiki(
-                $_POST['wikiName'],
-                $_POST['mail'],
-                $_POST['description']
+            $wikiPath = $this->ferme->createWiki(
+                $this->post['wikiName'],
+                $this->post['mail'],
+                $this->post['description']
             );
         } catch (\Exception $e) {
             $this->ferme->addAlert($e->getMessage());
@@ -234,15 +238,15 @@ class Controller
 
         $this->ferme->addAlert(
             '<a href="' . $this->config['base_url']
-            . $wiki_path . '">Visiter le nouveau wiki</a>'
+            . $wikiPath . '">Visiter le nouveau wiki</a>'
         );
     }
 
     private function isHashcashValid()
     {
         require_once 'app/secret/wp-hashcash.php';
-        if (!isset($_POST["hashcash_value"])
-            || hashcash_field_value() != $_POST["hashcash_value"]) {
+        if (!isset($this->post["hashcash_value"])
+            || hashcash_field_value() != $this->post["hashcash_value"]) {
             return false;
         }
         return true;
@@ -250,11 +254,11 @@ class Controller
 
     private function reload($view = 'default')
     {
+        $url = $this->ferme->getURL();
         if ('admin' == $view) {
-            header("Location: " . $this->ferme->getAdminURL());
-        } else {
-            header("Location: " . $this->ferme->getURL());
+            $url = $this->ferme->getAdminURL();
         }
+        header("Location: " . $url);
         exit();
     }
 }

@@ -54,6 +54,5 @@ class CSV
         header('Content-type: text/CSV');
         header('Content-disposition: attachment; filename=' . $filename);
         print $this->csv;
-        exit;
     }
 }
