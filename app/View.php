@@ -77,7 +77,7 @@ class View
             $infos['wiki_name'] = filter_input(
                 INPUT_POST,
                 'wiki_name',
-                FILTER_SANITIZE_STRINGFILTER_SANITIZE_STRING
+                FILTER_SANITIZE_STRING
             );
         }
 
@@ -86,7 +86,7 @@ class View
             $infos['description'] = filter_input(
                 INPUT_POST,
                 'description',
-                FILTER_SANITIZE_STRINGFILTER_SANITIZE_STRING
+                FILTER_SANITIZE_STRING
             );
         }
 
@@ -95,7 +95,7 @@ class View
             $infos['mail'] = filter_input(
                 INPUT_POST,
                 'mail',
-                FILTER_SANITIZE_STRINGFILTER_SANITIZE_STRING
+                FILTER_SANITIZE_STRING
             );
         }
 
