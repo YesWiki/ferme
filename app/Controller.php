@@ -4,7 +4,7 @@ namespace Ferme;
 /**
  * Classe Controller
  *
- * gère les entrées ($this->post et $this->get)
+ * gère les entrées ($post et $get)
  * @package Ferme
  * @author  Florestan Bredow <florestan.bredow@supagro.fr>
  * @version 0.0.1 (Git: $Id$)
@@ -14,109 +14,105 @@ class Controller
 {
     private $config;
     private $ferme;
-    private $get;
-    private $post;
 
-    public function __construct($get, $post)
+    public function __construct()
     {
-        $this->get = $get;
-        $this->post = $post;
         $this->config = new Configuration('ferme.config.php');
         $this->ferme = new Ferme($this->config);
     }
 
-    public function run()
+    public function run($get, $post)
     {
-        // Si la vue n'est pas définie dans l'URL.
+        $this->ferme->loadWikis(true);
+        $this->ferme->loadArchives();
+
+        if (isset($get['download'])) {
+            $this->download($get);
+            return;
+        }
+
+        if (isset($get['action'])) {
+            $this->action($get, $post);
+        }
+
         $view = 'default';
-        if (isset($this->get['view'])) {
-            $view = $this->get['view'];
+        if (isset($get['view'])) {
+            $view = $get['view'];
         }
 
-        switch ($view) {
-            case 'admin':
-                try {
-                    $this->ferme->loadWikis(true);
-                } catch (\Exception $e) {
-                    $this->ferme->addAlert($e->getMessage(), "error");
-                }
-                $this->ferme->loadArchives();
-                break;
-
-            default:
-                try {
-                    $this->ferme->loadWikis(false);
-                } catch (\Exception $e) {
-                    $this->ferme->addAlert($e->getMessage(), "error");
-                }
-                break;
+        if ($view === 'ajax') {
+            $this->ajax($get);
+            return;
         }
 
-        if (isset($this->get['action'])) {
-            $this->runAction($this->get['action']);
-            $this->reload($view);
-        }
+        $this->showHtml($view);
+    }
 
-        switch ($view) {
-            case 'admin':
-                $this->view = new View($this->ferme);
-                if (!$this->ferme->isLogged()) {
-                    $this->view->show('auth.html');
-                    break;
-                }
-                $this->view->show('admin.html');
-                break;
-            case 'ajax':
-                $this->view = new View($this->ferme);
-                if (isset($this->get['query'])) {
-                    switch ($this->get['query']) {
-                        case 'search':
+    private function ajax($get)
+    {
+        $view = new View($this->ferme);
+        if (isset($get['query'])) {
+            switch ($get['query']) {
+                case 'search':
+                    $string = '*';
+                    if (isset($get['string'])) {
+                        $string = $get['string'];
+                        if ('' === $string) {
                             $string = '*';
-                            if (isset($this->get['string'])) {
-                                $string = $this->get['string'];
-                                if ('' === $string) {
-                                    $string = '*';
-                                }
-                            }
-
-                            $this->view->ajax(
-                                $this->get['query'],
-                                'views/list_wikis.html',
-                                array('string' => $string)
-                            );
-                            break;
-
-                        default:
-                            # code...
-                            break;
+                        }
                     }
+                    $view->ajax(
+                        $get['query'],
+                        'views/list_wikis.html',
+                        array('string' => $string)
+                    );
+                    break;
+                default:
+                    # code...
+                    break;
+            }
+        }
+    }
 
+    private function download($get)
+    {
+        if (isset($get['archive'])) {
+            $download = new Download($get['archive'], $this->ferme);
+            $download->serve();
+        }
+    }
+
+    private function showHtml($view)
+    {
+        $instView = new View($this->ferme);
+        switch ($view) {
+            case 'admin':
+                if (!$this->ferme->isLogged()) {
+                    $instView->show('auth.html');
                     break;
                 }
-            // Si query n'est pas définis on utiliser le traitement par
-            // défaut.
+                $instView->show('admin.html');
+                break;
+            case 'exportMailing':
+                $view = new View($this->ferme);
+                $view->exportMailing("mailing.csv");
+                break;
             default:
-                $this->view = new View($this->ferme);
-                $this->view->show();
+                $instView->show();
                 break;
         }
     }
 
-    private function runAction($action)
+    private function action($get, $post)
     {
-        switch ($action) {
+        switch ($get['action']) {
             case 'addWiki':
-                $this->addWiki();
+                $this->actionAddWiki($post);
+                $this->ferme->loadWikis(true);
                 break;
+
             case 'login':
-                if (isset($this->post['username'])
-                    and isset($this->post['password'])
-                ) {
-                    $this->ferme->login(
-                        $this->post['username'],
-                        $this->post['password']
-                    );
-                }
+                $this->actionLogin($post);
                 break;
 
             case 'logout':
@@ -124,89 +120,74 @@ class Controller
                 break;
 
             case 'delete':
-                if (isset($this->get['name'])) {
-                    try {
-                        $this->ferme->delete($this->get['name']);
-                        $this->ferme->addAlert(
-                            "Wiki " . $this->get['name']
-                            . " : Supprimé avec succès"
-                        );
-                    } catch (\Exception $e) {
-                        $this->ferme->addAlert($e->getMessage(), "error");
-                    }
-                }
+                $this->actionDelete($get);
+                $this->ferme->loadWikis(true);
                 break;
+
             case 'updateConfiguration':
-                if (isset($this->get['name'])) {
-                    try {
-                        $this->ferme->updateConfiguration($this->get['name']);
-                        $this->ferme->addAlert(
-                            "Wiki " . $this->get['name']
-                            . " : configuration mise à jour avec succès"
-                        );
-                    } catch (\Exception $e) {
-                        $this->ferme->addAlert($e->getMessage(), "error");
-                    }
-                }
+                $this->actionUpdateConfiguration($get);
                 break;
+
             case 'archive':
-                if (isset($this->get['name'])) {
-                    try {
-                        $this->ferme->archiveWiki($this->get['name']);
-                        $this->ferme->addAlert(
-                            "Wiki " . $this->get['name']
-                            . " : Sauvegardé avec succès"
-                        );
-                    } catch (\Exception $e) {
-                        $this->ferme->addAlert($e->getMessage(), "error");
-                    }
-                }
+                $this->actionArchive($get);
+                $this->ferme->loadArchives();
                 break;
 
             case 'restore':
-                if (isset($this->get['name'])) {
-                    try {
-                        $this->ferme->restore($this->get['name']);
-                        $this->ferme->addAlert(
-                            "Archive : " . $this->get['name']
-                            . " : Restaurée avec succès"
-                        );
-                    } catch (\Exception $e) {
-                        $this->ferme->addAlert($e->getMessage(), "error");
-                    }
-                }
+                $this->actionRestore($get);
+                $this->ferme->loadWikis(true);
                 break;
 
             case 'deleteArchive':
-                if (isset($this->get['name'])) {
-                    try {
-                        $this->ferme->deleteArchive($this->get['name']);
-                        $this->ferme->addAlert(
-                            "Archive : "
-                            . $this->get['name']
-                            . " : Supprimé avec succès"
-                        );
-                    } catch (\Exception $e) {
-                        $this->ferme->addAlert($e->getMessage(), "error");
-                    }
-                }
-                break;
-            case 'exportMailing':
-                $this->view->exportMailing("mailing.csv");
-                break;
-            case 'download':
-                if (isset($this->get['archive'])) {
-                    $download = new Download($this->get['archive'], $this->ferme);
-                    $download->serve();
-                }
-                break;
-            default:
-                // Action inconnue ?
+                $this->actionDeleteArchive($get);
+                $this->ferme->loadArchives();
                 break;
         }
     }
 
-    private function addWiki()
+    private function actionDeleteArchive($get)
+    {
+        if (isset($get['name'])) {
+            $this->ferme->deleteArchive($get['name']);
+        }
+    }
+
+    private function actionRestore($get)
+    {
+        if (isset($get['name'])) {
+            $this->ferme->restore($get['name']);
+        }
+    }
+
+    private function actionArchive($get)
+    {
+        if (isset($get['name'])) {
+            $this->ferme->archiveWiki($get['name']);
+        }
+    }
+
+    private function actionUpdateConfiguration($get)
+    {
+        if (isset($get['name'])) {
+            $this->ferme->updateConfiguration($get['name']);
+        }
+    }
+
+    private function actionLogin($post)
+    {
+        if (isset($post['username']) and isset($post['password'])) {
+            $this->ferme->login($post['username'], $post['password']);
+        }
+    }
+
+    private function actionDelete($get)
+    {
+        if (isset($get['name'])) {
+            $this->ferme->delete($get['name']);
+        }
+    }
+
+    private function actionAddWiki($post)
     {
         if (!$this->isHashcashValid()) {
             $this->ferme->addAlert(
@@ -214,27 +195,29 @@ class Controller
                 . ' ne doit pas être effectuée par un robot. (Pensez à'
                 . ' activer JavaScript)'
             );
-            $this->reload();
+            return;
         }
 
-        if (!isset($this->post['wikiName'])
-            or !isset($this->post['mail'])
-            or !isset($this->post['description'])
+        if (!isset($post['wikiName'])
+            or !isset($post['mail'])
+            or !isset($post['description'])
         ) {
             $this->ferme->addAlert("Formulaire incomplet.");
-            $this->reload();
+            return;
         }
 
         try {
             $wikiPath = $this->ferme->createWiki(
-                $this->post['wikiName'],
-                $this->post['mail'],
-                $this->post['description']
+                $post['wikiName'],
+                $post['mail'],
+                $post['description']
             );
         } catch (\Exception $e) {
             $this->ferme->addAlert($e->getMessage());
-            $this->reload();
+            return;
         }
+
+        //$this->ferme->loadWikis();
 
         $this->ferme->addAlert(
             '<a href="' . $this->config['base_url']
@@ -245,20 +228,10 @@ class Controller
     private function isHashcashValid()
     {
         require_once 'app/secret/wp-hashcash.php';
-        if (!isset($this->post["hashcash_value"])
-            || hashcash_field_value() != $this->post["hashcash_value"]) {
+        if (!isset($post["hashcash_value"])
+            || hashcash_field_value() != $post["hashcash_value"]) {
             return false;
         }
         return true;
-    }
-
-    private function reload($view = 'default')
-    {
-        $url = $this->ferme->getURL();
-        if ('admin' == $view) {
-            $url = $this->ferme->getAdminURL();
-        }
-        header("Location: " . $url);
-        exit();
     }
 }

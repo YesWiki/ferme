@@ -50,7 +50,7 @@
 </div>
 
 <div class="container">
-  
+
   {% for alert in list_alerts %}
   <div id="{{ alert['id'] }}" class="alert" onClick="hide(this)">
     <button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -59,7 +59,7 @@
   {% endfor %}
 
   <h1>Liste des wikis
-    <a  class="save btn btn-mini" title="Exporte la liste des wikis (CSV)" href="?action=exportMailing">
+    <a  class="save btn btn-mini" title="Exporte la liste des wikis (CSV)" href="?view=exportMailing">
       <i class="icon-list-alt"></i>
     </a>
   </h1>
@@ -82,7 +82,7 @@
       {% for wiki in list_wikis %}
       <tr>
         <td>{{ wiki['name'] }}</td>
-        <td> 
+        <td>
           <a href="mailto:{{ wiki['mail'] }}">{{ wiki['mail'] }}</a>
         </td>
         <td>
@@ -112,7 +112,7 @@
               <i class="icon-circle-arrow-down icon-white"></i>
             </a>
             <a  class="save btn btn-mini btn-warning"
-                title="Mets à jour la configuration avec les paramètres de la ferme (url et base de données)" 
+                title="Mets à jour la configuration avec les paramètres de la ferme (url et base de données)"
                 href="?view=admin&action=updateConfiguration&name={{ wiki['name'] }}">
               <i class="icon-refresh icon-white"></i>
             </a>
@@ -121,7 +121,7 @@
                 onclick="return(confirm('Etes-vous sûr de vouloir supprimer le wiki : {{ wiki['name'] }} ?'));"
                 href="?view=admin&action=delete&name={{ wiki['name'] }}">
               <i class="icon-trash icon-white"></i>
-            </a> 
+            </a>
           </div>
         </td>
       </tr>
@@ -167,12 +167,12 @@
                   href="{{ archive['url'] }}">
                 <i class="icon-download-alt"></i>
               </a>
-              <a class="save btn btn-mini btn-primary" 
+              <a class="save btn btn-mini btn-primary"
                 href="?view=admin&action=restore&name={{ archive['filename'] }}">
-                <i class="icon-circle-arrow-up icon-white"></i> 
+                <i class="icon-circle-arrow-up icon-white"></i>
               </a>
               <a class="delete btn btn-mini btn-danger "
-                  onclick="return(confirm('Êtes-vous sûr de vouloir supprimer l\'archive : {{ archive['filename'] }} ?'));" 
+                  onclick="return(confirm('Êtes-vous sûr de vouloir supprimer l\'archive : {{ archive['filename'] }} ?'));"
                   href="?view=admin&action=deleteArchive&name={{ archive['filename'] }}">
                 <i class="icon-trash icon-white"></i>
               </a>
@@ -190,28 +190,28 @@
   <script src="{{ js }}"></script>
   {% endfor %}
   <script type="text/JavaScript">
-    $(document).ready(function() { 
+    $(document).ready(function() {
           $("#listeWikis").tablesorter(
             {
               sortList: [[0,0]],
-              headers: { 
+              headers: {
                 5: { sorter: false }
               }
             }
-          ); 
+          );
       });
-      $(document).ready(function() { 
+      $(document).ready(function() {
           $("#listeArchives").tablesorter(
             {
               sortList: [[0,0]],
-              headers: { 
+              headers: {
                 3: { sorter: false }
               }
             }
-          ); 
-      });  
+          );
+      });
   </script>
 </div>
-    
+
 </body>
 </html>

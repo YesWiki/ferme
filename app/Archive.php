@@ -54,7 +54,7 @@ class Archive
     public function getURL()
     {
         $name = substr($this->filename, 0, -4);
-        $url = '?action=download&archive=' . $name;
+        $url = '?download=' . $name;
         return $url;
     }
 

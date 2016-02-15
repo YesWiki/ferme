@@ -101,7 +101,7 @@ class Wiki
     {
         //Supprime la base de donnée
         $database = $this->dbConnexion;
-        $tables = $this->getDBTablesList($db);
+        $tables = $this->getDBTablesList($this->dbConnexion);
 
         $fermePath = $this->fermeConfig['ferme_path'];
 
@@ -115,7 +115,7 @@ class Wiki
             }
         }
         // Vérifie si la suppression a été effective
-        $tables = $this->getDBTablesList($db);
+        $tables = $this->getDBTablesList($this->dbConnexion);
         if (!empty($tables)) {
             throw new \Exception(
                 "Erreur lors de la suppression de la base de donnée",
