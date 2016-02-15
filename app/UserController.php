@@ -35,9 +35,9 @@ class UserController
      */
     public function login($username, $password)
     {
-        $list_user = $this->configuration['users'];
-        foreach ($list_user as $valid_username => $hash) {
-            if (($valid_username == $username)
+        $listUsers = $this->configuration['users'];
+        foreach ($listUsers as $validUsername => $hash) {
+            if (($validUsername == $username)
                 and password_verify($password, $hash)
             ) {
                 $_SESSION['username'] = $username;

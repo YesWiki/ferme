@@ -20,23 +20,22 @@ class ArchivesFactory extends Factory
     public function load()
     {
         $this->list = array();
-        $archives_path = $this->config['archives_path'];
+        $archivesPath = $this->config['archives_path'];
 
-        if ($handle = opendir($archives_path)) {
-            while (false !== ($archive = readdir($handle))) {
-                $archive_path = $archives_path . $archive;
-                if ("." != $archive
-                    and ".." != $archive
-                    and "tgz" === pathinfo($archive, PATHINFO_EXTENSION)
-                    and is_file($archive_path)
-                ) {
-                    $this->list[$archive] = new Archive($archive, $this->config);
-                }
-            }
-            closedir($handle);
-        } else {
-            throw new \Exception("Impossible d'accéder à " . $archives_path, 1);
+        if (!$handle = opendir($archivesPath)) {
+            throw new \Exception("Impossible d'accéder à " . $archivesPath, 1);
         }
+        while (false !== ($archive = readdir($handle))) {
+            $archivePath = $archivesPath . $archive;
+            if ("." != $archive
+                and ".." != $archive
+                and "tgz" === pathinfo($archive, PATHINFO_EXTENSION)
+                and is_file($archivePath)
+            ) {
+                $this->list[$archive] = new Archive($archive, $this->config);
+            }
+        }
+        closedir($handle);
     }
 
     /**
@@ -57,13 +56,12 @@ class ArchivesFactory extends Factory
 
     public function remove($key)
     {
-        if (isset($this->list[$key])) {
-            $this->list[$key]->delete();
-        } else {
+        if (!isset($this->list[$key])) {
             throw new \Exception(
                 "Impossible de supprimer l'archive $key. Il n'existe pas.",
                 1
             );
         }
+        $this->list[$key]->delete();
     }
 }

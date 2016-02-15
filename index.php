@@ -6,4 +6,4 @@ $loader = require __DIR__ . '/vendor/autoload.php';
 session_start();
 
 $controller = new Controller();
-$controller->run();
+$controller->run($_GET, $_POST);

@@ -16,7 +16,7 @@ class View
     protected $ferme;
     protected $theme;
     protected $config;
-    protected $twig_loader;
+    protected $twigLoader;
     protected $twig;
 
     /**
@@ -30,10 +30,10 @@ class View
         $this->alerts = array();
         $this->config = $ferme->getConfig();
         $this->theme = $this->config['template'];
-        $this->twig_loader = new \Twig_Loader_Filesystem(
+        $this->twigLoader = new \Twig_Loader_Filesystem(
             'themes/' . $this->theme
         );
-        $this->twig = new \Twig_Environment($this->twig_loader);
+        $this->twig = new \Twig_Environment($this->twigLoader);
     }
 
     /**
@@ -44,45 +44,25 @@ class View
      */
     public function show($template = 'default.html')
     {
-        $list_infos = array();
+        $listInfos = array();
 
         if ('admin.html' === $template) {
-            $list_infos['list_archives'] =
+            $listInfos['list_archives'] =
             $this->object2Infos($this->ferme->searchArchives());
         }
 
         if ('default.html' === $template) {
-            $this->addPostInfos($list_infos);
-            $list_infos['hashcash_url'] = $this->HashCash();
+            $this->addPostInfos($listInfos);
+            $listInfos['hashcash_url'] = $this->HashCash();
         }
 
-        $this->addThemesInfos($list_infos);
-        $this->addUserInfos($list_infos);
+        $this->addThemesInfos($listInfos);
+        $this->addUserInfos($listInfos);
 
-        $list_infos['list_wikis'] =
+        $listInfos['list_wikis'] =
         $this->object2Infos($this->ferme->searchWikis());
 
-        echo $this->twig->render($template, $list_infos);
-    }
-
-    /**
-     * Affiche le résultat d'une requete ajax
-     * @todo  Premier jet a améliorer et completer.
-     *
-     * @param  string $query    [description]
-     * @param  string $template [description]
-     * @param  array $args     [description]
-     */
-    public function ajax($query, $template, $args = null)
-    {
-        $string = isset($args['string']) ? $args['string'] : '*';
-
-        $list_infos = array();
-
-        $list_infos['list_wikis'] =
-        $this->object2Infos($this->ferme->searchWikis($string));
-
-        echo $this->twig->render($template, $list_infos);
+        echo $this->twig->render($template, $listInfos);
     }
 
     /**
@@ -92,14 +72,32 @@ class View
      */
     private function addPostInfos(&$infos)
     {
-        $infos['wiki_name'] =
-        isset($_POST['wikiName']) ? $_POST['wikiName'] : '';
+        $infos['wiki_name'] = '';
+        if (filter_has_var(INPUT_POST, 'wiki_name')) {
+            $infos['wiki_name'] = filter_input(
+                INPUT_POST,
+                'wiki_name',
+                FILTER_SANITIZE_STRING
+            );
+        }
 
-        $infos['description'] =
-        isset($_POST['description']) ? $_POST['description'] : '';
+        $infos['description'] = '';
+        if (filter_has_var(INPUT_POST, 'description')) {
+            $infos['description'] = filter_input(
+                INPUT_POST,
+                'description',
+                FILTER_SANITIZE_STRING
+            );
+        }
 
-        $infos['mail'] =
-        isset($_POST['mail']) ? $_POST['mail'] : '';
+        $infos['mail'] = '';
+        if (filter_has_var(INPUT_POST, 'mail')) {
+            $infos['mail'] = filter_input(
+                INPUT_POST,
+                'mail',
+                FILTER_SANITIZE_STRING
+            );
+        }
 
         return ($infos);
     }
@@ -142,17 +140,17 @@ class View
     /**
      * Génère un tableau d'information sur les objets a partir de la liste
      * de ces objets (Archive ou Wiki)
-     * @param  array $list_objects liste d'objets dont il faut récupérer les
+     * @param  array $listObjects liste d'objets dont il faut récupérer les
      * informations
      * @return array               Information sur les objets
      */
-    private function object2Infos($list_objects)
+    private function object2Infos($listObjects)
     {
-        $list_infos = array();
-        foreach ($list_objects as $name => $object) {
-            $list_infos[$name] = $object->getInfos();
+        $listInfos = array();
+        foreach ($listObjects as $name => $object) {
+            $listInfos[$name] = $object->getInfos();
         }
-        return $list_infos;
+        return $listInfos;
     }
 
     /**
@@ -161,12 +159,12 @@ class View
      */
     private function hashCash()
     {
-        $hashcash_url =
+        $hashcashUrl =
         $this->config['base_url']
         . 'app/wp-hashcash-js.php?siteurl='
         . $this->config['base_url'];
 
-        return $hashcash_url;
+        return $hashcashUrl;
     }
 
     /**
@@ -180,7 +178,7 @@ class View
 
         if ($this->ferme->countWikis() <= 0) {
             $csv->printFile($filename);
-            exit;
+            return;
         }
 
         $this->ferme->resetIndexWikis();
@@ -204,12 +202,12 @@ class View
      */
     private function getCSS()
     {
-        $css_path = "themes/" . $this->theme . "/css/";
-        $list_css = array();
-        foreach ($this->getFiles($css_path) as $file) {
-            $list_css[] = $file;
+        $cssPath = "themes/" . $this->theme . "/css/";
+        $listCss = array();
+        foreach ($this->getFiles($cssPath) as $file) {
+            $listCss[] = $file;
         }
-        return $list_css;
+        return $listCss;
     }
 
     /**
@@ -217,12 +215,12 @@ class View
      */
     private function getJS()
     {
-        $js_path = "themes/" . $this->theme . "/js/";
-        $list_js = array();
-        foreach ($this->getFiles($js_path) as $file) {
-            $list_js[] = $file;
+        $jsPath = "themes/" . $this->theme . "/js/";
+        $listJs = array();
+        foreach ($this->getFiles($jsPath) as $file) {
+            $listJs[] = $file;
         }
-        return $list_js;
+        return $listJs;
     }
 
     /**
@@ -234,17 +232,17 @@ class View
      */
     private function getFiles($path)
     {
-        $file_array = array();
+        $fileArray = array();
         if ($handle = opendir($path)) {
             while (false !== ($entry = readdir($handle))) {
-                $entry_path = $path . $entry;
-                if ("." != $entry && ".." != $entry && is_file($entry_path)
+                $entryPath = $path . $entry;
+                if ("." != $entry && ".." != $entry && is_file($entryPath)
                 ) {
-                    $file_array[] = $entry_path;
+                    $fileArray[] = $entryPath;
                 }
             }
             closedir($handle);
         }
-        return $file_array;
+        return $fileArray;
     }
 }

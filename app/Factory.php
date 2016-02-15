@@ -19,9 +19,9 @@ abstract class Factory implements \ArrayAccess
     {
         if (is_null($offset)) {
             $this->list[] = $value;
-        } else {
-            $this->list[$offset] = $value;
+            return;
         }
+        $this->list[$offset] = $value;
     }
 
     public function offsetExists($offset)

@@ -24,6 +24,6 @@ class Download
         header('Content-Disposition: inline; filename="' . $this->name . '"');
         header('Content-Length: ' . filesize($file));
         readfile($file);
-        exit;
+        return;
     }
 }
