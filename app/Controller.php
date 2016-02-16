@@ -62,7 +62,6 @@ class Controller
                         }
                     }
                     $view->ajax(
-                        $get['query'],
                         'views/list_wikis.html',
                         array('string' => $string)
                     );

@@ -65,6 +65,25 @@ class View
         echo $this->twig->render($template, $listInfos);
     }
 
+     /**
+      * Affiche le résultat d'une requete ajax
+      * @todo  Premier jet a améliorer et completer.
+      *
+      * @param  string $template [description]
+      * @param  array $args     [description]
+      */
+    public function ajax($template, $args = null)
+    {
+        $string = isset($args['string']) ? $args['string'] : '*';
+
+        $listInfos = array();
+
+        $listInfos['list_wikis'] =
+        $this->object2Infos($this->ferme->searchWikis($string));
+
+        echo $this->twig->render($template, $listInfos);
+    }
+
     /**
      * Ajout les informations contenu dans la variable $_POST (permet de
      * conserver le contenu des formulaires non validé)
