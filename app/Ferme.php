@@ -3,9 +3,9 @@ namespace Ferme;
 
 class Ferme
 {
-    private $config;
-    public $wikis = null;
-    public $archivesFactory = null;
+    public $config;
+    public $wikis;
+    public $archives;
     public $alerts;
     public $users;
     private $log;
@@ -101,28 +101,6 @@ class Ferme
     /*************************************************************************
      * Gestion des URLs
      ************************************************************************/
-    /**
-     * Renvoie l'URL de l'interface d'administration
-     * @return string url de l'insterface d'administration
-     */
-    public function getAdminURL()
-    {
-        return $this->config['base_url'] . "?view=admin";
-    }
-
-    /**
-     * Renvoie l'URL de la page d'acceuil
-     * @return string url de la page d'acceuil
-     */
-    public function getURL()
-    {
-        return $this->config['base_url'];
-    }
-
-    public function getConfig()
-    {
-        return $this->config;
-    }
 
     /**
      * Définis si le nom d'un wiki est valide

@@ -14,8 +14,6 @@ namespace Ferme;
 class View
 {
     protected $ferme;
-    protected $theme;
-    protected $config;
     protected $twigLoader;
     protected $twig;
 
@@ -28,10 +26,8 @@ class View
     {
         $this->ferme = $ferme;
         $this->alerts = array();
-        $this->config = $ferme->getConfig();
-        $this->theme = $this->config['template'];
         $this->twigLoader = new \Twig_Loader_Filesystem(
-            'themes/' . $this->theme
+            $this->getThemePath()
         );
         $this->twig = new \Twig_Environment($this->twigLoader);
     }
@@ -179,9 +175,8 @@ class View
     private function hashCash()
     {
         $hashcashUrl =
-        $this->config['base_url']
-        . 'app/wp-hashcash-js.php?siteurl='
-        . $this->config['base_url'];
+        'app/wp-hashcash-js.php?siteurl='
+        . $this->ferme->config['base_url'];
 
         return $hashcashUrl;
     }
@@ -220,7 +215,7 @@ class View
      */
     private function getCSS()
     {
-        $cssPath = "themes/" . $this->theme . "/css/";
+        $cssPath =  $this->getThemePath() . "/css/";
         $listCss = array();
         foreach ($this->getFiles($cssPath) as $file) {
             $listCss[] = $file;
@@ -233,7 +228,7 @@ class View
      */
     private function getJS()
     {
-        $jsPath = "themes/" . $this->theme . "/js/";
+        $jsPath = $this->getThemePath() . "/js/";
         $listJs = array();
         foreach ($this->getFiles($jsPath) as $file) {
             $listJs[] = $file;
@@ -268,12 +263,12 @@ class View
      * Retourne la liste des thèmes.
      * @return array tableau de tableau avec deux clés : name et thumb
      */
-    public function getThemesList()
+    private function getThemesList()
     {
         $themesList = array();
 
         include "packages/"
-            . $this->config['source']
+            . $this->ferme->config['source']
             . "/install.config.php";
 
         foreach ($config['themes'] as $key => $value) {
@@ -283,5 +278,10 @@ class View
             );
         }
         return $themesList;
+    }
+
+    private function getThemePath()
+    {
+        return 'themes/' . $this->ferme->config['template'];
     }
 }

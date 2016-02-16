@@ -8,9 +8,8 @@ class Download
 
     public function __construct($name, $ferme)
     {
-        $config = $ferme->getConfig();
         $this->name = $name . '.tgz';
-        $this->path = $config['archives_path'];
+        $this->path = $ferme->config['archives_path'];
 
         if (!file_exists($this->path . $this->name)) {
             throw new \Exception("Le fichier n'existe pas.", 1);
