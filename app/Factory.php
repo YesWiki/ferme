@@ -3,15 +3,13 @@ namespace Ferme;
 
 abstract class Factory implements \ArrayAccess
 {
-    protected $list = null;
+    public $list = null;
 
-    public function __construct($args = null)
+    public function __construct()
     {
         $this->list = array();
-        $this->init($args);
     }
 
-    abstract protected function init($args = null);
     abstract public function create($args = null);
     abstract public function remove($key);
 

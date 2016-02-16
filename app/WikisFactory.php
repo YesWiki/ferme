@@ -3,33 +3,27 @@ namespace Ferme;
 
 class WikisFactory extends Factory
 {
-    protected $config;
-    protected $dbConnexion = null;
+    private $config;
+    private $dbConnexion = null;
 
     /**
      * Initialise la classe (appelé par le constructeur)
      * @param  array  args['config'] Instance de Configuration (Obligatoire)
      */
-    protected function init($args = null)
+    public function __construct($config)
     {
-        if (!isset($args['config'])) {
-            throw new \Exception(
-                "Paramètre manquant lors de l'instantiation de "
-                . get_class($this),
-                1
-            );
-        }
-        $this->config = $args['config'];
+        parent::__construct();
+        $this->config = $config;
+        $this->dbConnect();
     }
 
     /**
      * Charge la liste des Wikis et leurs informations.
-     * @param  boolean $calculate_size Si vrai calcule la taille de la base de donnée
-     * et l'espace occupé sur le disque.
+     * @param  boolean $calculate_size Si vrai calcule la taille de la base de
+     * donnée et l'espace occupé sur le disque.
      */
-    public function load($evalSize = false)
+    public function load()
     {
-        $this->dbConnect();
         $fermePath = $this->config['ferme_path'];
         if (!$handle = opendir($fermePath)) {
             throw new \Exception(
@@ -51,9 +45,7 @@ class WikisFactory extends Factory
                     unset($this->list[$wiki]);
                     continue;
                 }
-                if ($evalSize) {
-                    $this->list[$wiki]->calSize();
-                }
+                $this->list[$wiki]->calSize();
             }
         }
         closedir($handle);
@@ -69,8 +61,6 @@ class WikisFactory extends Factory
      */
     public function create($args = null)
     {
-        $this->dbConnect();
-
         if (!isset($args['name'])
             or !isset($args['mail'])
             or !isset($args['desc'])
@@ -81,6 +71,9 @@ class WikisFactory extends Factory
             );
         }
 
+        $wikiName = $args['name'];
+        $mail = $args['mail'];
+        $description = $args['desc'];
         $wikiPath = $this->config['ferme_path']
             . $args['name']
             . "/";
@@ -154,15 +147,8 @@ class WikisFactory extends Factory
      */
     private function dbConnect()
     {
-        if (!is_null($this->dbConnexion)) {
-            return $this->dbConnexion;
-        }
-
-        $dsn = 'mysql:host='
-        . $this->config['db_host']
-        . ';dbname='
-        . $this->config['db_name']
-            . ';';
+        $dsn = 'mysql:host=' . $this->config['db_host'] . ';';
+        $dsn .= 'dbname=' . $this->config['db_name'] . ';';
 
         try {
             $this->dbConnexion = new \PDO(

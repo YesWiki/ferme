@@ -3,18 +3,12 @@ namespace Ferme;
 
 class ArchivesFactory extends Factory
 {
-    protected $config;
+    private $config;
 
-    protected function init($args = null)
+    public function __construct($config)
     {
-        if (!isset($args['config'])) {
-            throw new Exception(
-                "Paramètre manquant lors de l'instantiation de "
-                . get_class($this),
-                1
-            );
-        }
-        $this->config = $args['config'];
+        parent::__construct();
+        $this->config = $config;
     }
 
     public function load()
