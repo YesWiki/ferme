@@ -1,9 +1,9 @@
 <?php
 namespace Ferme;
 
-abstract class Factory implements \ArrayAccess
+abstract class Factory implements \ArrayAccess, \Iterator, \Countable
 {
-    public $list = null;
+    protected $list = null;
 
     public function __construct()
     {
@@ -40,6 +40,35 @@ abstract class Factory implements \ArrayAccess
     public function exist($key)
     {
         return $this->offsetExists($key);
+    }
+
+    public function count()
+    {
+        return count($this->list);
+    }
+
+    /*************************************************************************
+     * Iterator
+     ************************************************************************/
+    public function rewind()
+    {
+        return reset($this->list);
+    }
+    public function current()
+    {
+        return current($this->list);
+    }
+    public function key()
+    {
+        return key($this->list);
+    }
+    public function valid()
+    {
+        return isset($this->list[$this->key()]);
+    }
+    public function next()
+    {
+        return next($this->list);
     }
 
     /**

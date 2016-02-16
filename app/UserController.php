@@ -86,4 +86,11 @@ class UserController
         }
         return '';
     }
+
+    public function isAuthorized()
+    {
+        if (!$this->isLogged()) {
+            throw new \Exception("Accès interdit", 1);
+        }
+    }
 }

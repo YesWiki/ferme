@@ -48,7 +48,7 @@ class View
 
         if ('admin.html' === $template) {
             $listInfos['list_archives'] =
-            $this->object2Infos($this->ferme->searchArchives());
+            $this->object2Infos($this->ferme->archives->search());
         }
 
         if ('default.html' === $template) {
@@ -60,7 +60,7 @@ class View
         $this->addUserInfos($listInfos);
 
         $listInfos['list_wikis'] =
-        $this->object2Infos($this->ferme->searchWikis());
+        $this->object2Infos($this->ferme->wikis->search());
 
         echo $this->twig->render($template, $listInfos);
     }
@@ -79,7 +79,7 @@ class View
         $listInfos = array();
 
         $listInfos['list_wikis'] =
-        $this->object2Infos($this->ferme->searchWikis($string));
+        $this->object2Infos($this->ferme->wikis->search($string));
 
         echo $this->twig->render($template, $listInfos);
     }
@@ -131,9 +131,9 @@ class View
             $infos,
             array(
                 'list_css' => $this->getCSS(),
-                'list_alerts' => $this->ferme->getListAlerts(),
+                'list_alerts' => $this->ferme->alerts->getAll(),
                 'list_js' => $this->getJS(),
-                'list_themes' => $this->ferme->getThemesList(),
+                'list_themes' => $this->getThemesList(),
             )
         );
         return $infos;
@@ -149,8 +149,8 @@ class View
         $infos = array_merge(
             $infos,
             array(
-                'username' => $this->ferme->whoIsLogged(),
-                'logged' => $this->ferme->isLogged(),
+                'username' => $this->ferme->users->whoIsLogged(),
+                'logged' => $this->ferme->users->isLogged(),
             )
         );
         return $infos;
@@ -195,13 +195,13 @@ class View
     {
         $csv = new CSV();
 
-        if ($this->ferme->countWikis() <= 0) {
+        if ($this->ferme->wikis->count() <= 0) {
             $csv->printFile($filename);
             return;
         }
 
-        $this->ferme->resetIndexWikis();
-        foreach ($this->ferme->wikisFactory->list as $wiki) {
+        reset($this->ferme->wikis);
+        foreach ($this->ferme->wikis as $wiki) {
             $infos = $wiki->getInfos();
             $csv->insert(
                 array(
@@ -262,5 +262,26 @@ class View
             closedir($handle);
         }
         return $fileArray;
+    }
+
+    /**
+     * Retourne la liste des thèmes.
+     * @return array tableau de tableau avec deux clés : name et thumb
+     */
+    public function getThemesList()
+    {
+        $themesList = array();
+
+        include "packages/"
+            . $this->config['source']
+            . "/install.config.php";
+
+        foreach ($config['themes'] as $key => $value) {
+            $themesList[] = array(
+                'name' => $key,
+                'thumb' => $value['thumb'],
+            );
+        }
+        return $themesList;
     }
 }
