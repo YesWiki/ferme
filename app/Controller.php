@@ -189,7 +189,7 @@ class Controller
 
     private function actionAddWiki($post)
     {
-        if (!$this->isHashcashValid()) {
+        if (!$this->isHashcashValid($post)) {
             $this->ferme->addAlert(
                 'La plantation de wiki est une activité délicate qui'
                 . ' ne doit pas être effectuée par un robot. (Pensez à'
@@ -225,7 +225,7 @@ class Controller
         );
     }
 
-    private function isHashcashValid()
+    private function isHashcashValid($post)
     {
         require_once 'app/secret/wp-hashcash.php';
         if (!isset($post["hashcash_value"])
