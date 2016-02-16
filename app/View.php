@@ -182,7 +182,7 @@ class View
         }
 
         $this->ferme->resetIndexWikis();
-        foreach ($this->ferme->wikisFactory->list as $name => $wiki) {
+        foreach ($this->ferme->wikisFactory->list as $wiki) {
             $infos = $wiki->getInfos();
             $csv->insert(
                 array(
