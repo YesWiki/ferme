@@ -44,9 +44,8 @@ class Ferme
     public function delete($name)
     {
         $this->isAuthorized();
-        $this->log->write($this->whoIsLogged(), "Suppression du wiki '$name'");
         $this->wikisFactory->remove($name);
-
+        $this->log->write($this->whoIsLogged(), "Suppression du wiki '$name'");
     }
 
     public function updateConfiguration($name)

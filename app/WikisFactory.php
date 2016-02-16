@@ -127,6 +127,7 @@ class WikisFactory extends Factory
             );
         }
         $this->list[$key]->delete();
+        unset($this->list[$key]);
     }
 
     public function updateConfiguration($key)

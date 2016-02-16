@@ -57,5 +57,6 @@ class ArchivesFactory extends Factory
             );
         }
         $this->list[$key]->delete();
+        unset($this->list[$key]);
     }
 }
