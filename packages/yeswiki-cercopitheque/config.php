@@ -4,10 +4,10 @@
  * Valeur -> Contenu du fichier
  ***************************************************************************/
 
-$table_prefix = $wiki_name . "_";
-$wiki_url = $this->config['base_url']
+$tablePrefix = $wikiName . "_";
+$wikiUrl = $this->config['base_url']
 . $this->config['ferme_path']
-    . $wiki_name . "/wakka.php?wiki=";
+    . $wikiName . "/wakka.php?wiki=";
 $WikiAdminPasswordMD5 = $this->config['admin_password'];
 $date = time();
 
@@ -27,11 +27,11 @@ $config = array(
 	'mysql_database' => '" . $this->config['db_name'] . "',
 	'mysql_user' => '" . $this->config['db_user'] . "',
 	'mysql_password' => '" . $this->config['db_password'] . "',
-	'table_prefix' => '$table_prefix',
-	'base_url' => '$wiki_url',
+	'table_prefix' => '$tablePrefix',
+	'base_url' => '$wikiUrl',
 	'rewrite_mode' => '0',
 	'meta_keywords' => 'MotCleDuSite',
-	'meta_description' => '$wiki_name',
+	'meta_description' => '$wikiName',
 	'action_path' => 'actions',
 	'handler_path' => 'handlers',
 	'header_action' => 'header',
@@ -45,7 +45,7 @@ $config = array(
 	'preview_before_save' => '0',
 	'allow_raw_html' => '1',
 	'root_page' => 'PagePrincipale',
-	'wakka_name' => '$wiki_name',
+	'wakka_name' => '$wikiName',
 	'default_language' => 'fr',
 	'favorite_theme' => '" . $theme[$_POST['theme']]['theme'] . "',
 	'favorite_style' => '" . $theme[$_POST['theme']]['style'] . "',

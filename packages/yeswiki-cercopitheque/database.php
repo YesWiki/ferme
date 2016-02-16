@@ -1,33 +1,31 @@
 <?php
 
-//ATTENTION CE FICHIER DOIT ETRE ENCODE EN ISO-8859-1 sous peine de 
+//ATTENTION CE FICHIER DOIT ETRE ENCODE EN ISO-8859-1 sous peine de
 //voir des caractère bizarre dans les wikis.
 
 /***********************************************************************
- * Pour générer ce fichier en cas de nouvelle version de wikini, 
- * 1. Exporter la base d'un wiki fraichement installé 
+ * Pour générer ce fichier en cas de nouvelle version de wikini,
+ * 1. Exporter la base d'un wiki fraichement installé
  * 2. Remplacer tous les " par \"
- * 3. Remplacer le préfixe des tables par ".$table_prefix." 
- * 4. Mettre chaque requette dans une cellule du 
+ * 3. Remplacer le préfixe des tables par ".$tablePrefix."
+ * 4. Mettre chaque requette dans une cellule du
  * tableau listQuery
  * 5. Remplacer les dates par $date
- * 6. Remplacer le mot de passe a la fin du fichier par : 
+ * 6. Remplacer le mot de passe a la fin du fichier par :
  */
 
-
- 
 $date = date("Y-m-d H:i:s");
 
 $listQuery = array(
 
-"CREATE TABLE IF NOT EXISTS `".$table_prefix."acls` (
+    "CREATE TABLE IF NOT EXISTS `" . $tablePrefix . "acls` (
   `page_tag` varchar(50) NOT NULL DEFAULT '',
   `privilege` varchar(20) NOT NULL DEFAULT '',
   `list` text NOT NULL,
   PRIMARY KEY (`page_tag`,`privilege`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;",
 
-"CREATE TABLE IF NOT EXISTS `".$table_prefix."links` (
+    "CREATE TABLE IF NOT EXISTS `" . $tablePrefix . "links` (
   `from_tag` char(50) NOT NULL DEFAULT '',
   `to_tag` char(50) NOT NULL DEFAULT '',
   UNIQUE KEY `from_tag` (`from_tag`,`to_tag`),
@@ -35,7 +33,7 @@ $listQuery = array(
   KEY `idx_to` (`to_tag`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;",
 
-"INSERT INTO `".$table_prefix."links` (`from_tag`, `to_tag`) VALUES
+    "INSERT INTO `" . $tablePrefix . "links` (`from_tag`, `to_tag`) VALUES
 ('ActionBacklinks', 'ActionBacklinks'),
 ('ActionBacklinks', 'DerniersChangements'),
 ('ActionBacklinks', 'DerniersCommentaires'),
@@ -387,7 +385,7 @@ $listQuery = array(
 ('TableauDeBordDeCeWiki', 'TableauDeBordDeCeWiki'),
 ('TableauDeBordDeCeWiki', 'WikiAdmin');",
 
-"CREATE TABLE IF NOT EXISTS `".$table_prefix."nature` (
+    "CREATE TABLE IF NOT EXISTS `" . $tablePrefix . "nature` (
   `bn_id_nature` int(10) unsigned NOT NULL DEFAULT '0',
   `bn_label_nature` varchar(255) DEFAULT NULL,
   `bn_description` text,
@@ -406,7 +404,7 @@ $listQuery = array(
   PRIMARY KEY (`bn_id_nature`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;",
 
-"CREATE TABLE IF NOT EXISTS `".$table_prefix."pages` (
+    "CREATE TABLE IF NOT EXISTS `" . $tablePrefix . "pages` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `tag` varchar(50) NOT NULL DEFAULT '',
   `time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -425,7 +423,7 @@ $listQuery = array(
   FULLTEXT KEY `tag` (`tag`,`body`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=46 ;",
 
-"INSERT INTO `".$table_prefix."pages` (`id`, `tag`, `time`, `body`, `body_r`, `owner`, `user`, `latest`, `handler`, `comment_on`) VALUES
+    "INSERT INTO `" . $tablePrefix . "pages` (`id`, `tag`, `time`, `body`, `body_r`, `owner`, `user`, `latest`, `handler`, `comment_on`) VALUES
 (1, 'PremiersPasSurLeWiki', '$date', '===== Qu''est-ce qu''un wiki ? =====\nUn wiki c''est :\n - un site collaboratif où tout le monde peut écrire : créer et modifier des pages\n - un site où l''historique de chaque édition est conservé : si vous modifiez une page, la version précédente est automatiquement sauvegardée\n - un site où vous pouvez voir précisément ce qui a changé entre deux versions d''une même page\n - un site où vous pouvez facilement observer tous les changements de toutes les pages\n\nCette page vous propose d''en voir le fonctionnement en quelques minutes.\n\n===== 1. Modifier une page =====\n - Rendez-vous sur la page que vous souhaitez modifier.\n - Cliquez sur le lien en bas à gauche \"##Éditer cette page##\".\n - Un formulaire apparait avec le texte de la page : vous pouvez modifier le texte.\n - Une fois le texte modifié, cliquer sur le bouton \"##Sauver##\" en bas page : ça y est, c''est publié !\n     Vous pouvez également appuyer sur le Bouton \"Aperçu\" pour visualiser vos modifications avant publication. Sur certains wikis l''aperçu est d''ailleurs obligatoire, afin de vous inciter à relire vos modifications.\n\nLes [[ReglesDeFormatage règles de formatage]] permettent d''afficher du texte en **gras**, en //italique//, etc. Si vous souhaitez essayer tout cela, rendez-vous dans le BacASable, c''est un endroit fait pour ça.\n\n===== 2. Créer une page =====\nUne page orpheline n''a pas de sens sur un wiki. La façon la plus efficace de créer une page est donc d''abord de créer le lien qui conduit à cette page.\nPour cela il suffit d''employer un **MotWiki**, pour créer automatiquement un lien vers une page du même nom. Un MotWiki représente deux mots collés ensemble, chacun débutant par une majuscule : par exemple ##\"\"CommeCeci\"\"## ou ##\"\"CommeCela\"\"##.\nL''utilisation d''un MotWiki ne correspondant à aucune page crée à l''enregistrement un \"?\" au côté de votre mot : en cliquant dessus, vous entrerez dans votre nouvelle page ayant comme nom le MotWiki.\nPour aller plus loin, il existe d''autres méthodes pour créer des liens, décrites dans les ReglesDeFormatage.\n\n==== Choisir un nom de page efficace ====\nLe nom des pages est un facteur important de la lisibilité d''un wiki.\nQuelques règles simples peuvent aider le rédacteur à choisir un nom efficace :\n - le nom ne possède pas d''article ; ##\"\"UneTarteTatin\"\"## complique l''utilisation de ce nom alors que ##\"\"TarteTatin\"\"## la simplifie : exemple : //Il faut servir la ##\"\"TarteTatin\"\"##// est difficile à exprimer avec ##\"\"UneTarteTatin\"\"##.\n - le nom peut être plus court et général lorsqu''il se rapporte au sujet principal du wiki ; à l''inverse il doit se spécialiser à mesure qu''il s''éloigne de ce sujet.\n - pour une meilleure lisibilité, respecter la majuscule au début de chaque mot d''un mot wiki : préférer ##\"\"TenueDeSoiree\"\"## à ##\"\"TenuedeSoiree\"\"##.\n\n===== 3. Suivre la vie du site =====\nLa page DerniersChangements permet de visualiser les modifications effectués sur les pages du site, par ordre antéchronologique.\n\n===== 4. Afficher les dernières modifications d''une page =====\nPour visualiser l''historique des modifications d''une page cliquer sur la date de dernière modification, au bas de la page : \nPar exemple : http://www.wikini.net/wakka.php?wiki=PagePrincipale/revisions\nSélectionner alors les deux versions que vous désirez comparer et cliquer sur le bouton \"##Voir les différences##\".\nLa page se réaffiche alors avec les modifications surlignées en rouge.\n\n===== 5. Récupérer une ancienne version d''une page =====\nIl peut arriver d''avoir besoin de récupérer une ancienne version d''une page donnée -- typiquement parce que vous avez supprimé le texte par mégarde ou bien en cas de vandalisme.\nPour cela :\n - il vous faut d''abord visualiser l''historique des modifications d''une page en cliquant sur la date de dernière modification, au bas de la page : par exemple : http://www.wikini.net/wakka.php?wiki=PagePrincipale/revisions\n - ensuite vous devez sélectionner la page à récupérer en cliquant sur le lien correspondant dans la page des \"##revisions##\"\n - au bas de la page sélectionnée doit alors s''afficher un bouton qui vous permettra de \"##Rééditer cette version archivée##\" et donc de récupérer cette page\n\n===== 6. Supprimer une page =====\nPour supprimer une page :\n - il faut être propriétaire de la page ; si ce n''est pas le cas, demander au propriétaire de la supprimer pour vous\n - il faut supprimer tous les liens existant qui pointent vers cette page : ceci permet d''éviter d''avoir des liens brisés sur le site, ces derniers étant donc impossibles sur le site ; pour connaitre les liens pointant vers la page à supprimer il suffit de cliquer sur le titre de cette page en haut à droite (fonction de rétroliens)\n - cliquer enfin sur le lien \"##Supprimer##\" en bas de page\n ', '', 'WikiAdmin', 'WikiAdmin', 'Y', 'page', ''),
 (2, 'ListeDesActionsWikini', '$date', 'Wikini propose par défaut les \"actions\" suivantes.\n\n  - ActionBacklinks : liste de toutes les pages faisant référence à la page courante\n  - ActionChangeStyle : changer le style graphique du wiki\n  - ActionEraseSpamedComments : effacer facilement les spams de commentaires\n  - ActionFindpage\n  - ActionInclude : inclusion d''une page au sein d''une autre\n  - ActionListPages\n  - ActionListUsers\n  - ActionMyChanges\n  - ActionMyPages\n  - ActionOrphanedPages : recherche les pages qui n''ont pas de liens vers elle (par orpheline )\n  - ActionPageIndex\n  - ActionRecentChanges\n  - ActionRecentChangesRSS\n  - ActionRecentComments\n  - ActionRecentlyCommented\n  - ActionRedirect : redirection d''une page vers une autre\n  - ActionTextSearch : recherche d''une chaine de caractères dans l''ensemble des page de [[http://www.wikini.net WikiNi]]\n  - ActionTrail : permet de lier des pages entres elles et de passer de l''une à l''autre avec un petit navigateur style \"précédente/suivante\"\n  - ActionUserSettings\n  - ActionWantedPages : liste les pages devant être écrites.\n\n  ', '', 'WikiAdmin', 'WikiAdmin', 'Y', 'page', ''),
 (3, 'NomWiki', '$date', 'Un NomWiki est un nom qui est écrit \"\"CommeCela\"\".\n\nUn NomWiki est transformé automatiquement en lien. Si la page correspondante n''existe pas, un ''?'' est affiché à côté du mot.', '', 'WikiAdmin', 'WikiAdmin', 'Y', 'page', ''),
@@ -472,7 +470,7 @@ $listQuery = array(
 (44, 'ActionRedirect', '$date', 'L''action ##\"\"{{redirect page=\"PagePrincipale\"}}\"\"## permet d''être redirigé vers une autre page lorsqu''une page est demandée (ici vers la PagePrincipale). Cela permet de faire des \"alias\" de page, plusieurs noms différents pour une même page.\n\n**Synthèse des cas** où cette action peut être utile :\n - dans le cas où certains termes sont d''orthographe variable, comme par exemple Persistance of Vision - qui devient \"\"PoV\"\", \"\"POV\"\", \"\"PovRay\"\", \"\"POV-Ray\"\"... et certains Wiki voient donc deux pages apparaitre pour la même chose, avec du contenu trop élaboré pour être facilement reconciliable en une seule page.\n - en cas de renommage d''une page (en fait le déplacement d''une page vers une autre page), l''ancien nom peut rediriger vers le nouveau nom ; ceci peut être particulièrement utile dans le cas où de très nombreuses pages pointe sur la page originelle, évitant ainsi de changer les liens dans chaque page\n - redirection d''une page au nom wiki disgracieux vers une page au nom wiki plus lisible ; exemples : \"\"SpIp\"\" => Spip, \"\"DelPhine\"\" => Delphine, etc.\n\nUne différence notable entre une inclusion et une redirection : lors d''une inclusion, le contenu de la page incluant une autre page peut être modifé, donc utiliser l''inclusion pour faire des alias de page ne me parait pas très sûr car il risque d''apparaitre des divergences de contenu si c''est la page incluant une autre page qui est modifée. Par contre, une redirection __impose__ qu''une seule page est éditable et la cohérence de contenu est donc correcte.\n\n===== Paramètres =====\n\nCette action accepte un seul paramètre :\n  - page : paramètre obligatoire pour désigner la page vers laquelle la page est redirigée.\n\n===== Modification d''une page contenant l''action ##redirect## =====\nIl faut entrer manuellement dans la barre d''adresse du navigateur l''adresse de la page + le \"handler\" désiré ; par exemple :\nPour la modifier :\n    - http://domaine/wakka.php?wiki=NomDeLaPage/edit\nPour la supprimer :\n    - http://domaine/wakka.php?wiki=NomDeLaPage/deletepage\n\n----\n{{trail toc=\"ListeDesActionsWikini\"}}\n', '', 'WikiAdmin', 'WikiAdmin', 'Y', 'page', ''),
 (45, 'ActionUserSettings', '$date', 'L''action \"\"{{UserSettings}}\"\" permet aux utilisateurs d''effectuer les actions suivantes :\n - création d''un nouveau compte\n - authentification\n - réglage des paramètres utilisateur\n - changement de mot-de-passe\n\nOn peut la voir en action dans les ParametresUtilisateur.\n\n----\n{{trail toc=\"ListeDesActionsWikini\"}}\n', '', 'WikiAdmin', 'WikiAdmin', 'Y', 'page', '');",
 
-"CREATE TABLE IF NOT EXISTS `".$table_prefix."referrers` (
+    "CREATE TABLE IF NOT EXISTS `" . $tablePrefix . "referrers` (
   `page_tag` char(50) NOT NULL DEFAULT '',
   `referrer` char(150) NOT NULL DEFAULT '',
   `time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -480,10 +478,10 @@ $listQuery = array(
   KEY `idx_time` (`time`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;",
 
-"INSERT INTO `".$table_prefix."referrers` (`page_tag`, `referrer`, `time`) VALUES
+    "INSERT INTO `" . $tablePrefix . "referrers` (`page_tag`, `referrer`, `time`) VALUES
 ('PagePrincipale', 'http://localhost/~bredow/yeswiki-cercopitheque/wakka.php?installAction=writeconfig', '2014-11-24 16:34:40');",
 
-"CREATE TABLE IF NOT EXISTS `".$table_prefix."triples` (
+    "CREATE TABLE IF NOT EXISTS `" . $tablePrefix . "triples` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `resource` varchar(255) NOT NULL DEFAULT '',
   `property` varchar(255) NOT NULL DEFAULT '',
@@ -493,10 +491,10 @@ $listQuery = array(
   KEY `property` (`property`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;",
 
-"INSERT INTO `".$table_prefix."triples` (`id`, `resource`, `property`, `value`) VALUES
+    "INSERT INTO `" . $tablePrefix . "triples` (`id`, `resource`, `property`, `value`) VALUES
 (1, 'ThisWikiGroup:admins', 'http://www.wikini.net/_vocabulary/acls', 'WikiAdmin');",
 
-"CREATE TABLE IF NOT EXISTS `".$table_prefix."users` (
+    "CREATE TABLE IF NOT EXISTS `" . $tablePrefix . "users` (
   `name` varchar(80) NOT NULL DEFAULT '',
   `password` varchar(32) NOT NULL DEFAULT '',
   `email` varchar(50) NOT NULL DEFAULT '',
@@ -511,9 +509,7 @@ $listQuery = array(
   KEY `idx_signuptime` (`signuptime`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;",
 
-"INSERT INTO `".$table_prefix."users` (`name`, `password`, `email`, `motto`, `revisioncount`, `changescount`, `doubleclickedit`, `signuptime`, `show_comments`) VALUES
-('WikiAdmin', '".$WikiAdminPasswordMD5."', 'florestan.bredow@supagro.inra.fr', '', 20, 50, 'Y', '$date', 'N');",
+    "INSERT INTO `" . $tablePrefix . "users` (`name`, `password`, `email`, `motto`, `revisioncount`, `changescount`, `doubleclickedit`, `signuptime`, `show_comments`) VALUES
+('WikiAdmin', '" . $WikiAdminPasswordMD5 . "', 'florestan.bredow@supagro.inra.fr', '', 20, 50, 'Y', '$date', 'N');",
 
 );
-
-?>
