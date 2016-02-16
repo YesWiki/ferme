@@ -148,9 +148,17 @@ class Controller
                 "Paramètres manquant pour la suppression de l'archive."
             );
         }
-        $this->ferme->deleteArchive($get['name']);
+
+        try {
+            $this->ferme->deleteArchive($get['name']);
+        } catch (\Exception $e) {
+            $this->ferme->alerts->add($e->getMessage(), 'error');
+            return;
+        }
+
         $this->ferme->alerts->add(
-            "L'archive " . $get['name'] . " a été supprimée avec succès"
+            "L'archive " . $get['name'] . " a été supprimée avec succès",
+            'success'
         );
     }
 
@@ -161,9 +169,17 @@ class Controller
                 "Paramètres manquant pour la restauration de l'archive."
             );
         }
-        $this->ferme->restore($get['name']);
+
+        try {
+            $this->ferme->restore($get['name']);
+        } catch (\Exception $e) {
+            $this->ferme->alerts->add($e->getMessage(), 'error');
+            return;
+        }
+
         $this->ferme->alerts->add(
-            "L'archive " . $get['name'] . " a été restaurée avec succès."
+            "L'archive " . $get['name'] . " a été restaurée avec succès.",
+            'success'
         );
     }
 
@@ -174,9 +190,17 @@ class Controller
                 "Paramètres manquant pour créer l'archive."
             );
         }
-        $this->ferme->archiveWiki($get['name']);
+
+        try {
+            $this->ferme->archiveWiki($get['name']);
+        } catch (\Exception $e) {
+            $this->ferme->alerts->add($e->getMessage(), 'error');
+            return;
+        }
+
         $this->ferme->alerts->add(
-            "Le wiki " . $get['name'] . " a été archivé avec succès."
+            "Le wiki " . $get['name'] . " a été archivé avec succès.",
+            'success'
         );
     }
 
@@ -188,10 +212,17 @@ class Controller
             );
         }
 
-        $this->ferme->updateConfiguration($get['name']);
+        try {
+            $this->ferme->updateConfiguration($get['name']);
+        } catch (\Exception $e) {
+            $this->ferme->alerts->add($e->getMessage(), 'error');
+            return;
+        }
+
         $this->ferme->alerts->add(
             "La configuration de " . $get['name'] . " a été mise à "
-            . "jour avec succès."
+            . "jour avec succès.",
+            'success'
         );
     }
 
@@ -209,9 +240,17 @@ class Controller
                 "Paramètres manquant pour la suppression du wiki."
             );
         }
-        $this->ferme->delete($get['name']);
+
+        try {
+            $this->ferme->delete($get['name']);
+        } catch (\Exception $e) {
+            $this->ferme->alerts->add($e->getMessage(), 'error');
+            return;
+        }
+
         $this->ferme->alerts->add(
-            "Le wiki " . $get['name'] . " a été supprimée avec succès"
+            "Le wiki " . $get['name'] . " a été supprimée avec succès",
+            'success'
         );
 
     }
@@ -222,7 +261,8 @@ class Controller
             $this->ferme->alerts->add(
                 'La plantation de wiki est une activité délicate qui'
                 . ' ne doit pas être effectuée par un robot. (Pensez à'
-                . ' activer JavaScript)'
+                . ' activer JavaScript)',
+                'error'
             );
             return;
         }
@@ -231,7 +271,7 @@ class Controller
             or !isset($post['mail'])
             or !isset($post['description'])
         ) {
-            $this->ferme->alerts->add("Formulaire incomplet.");
+            $this->ferme->alerts->add("Formulaire incomplet.", 'error');
             return;
         }
 
@@ -242,13 +282,14 @@ class Controller
                 $post['description']
             );
         } catch (\Exception $e) {
-            $this->ferme->alerts->add($e->getMessage());
+            $this->ferme->alerts->add($e->getMessage(), 'error');
             return;
         }
 
         $this->ferme->alerts->add(
             '<a href="' . $this->config['base_url']
-            . $wikiPath . '">Visiter le nouveau wiki</a>'
+            . $wikiPath . '">Visiter le nouveau wiki</a>',
+            'success'
         );
     }
 
