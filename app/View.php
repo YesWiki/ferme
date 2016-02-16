@@ -182,8 +182,7 @@ class View
         }
 
         $this->ferme->resetIndexWikis();
-        do {
-            $wiki = $this->ferme->getCurrentWiki();
+        foreach ($this->ferme->wikisFactory->list as $name => $wiki) {
             $infos = $wiki->getInfos();
             $csv->insert(
                 array(
@@ -192,7 +191,7 @@ class View
                     str_replace('wakka.php?wiki=', '', $infos['url']),
                 )
             );
-        } while ($this->ferme->getNextWiki());
+        }
 
         $csv->printFile($filename);
     }
