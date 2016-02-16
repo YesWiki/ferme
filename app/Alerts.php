@@ -26,7 +26,7 @@ class Alerts
      * @param string $text descriptif de l'alerte
      * @param string $type type d'alerte notice, warning ou error.
      */
-    public function add($text, $type = 'error')
+    public function add($text, $type = 'notice')
     {
         $this->list[] = array(
             'text' => $text,
