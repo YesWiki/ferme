@@ -88,6 +88,7 @@ class Controller
                     $instView->show('auth.html');
                     break;
                 }
+                $this->ferme->wikis->calSize();
                 $instView->show('admin.html');
                 break;
             case 'exportMailing':
@@ -244,8 +245,6 @@ class Controller
             $this->ferme->alerts->add($e->getMessage());
             return;
         }
-
-        //$this->ferme->loadWikis();
 
         $this->ferme->alerts->add(
             '<a href="' . $this->config['base_url']

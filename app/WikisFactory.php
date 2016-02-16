@@ -45,10 +45,16 @@ class WikisFactory extends Factory
                     unset($this->list[$wiki]);
                     continue;
                 }
-                $this->list[$wiki]->calSize();
             }
         }
         closedir($handle);
+    }
+
+    public function calSize()
+    {
+        foreach ($this->list as $wiki) {
+            $wiki->calSize();
+        }
     }
 
     /**
