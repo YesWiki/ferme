@@ -51,7 +51,7 @@ class Controller
     private function ajax($get)
     {
         $view = new View($this->ferme);
-        if (isset($get['query'])) {
+        if (isset($get['query']) and ($get['query'] === 'search')) {
             switch ($get['query']) {
                 case 'search':
                     $string = '*';
@@ -106,7 +106,7 @@ class Controller
         switch ($get['action']) {
             case 'addWiki':
                 $this->actionAddWiki($post);
-                $this->ferme->loadWikis(true);
+                $this->ferme->loadWikis();
                 break;
 
             case 'login':
@@ -119,7 +119,6 @@ class Controller
 
             case 'delete':
                 $this->actionDelete($get);
-                $this->ferme->loadWikis(true);
                 break;
 
             case 'updateConfiguration':
@@ -133,56 +132,88 @@ class Controller
 
             case 'restore':
                 $this->actionRestore($get);
-                $this->ferme->loadWikis(true);
+                $this->ferme->loadWikis();
                 break;
 
             case 'deleteArchive':
                 $this->actionDeleteArchive($get);
-                $this->ferme->loadArchives();
                 break;
         }
     }
 
     private function actionDeleteArchive($get)
     {
-        if (isset($get['name'])) {
-            $this->ferme->deleteArchive($get['name']);
+        if (!isset($get['name'])) {
+            $this->addAlert(
+                "Paramètres manquant pour la suppression de l'archive."
+            );
         }
+        $this->ferme->deleteArchive($get['name']);
+        $this->ferme->addAlert(
+            "L'archive " . $get['name'] . " a été supprimée avec succès"
+        );
     }
 
     private function actionRestore($get)
     {
-        if (isset($get['name'])) {
-            $this->ferme->restore($get['name']);
+        if (!isset($get['name'])) {
+            $this->addAlert(
+                "Paramètres manquant pour la restauration de l'archive."
+            );
         }
+        $this->ferme->restore($get['name']);
+        $this->ferme->addAlert(
+            "L'archive " . $get['name'] . " a été restaurée avec succès."
+        );
     }
 
     private function actionArchive($get)
     {
-        if (isset($get['name'])) {
-            $this->ferme->archiveWiki($get['name']);
+        if (!isset($get['name'])) {
+            $this->addAlert(
+                "Paramètres manquant pour créer l'archive."
+            );
         }
+        $this->ferme->archiveWiki($get['name']);
+        $this->ferme->addAlert(
+            "Le wiki " . $get['name'] . " a été archivé avec succès."
+        );
     }
 
     private function actionUpdateConfiguration($get)
     {
-        if (isset($get['name'])) {
-            $this->ferme->updateConfiguration($get['name']);
+        if (!isset($get['name'])) {
+            $this->addAlert(
+                "Paramètres manquant pour mettre à jour la configuration."
+            );
         }
+
+        $this->ferme->updateConfiguration($get['name']);
+        $this->ferme->addAlert(
+            "La configuration de " . $get['name'] . " a été mise à "
+            . "jour avec succès."
+        );
     }
 
     private function actionLogin($post)
     {
-        if (isset($post['username']) and isset($post['password'])) {
+        if (!(isset($post['username']) and isset($post['password']))) {
             $this->ferme->login($post['username'], $post['password']);
         }
     }
 
     private function actionDelete($get)
     {
-        if (isset($get['name'])) {
-            $this->ferme->delete($get['name']);
+        if (!isset($get['name'])) {
+            $this->addAlert(
+                "Paramètres manquant pour la suppression du wiki."
+            );
         }
+        $this->ferme->delete($get['name']);
+        $this->ferme->addAlert(
+            "Le wiki " . $get['name'] . " a été supprimée avec succès"
+        );
+
     }
 
     private function actionAddWiki($post)
