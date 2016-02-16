@@ -27,7 +27,7 @@ class Controller
         $this->ferme->loadArchives();
 
         if (isset($get['download'])) {
-            $this->download($get);
+            $this->download($get['download']);
             return;
         }
 
@@ -74,12 +74,10 @@ class Controller
         }
     }
 
-    private function download($get)
+    private function download($download)
     {
-        if (isset($get['archive'])) {
-            $download = new Download($get['archive'], $this->ferme);
-            $download->serve();
-        }
+        $download = new Download($download, $this->ferme);
+        $download->serve();
     }
 
     private function showHtml($view)
