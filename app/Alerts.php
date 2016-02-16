@@ -13,6 +13,14 @@ namespace Ferme;
  */
 class Alerts
 {
+
+    private $list = null;
+
+    public function __construct()
+    {
+        $this->list = array();
+    }
+
     /**
      * Ajoute une alerte
      * @param string $text descriptif de l'alerte
@@ -20,11 +28,7 @@ class Alerts
      */
     public function add($text, $type = 'error')
     {
-        if (!isset($_SESSION['alerts'])) {
-            $_SESSION['alerts'] = array();
-        }
-
-        $_SESSION['alerts'][] = array(
+        $this->list[] = array(
             'text' => $text,
             'type' => $type,
         );
@@ -45,8 +49,8 @@ class Alerts
         $listAlerts = array();
 
         //Affichage des alertes
-        if (isset($_SESSION['alerts'])) {
-            foreach ($_SESSION['alerts'] as $key => $alert) {
+        if (isset($this->list)) {
+            foreach ($this->list as $key => $alert) {
                 $listAlerts[] = array(
                     'id' => "alert" . $key,
                     'text' => $alert['text'],
@@ -55,13 +59,5 @@ class Alerts
             }
         }
         return $listAlerts;
-    }
-
-    /**
-     * Vide la liste d'alerte
-     */
-    public function removeAll()
-    {
-        unset($_SESSION['alerts']);
     }
 }
