@@ -291,6 +291,9 @@ class Controller
             . $wikiPath . '">Visiter le nouveau wiki</a>',
             'success'
         );
+
+        $mail = new MailCreateWiki($this->ferme, $post['wikiName']);
+        $mail->send();
     }
 
     private function isHashcashValid($post)
