@@ -148,15 +148,19 @@ class Wiki
         // Dump de la base de donnée.
         $sqlFile = $this->dumpDB($tmpPath . $wikiName . '.sql');
 
-        // TODO : Solution portable est optimisée
+        // TODO : Solution portable et optimisée
         $cmd = 'tar -czf ' . $filename
         . ' -C ' . $fermePath . ' ' . $wikiName
         . ' -C  ' . realpath($tmpPath) . ' ' . $wikiName . '.sql';
 
-        shell_exec($cmd);
+        $output = array();
+        exec($cmd, $output, $returnVar);
 
         unlink($sqlFile);
 
+        if (0 != $returnVar) {
+            throw new \Exception("Erreur lors de la création de l'archive.", 1);
+        }
         return $filename;
     }
 
