@@ -22,8 +22,8 @@ abstract class Mail
         mail(
             $data['to'],
             $data['subject'],
-            $content,
-//            "From:" . $data['from']
+            $content
+            //"From:" . $data['from']
         );
     }
 }
