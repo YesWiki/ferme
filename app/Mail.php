@@ -19,16 +19,11 @@ abstract class Mail
         $data = $this->getData();
         $content = $twig->render($this->getTemplate(), $data);
 
-        // DEBUG
-        print("<pre>");
-        print_r($content);
-        print("</pre>");
-
         mail(
             $data['to'],
             $data['subject'],
             $content,
-            "From:" . $data['from']
+//            "From:" . $data['from']
         );
     }
 }
