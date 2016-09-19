@@ -99,11 +99,12 @@ class Wiki
      */
     public function delete()
     {
-        //Supprime la base de donnée
-        $database = $this->dbConnexion;
-        $tables = $this->getDBTablesList($this->dbConnexion);
 
+        $database = $this->dbConnexion;
         $fermePath = $this->fermeConfig['ferme_path'];
+
+        //Supprime la base de donnée
+        $tables = $this->getDBTablesList();
 
         foreach ($tables as $tableName) {
             $sth = $database->prepare("DROP TABLE IF EXISTS " . $tableName);
@@ -114,19 +115,22 @@ class Wiki
                 );
             }
         }
+
         // Vérifie si la suppression a été effective
-        $tables = $this->getDBTablesList($this->dbConnexion);
+        $tables = $this->getDBTablesList();
         if (!empty($tables)) {
             throw new \Exception(
                 "Erreur lors de la suppression de la base de donnée",
                 1
             );
         }
+
         //Supprimer les fichiers
-        shell_exec(
-            'rm -r ' . $fermePath . $this->config['wakka_name']
-        );
-        if (is_dir($fermePath . $this->config['wakka_name'])) {
+        $wikiPath = $fermePath . $this->config['wakka_name'];
+        $this->deleteFile($wikiPath);
+
+        // Vérifie si la suppression a été effective
+        if (is_dir($wikiPath)) {
             throw new \Exception(
                 "Impossible de supprimer les fichiers du wiki",
                 1
@@ -174,7 +178,7 @@ class Wiki
     private function dumpDB($file)
     {
         $database = $this->dbConnexion;
-        $tables = $this->getDBTablesList($database);
+        $tables = $this->getDBTablesList();
 
         $strListTable = "";
         foreach ($tables as $tableName) {
@@ -284,5 +288,34 @@ class Wiki
         }
 
         return $finalResults;
+    }
+
+    /**
+     * Supprime un fichier ou un dossier et tout son contenu
+     * @param  string $path chemin du fichier/dossier a supprimer
+     * @return bool       vrai en cas de réussite, faux en cas d'erreur.
+     */
+    private function deleteFile($path)
+    {
+        if (is_file($path)) {
+            if (unlink($path)) {
+                return true;
+            }
+            return false;
+        }
+
+        if (is_dir($path)) {
+            $file2ignore = array('.', '..');
+            if ($res = opendir($path)) {
+                while (($file = readdir($res)) !== false) {
+                    if (!in_array($file, $file2ignore)) {
+                        $this->deleteFile($path . '/' . $file);
+                    }
+                }
+                closedir($res);
+            }
+            rmdir($path);
+            return true;
+        }
     }
 }
