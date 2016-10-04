@@ -42,12 +42,12 @@ else if ($user = $this->GetUser())
 	if ($_REQUEST["action"] == "update")
 	{
 		$this->Query("update ".$this->config["table_prefix"]."users set ".
-			"email = '".mysql_escape_string($_POST["email"])."', ".
-			"doubleclickedit = '".mysql_escape_string($_POST["doubleclickedit"])."', ".
-			"show_comments = '".mysql_escape_string($_POST["show_comments"])."', ".
-			"revisioncount = '".mysql_escape_string($_POST["revisioncount"])."', ".
-			"changescount = '".mysql_escape_string($_POST["changescount"])."', ".
-			"motto = '".mysql_escape_string($_POST["motto"])."' ".
+			"email = '".mysqli_real_escape_string($this->dblink, $_POST["email"])."', ".
+			"doubleclickedit = '".mysqli_real_escape_string($this->dblink, $_POST["doubleclickedit"])."', ".
+			"show_comments = '".mysqli_real_escape_string($this->dblink, $_POST["show_comments"])."', ".
+			"revisioncount = '".mysqli_real_escape_string($this->dblink, $_POST["revisioncount"])."', ".
+			"changescount = '".mysqli_real_escape_string($this->dblink, $_POST["changescount"])."', ".
+			"motto = '".mysqli_real_escape_string($this->dblink, $_POST["motto"])."' ".
 			"where name = '".$user["name"]."' limit 1");
 		
 		$this->SetUser($this->LoadUser($user["name"]));
@@ -66,7 +66,7 @@ else if ($user = $this->GetUser())
 			else if ($user["password"] != md5($_POST["oldpass"])) $error = _t('WRONG_PASSWORD')."."; 
 			else
 			{
-				$this->Query("update ".$this->config["table_prefix"]."users set "."password = md5('".mysql_escape_string($password)."') "."where name = '".$user["name"]."'");				
+				$this->Query("update ".$this->config["table_prefix"]."users set "."password = md5('".mysqli_real_escape_string($this->dblink, $password)."') "."where name = '".$user["name"]."'");				
 				$this->SetMessage(_t('PASSWORD_CHANGED')." !");
 				$user["password"]=md5($password);
 				$this->SetUser($user);
@@ -84,7 +84,7 @@ else if ($user = $this->GetUser())
 		</tr>
 		<tr>
 			<td align="right"><?php echo _t('YOUR_EMAIL_ADDRESS'); ?>&nbsp;:</td>
-			<td><input name="email" value="<?php echo htmlspecialchars($user["email"], ENT_COMPAT, TEMPLATES_DEFAULT_CHARSET) ?>" size="40" /></td>
+			<td><input name="email" value="<?php echo htmlspecialchars($user["email"], ENT_COMPAT, YW_CHARSET) ?>" size="40" /></td>
 		</tr>
 		<tr>
 			<td align="right"><?php echo _t('DOUBLE_CLICK_TO_EDIT'); ?>&nbsp;:</td>
@@ -96,15 +96,15 @@ else if ($user = $this->GetUser())
 		</tr>
 		<tr>
 			<td align="right"><?php echo _t('MAX_NUMBER_OF_LASTEST_COMMENTS'); ?>&nbsp;:</td>
-			<td><input name="changescount" value="<?php echo htmlspecialchars($user["changescount"], ENT_COMPAT, TEMPLATES_DEFAULT_CHARSET) ?>" size="40" /></td>
+			<td><input name="changescount" value="<?php echo htmlspecialchars($user["changescount"], ENT_COMPAT, YW_CHARSET) ?>" size="40" /></td>
 		</tr>
 		<tr>
 			<td align="right"><?php echo _t('MAX_NUMBER_OF_VERSIONS'); ?>&nbsp;:</td>
-			<td><input name="revisioncount" value="<?php echo htmlspecialchars($user["revisioncount"], ENT_COMPAT, TEMPLATES_DEFAULT_CHARSET) ?>" size="40" /></td>
+			<td><input name="revisioncount" value="<?php echo htmlspecialchars($user["revisioncount"], ENT_COMPAT, YW_CHARSET) ?>" size="40" /></td>
 		</tr>
 		<tr>
 			<td align="right"><?php echo _t('YOUR_MOTTO'); ?>&nbsp;:</td>
-			<td><input name="motto" value="<?php echo htmlspecialchars($user["motto"], ENT_COMPAT, TEMPLATES_DEFAULT_CHARSET) ?>" size="40" /></td>
+			<td><input name="motto" value="<?php echo htmlspecialchars($user["motto"], ENT_COMPAT, YW_CHARSET) ?>" size="40" /></td>
 		</tr>
 		<tr>
 			<td></td>
@@ -190,9 +190,9 @@ else
 			{
 				$this->Query("insert into ".$this->config["table_prefix"]."users set ".
 					"signuptime = now(), ".
-					"name = '".mysql_escape_string($name)."', ".
-					"email = '".mysql_escape_string($email)."', ".
-					"password = md5('".mysql_escape_string($_POST["password"])."')");
+					"name = '".mysqli_real_escape_string($this->dblink, $name)."', ".
+					"email = '".mysqli_real_escape_string($this->dblink, $email)."', ".
+					"password = md5('".mysqli_real_escape_string($this->dblink, $_POST["password"])."')");
 
 				// log in
 				$this->SetUser($this->LoadUser($name));
@@ -223,7 +223,7 @@ else
 		?>
 		<tr>
 			<td align="right"><?php echo _t('YOUR_WIKINAME'); ?>&nbsp;:</td>
-			<td><input name="name" size="40" value="<?php if (isset($name)) echo htmlspecialchars($name, ENT_COMPAT, TEMPLATES_DEFAULT_CHARSET) ?>" /></td>
+			<td><input name="name" size="40" value="<?php if (isset($name)) echo htmlspecialchars($name, ENT_COMPAT, YW_CHARSET) ?>" /></td>
 		</tr>
 		<tr>
 			<td align="right"><?php echo _t('PASSWORD_5_CHARS_MINIMUM'); ?>&nbsp;:</td>
@@ -247,7 +247,7 @@ else
 		</tr>
 		<tr>
 			<td align="right"><?php echo _t('YOUR_EMAIL_ADDRESS'); ?>.&nbsp;:</td>
-			<td><input name="email" size="40" value="<?php if (isset($email)) echo htmlspecialchars($email, ENT_COMPAT, TEMPLATES_DEFAULT_CHARSET) ?>" /></td>
+			<td><input name="email" size="40" value="<?php if (isset($email)) echo htmlspecialchars($email, ENT_COMPAT, YW_CHARSET) ?>" /></td>
 		</tr>
 		<tr>
 			<td></td>

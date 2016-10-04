@@ -24,7 +24,7 @@ if (!is_array($params) && strstr($params, 'alert-danger')) {
 	echo $params;
 	return;
 }
-$taglist = _convert($params['tags'], TEMPLATES_DEFAULT_CHARSET, TRUE);
+$taglist = _convert($params['tags'], YW_CHARSET, TRUE);
 unset($params['tags']);
 
 // requete avec toutes les pages contenants les mots cles
@@ -41,7 +41,7 @@ foreach ($params as $param) {
  			echo '<br />'."\n";
  		} 
  		else {
- 			echo '<button type="button" class="btn btn-default filter" data-filter="'.sanitizeEntity(_convert($tagname, TEMPLATES_DEFAULT_CHARSET, TRUE)).'">'.$tagname.'</button>'."\n";
+ 			echo '<button type="button" class="btn btn-default filter" data-filter="'.sanitizeEntity(_convert($tagname, YW_CHARSET, TRUE)).'">'.$tagname.'</button>'."\n";
  		}	
  	}
  	echo  '</div>'."\n".'</div>'."\n";
@@ -70,7 +70,7 @@ foreach ($pages as $page) {
 	}
 }
 
-include_once 'tools/tags/libs/squelettephp.class.php';
+include_once 'tools/libs/squelettephp.class.php';
 $templateelements = new SquelettePhp('tools/tags/presentation/templates/'.$template);
 $templateelements->set(array('elements' => $element, 'elementwidth' => $elementwidth, 'elementoffset' => $elementoffset));
 echo $templateelements->analyser();
