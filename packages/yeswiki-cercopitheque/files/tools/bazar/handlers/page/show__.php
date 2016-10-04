@@ -26,11 +26,18 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// Vérification de sécurité
+// VÃ©rification de sÃ©curitÃ©
 if (!defined("WIKINI_VERSION")) {
-    die ("acc&egrave;s direct interdit");
+    die("acc&egrave;s direct interdit");
 }
-if (isset($valjson)) {
-    $plugin_output_new = preg_replace ('/(<input type="hidden" name="body" value=".*" \/>)/Uis',
-        '<input type="hidden" name="body" value="'.htmlspecialchars($valjson, ENT_COMPAT, TEMPLATES_DEFAULT_CHARSET).'" />', $plugin_output_new);
+if ($type == 'fiche_bazar') {
+    $replace = '<input type="hidden" name="body" value="'.htmlspecialchars(json_encode($tab_valeurs), ENT_COMPAT, YW_CHARSET).'" />';
+    if (isset($_GET['time'])) {
+        $replace = '<input type="hidden" name="time" value="'.htmlspecialchars($_GET['time'], ENT_COMPAT, YW_CHARSET).'">'."\n".$replace;
+    }
+    $plugin_output_new = preg_replace(
+        '/\<input type=\"hidden\" name=\"body\" value=\".*\" \/\>/Uis',
+        $replace,
+        $plugin_output_new
+    );
 }

@@ -53,7 +53,7 @@ $tableau_resultat = baz_requete_recherche_fiches($tabquery, '', $GLOBALS['_BAZAR
 $js = '';
 foreach ($tableau_resultat as $fiche) {
     $valeurs_fiche = json_decode($fiche["body"], true);
-    if (TEMPLATES_DEFAULT_CHARSET != 'UTF-8') $valeurs_fiche = array_map('utf8_decode', $valeurs_fiche);
+    if (YW_CHARSET != 'UTF-8') $valeurs_fiche = array_map('utf8_decode', $valeurs_fiche);
     if (isset($valeurs_fiche['bf_date_debut_evenement']) && isset($valeurs_fiche['bf_date_fin_evenement'])) {
         $js .= '        {
                     title: "'.addslashes($valeurs_fiche['bf_titre']).'",
@@ -127,7 +127,7 @@ if (!empty($minical) && $minical==1) {
                 var modal = $('#dateModal');
                 modal.html('<div class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-header\"><button type=\"button\" class=\"close\" data-dismiss=\"modal\">&times;</button><h3>'+event.title+'</h3></div><div class=\"modal-body\"></div></div></div>').on('hidden', function() {modal.remove()});
                 modal.find('.modal-body').load(event.url + ' .page', function() {
-                    $(this).find('.page').append('<a href=\"'+event.url + '/edit' +'\" class=\"btn btn-default pull-right\"><i class=\"icon-pencil glyphicon glyphicon-pencil\"></i> "._t('BAZ_MODIFIER_LA_FICHE')."</a><div class=\"clearfix\"></div>').removeClass('page').find('h1.BAZ_fiche_titre').remove();
+                    $(this).find('.page').append('<a href=\"'+event.url + '/edit' +'\" class=\"btn btn-default pull-right\"><i class=\"glyphicon glyphicon-pencil icon-pencil\"></i> "._t('BAZ_MODIFIER_LA_FICHE')."</a><div class=\"clearfix\"></div>').removeClass('page').find('h1.BAZ_fiche_titre').remove();
                     modal.modal('show');
                 });
 

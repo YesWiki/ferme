@@ -7,7 +7,7 @@ Copyright 2002, 2003 Charles NEPOTE
 Copyright 2002, 2003 Patrick PAUL
 Copyright 2003  Eric DELORD
 Copyright 2003  Eric FELDSTEIN
-Copyright 2004  Jean Christophe ANDRÉ
+Copyright 2004  Jean Christophe ANDRï¿½
 Copyright 2006  Didier LOISEAU
 All rights reserved.
 Redistribution and use in source and binary forms, with or without
@@ -45,12 +45,12 @@ if (!class_exists('WikiniFormatter'))
 		var $newIndentSpace = array ();
 		var $br = 1;
 		var $title = 0;
-		
+
 		// in-line boxes stack
 		// array(0 => array(tag => 'span', attr => array('style' => 'color: red;', 'onmouseover' => 'alert(\'Hello World !\')')))
 		var $inLineStack = array();
 
-		function WikiniFormatter(& $wiki)
+		function __construct(& $wiki)
 		{
 			$this->wiki = & $wiki;
 		}
@@ -62,7 +62,7 @@ if (!class_exists('WikiniFormatter'))
 				$inst = new WikiniFormatter($wiki);
 			return $inst;
 		}
-		
+
 		/**
 		 * Formats the given $text.
 		 * @param string $text The text to format,
@@ -87,7 +87,7 @@ if (!class_exists('WikiniFormatter'))
 				."\"\".*?\"\"|"
 				."\[\[.*?\]\]|"
 				.'\b[a-z0-9]+:\/\/[^ \t\n\r\f"\|\\\\\^\`\{\}\[\]><]+|'
-				.'([\*\#@£_\/])\\1|'// attention à la référence arrière \1, à changer s'il y a d'autres parenthèses capturantes
+				.'([\*\#@ï¿½_\/])\\1|'// attention ï¿½ la rï¿½fï¿½rence arriï¿½re \1, ï¿½ changer s'il y a d'autres parenthï¿½ses capturantes
 				.'[<>"]|'
 				.'&(?!(\#[xX][a-fA-F0-9]+|\#[0-9]+|[a-zA-Z0-9]+);)|'
 				.'={2,6}|'
@@ -116,7 +116,7 @@ if (!class_exists('WikiniFormatter'))
 			$this->title = $level;
 			return "<h$level>";
 		}
-		
+
 		function openTag($tag, $attr = array())
 		{
 			$res = '<' . $tag;
@@ -127,12 +127,12 @@ if (!class_exists('WikiniFormatter'))
 			$res .= '>';
 			return $res;
 		}
-		
+
 		function closeTag($tag)
 		{
 			return '</' . $tag . '>';
 		}
-		
+
 		/**
 		 * Opens all in-line tag from the given tag to the top of the stack
 		 * @param int $from The first in-line tag to open (defaults to 0)
@@ -152,7 +152,7 @@ if (!class_exists('WikiniFormatter'))
 			}
 			return $res;
 		}
-		
+
 		/**
 		 * Closes all in-line tag from the top of the stack to the given tag
 		 * @param int $to The last in-line tag to close (defaults to 0)
@@ -171,7 +171,7 @@ if (!class_exists('WikiniFormatter'))
 			}
 			return $res;
 		}
-		
+
 		/**
 		 * Declares an in-line tag. If such a tag is already open,
 		 * it will be closed (with respect to the other already opened
@@ -218,7 +218,11 @@ if (!class_exists('WikiniFormatter'))
 			$thing = $things[0];
 			$result = '';
 
-			$wiki = & $this->wiki;
+			/**
+			 * 
+			 * @var Wiki
+			 */
+			$wiki = $this->wiki;
 
 			// convert HTML thingies
 			switch ($thing)
@@ -241,7 +245,7 @@ if (!class_exists('WikiniFormatter'))
 					return $this->inLineTag('tt');
 				case '@@' : // Deleted
 					return $this->inLineTag('span', 'del');
-				case '££' : // Inserted
+				case 'ï¿½ï¿½' : // Inserted
 					return $this->inLineTag('span', 'add');
 				case '==' : // header level 5
 					return $this->titleHeader(5);
@@ -283,7 +287,7 @@ if (!class_exists('WikiniFormatter'))
 					if (preg_match('/^\b[a-z0-9]+:\/\/[^ \t\n\r\f"\|\\\\\^\`\{\}\[\]><]+$/', $thing))
 					{
 						// Retrieve url and transform it into valid HTML (htmlspecialchars)
-						$url = htmlspecialchars($thing, ENT_COMPAT, TEMPLATES_DEFAULT_CHARSET);
+						$url = htmlspecialchars($thing, ENT_COMPAT, YW_CHARSET);
 						return "<a href=\"$url\">$url</a>";
 					}
 					// escaped text
@@ -293,7 +297,7 @@ if (!class_exists('WikiniFormatter'))
 						{
 							return $matches[1];
 						}
-						$res = htmlspecialchars($matches[1], ENT_COMPAT, TEMPLATES_DEFAULT_CHARSET);
+						$res = htmlspecialchars($matches[1], ENT_COMPAT, YW_CHARSET);
 						return preg_replace('/&amp;(\\#[xX][a-fA-F0-9]+|\\#[0-9]+|[a-zA-Z0-9]+);/', '&$1;', $res);
 					}
 					// code text
@@ -347,7 +351,7 @@ if (!class_exists('WikiniFormatter'))
 						}
 						else
 						{
-							return htmlspecialchars($text, ENT_COMPAT, TEMPLATES_DEFAULT_CHARSET);
+							return htmlspecialchars($text, ENT_COMPAT, YW_CHARSET);
 						}
 					}
 					// forced links
@@ -367,25 +371,21 @@ if (!class_exists('WikiniFormatter'))
 						if ($url)
 						{
                             // Early start/end of Inserted or Deleted ?
-							if ($url != ($url = (preg_replace("/@@|££|\[\[/", "", $url))))
+							if ($url != ($url = (preg_replace("/@@|ï¿½ï¿½|\[\[/", "", $url))))
 								$result = "</span>";
                             // Same filtering in the text (no need to
                             // filter ]] because there are none here
                             // by construct)
-							$text = isset($text) ? preg_replace("/@@|££|\[\[/", "", $text) : '';
+							$text = isset($text) ? preg_replace("/@@|ï¿½ï¿½|\[\[/", "", $text) : '';
 							return $result.$wiki->Link($url, "", $text);
 						}
 						else
 						{ // if there is no URL, return at least the text
-							return htmlspecialchars($text, ENT_COMPAT, TEMPLATES_DEFAULT_CHARSET);
+							return htmlspecialchars($text, ENT_COMPAT, YW_CHARSET);
 						}
 					}
-					// indented text
-					elseif (preg_match('`(^|\n)(\t+|([ ]{1})+)(-|([[:alnum:]]+)\))?`s', $thing, $matches))
-					{
-						return $this->indentedText($matches);
-					}
-					// events
+					// events / action
+					// process this regex before "indented text" regex to permits linebreak and space in action tag formatting
 					elseif (preg_match("/^\{\{(.*?)\}\}$/s", $thing, $matches))
 					{
 						if ($matches[1]) {
@@ -394,6 +394,11 @@ if (!class_exists('WikiniFormatter'))
 						}
 						else
 							return "{{}}";
+					}
+					// indented text
+					elseif (preg_match('`(^|\n)(\t+|([ ]{1})+)(-|([[:alnum:]]+)\))?`s', $thing, $matches))
+					{
+						return $this->indentedText($matches);
 					}
 					// interwiki links!
 					elseif (preg_match('`^' . WN_INTERWIKI_LINK . '$`', $thing))
@@ -414,29 +419,29 @@ if (!class_exists('WikiniFormatter'))
 						return "<hr />\n";
 					}
 					// if we reach this point, it must have been an accident.
-					return htmlspecialchars($thing, ENT_COMPAT, TEMPLATES_DEFAULT_CHARSET);
+					return htmlspecialchars($thing, ENT_COMPAT, YW_CHARSET);
 			} // switch($thing)
 		} // function callback
-		
+
 		function indentedText($matches)
 		{
 			$result = '';
 			$closeLI = true;
 
-			// S'il n'y a pas de NL avant l'item (c'est le cas où on
-			// est au debut de la page), alors on empèche qu'un <br />
+			// S'il n'y a pas de NL avant l'item (c'est le cas oï¿½ on
+			// est au debut de la page), alors on empï¿½che qu'un <br />
 			// ne soit produit
 			if (strpos($matches[1], "\n") === false) {
 				$this->br = 0;
 			}
-			// Ajout un saut de ligne si necessaire (c'est le cas où
-			// on est au debut d'une liste et pas au début d'une page,
+			// Ajout un saut de ligne si necessaire (c'est le cas oï¿½
+			// on est au debut d'une liste et pas au dï¿½but d'une page,
 			// car $this->br vaut encore 1)
 			$result .= ($this->br ? "<br />\n" : "");
 
-			// Les "\n" entre les Item de liste sont "mangés" par la
-			// regexp des listes, et ceci évite que le NL de fin de
-			// liste ne soit transformé abusivement en <br />
+			// Les "\n" entre les Item de liste sont "mangï¿½s" par la
+			// regexp des listes, et ceci ï¿½vite que le NL de fin de
+			// liste ne soit transformï¿½ abusivement en <br />
 			$this->br = 0;
 
 			//recherche du type de la liste
@@ -462,7 +467,7 @@ if (!class_exists('WikiniFormatter'))
 			}
 			else
 			{
-				// NB: <ol type="..."> est deprecié depuis HTML4.01 -> utilisation d'un style a la place
+				// NB: <ol type="..."> est depreciï¿½ depuis HTML4.01 -> utilisation d'un style a la place
 				if (preg_match('`[0-9]+`', $matches[4]))
 					$style = 'style="list-style: decimal;"';
 				if (preg_match('`[a-hj-z]+`', $matches[4]))
@@ -506,11 +511,11 @@ if (!class_exists('WikiniFormatter'))
 				//on recupere le niveau d'indentation correspondant a la longueur de la chaune
 				$newIndentLevel = $this->newIndentSpace[$newIndentLength];
 			}
-			
+
 			// quoi qu'il en soit, on va ouvrir ou fermer des boites de type bloc
 			// il faut donc fermer les boites de type in-line
 			$result .= $this->closeAllInLine();
-			
+
 			//si le nouveau level est plus grand
 			if ($newIndentLevel > $this->oldIndentLevel)
 			{
@@ -540,7 +545,7 @@ if (!class_exists('WikiniFormatter'))
 			}
 
 			$result .= ($closeLI ? '</li>' : '')."\n<li>";
-			
+
 			// quoi qu'il se soit passe, on a ouvert ou ferme des boites de type bloc
 			// et on a du fermer les boites de type in-line
 			// il faut donc les re-ouvrir maintenant

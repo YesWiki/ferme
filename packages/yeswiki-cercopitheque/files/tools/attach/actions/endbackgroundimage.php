@@ -2,7 +2,7 @@
 /*
 endbackgroundimage.php
 
-2014 Florian Schmitt 
+2014 Florian Schmitt
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
