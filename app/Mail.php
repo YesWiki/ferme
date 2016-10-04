@@ -6,14 +6,14 @@ abstract class Mail
     abstract protected function getTemplate();
     abstract protected function getData();
 
-    public function __construct($ferme)
+    public function __construct($config)
     {
-        $this->ferme = $ferme;
+        $this->config = $config;
     }
 
     public function send()
     {
-        $themePath = 'themes/' . $this->ferme->config['template'] . '/mails/';
+        $themePath = 'themes/' . $this->config['template'] . '/mails/';
         $twigLoader = new \Twig_Loader_Filesystem($themePath);
         $twig = new \Twig_Environment($twigLoader);
         $data = $this->getData();

@@ -292,7 +292,7 @@ class Controller
             'success'
         );
 
-        $mail = new MailCreateWiki($this->ferme, $post['wikiName']);
+        $mail = new MailCreateWiki($this->ferme->config, $post['wikiName']);
         $mail->send();
     }
 
