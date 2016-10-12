@@ -3,21 +3,21 @@ namespace Ferme;
 
 class MailCreateWiki extends Mail
 {
-    public function __construct($ferme, $wikiName)
+    public function __construct($config, $wikiName)
     {
         $this->wikiName = $wikiName;
-        $this->ferme = $ferme;
+        $this->config = $config;
     }
 
     protected function getData()
     {
         $data = array(
             'wikiName' => $this->wikiName,
-            'wikiUrl' => $this->ferme->config['mail_from'] . '/wikis/' . $this->wikiName,
-            'to' => $this->ferme->config['mail_from'],
-            'from' => $this->ferme->config['contact'],
+            'wikiUrl' => $this->config['mail_from'] . '/wikis/' . $this->wikiName,
+            'to' => $this->config['mail_from'],
+            'from' => $this->config['contact'],
             'subject' => 'Création du wiki ' . $this->wikiName,
-            'listContacts' => $this->ferme->config['contacts']
+            'listContacts' => $this->config['contacts']
         );
 
         return $data;

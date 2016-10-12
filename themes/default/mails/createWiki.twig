@@ -4,8 +4,8 @@ Votre wiki : {{ wikiName }} a été semé avec succès.
 Vous le trouverez à l'adresse : {{ wikiURL }}
 
 Pour toute information complémentaire n'hésitez pas à contacter :
-{% for contact in listContacts %}
- - {{ contact }} 
+{% for name, mail in listContacts %}
+ - {{ name }} : {{ mail }}
 {% endfor %}
 
 Cordialement.

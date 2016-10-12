@@ -138,6 +138,10 @@ class Controller
             case 'deleteArchive':
                 $this->actionDeleteArchive($get);
                 break;
+
+            case 'upgrade':
+                $this->actionUpgradeWiki($get);
+                break;
         }
     }
 
@@ -255,6 +259,28 @@ class Controller
 
     }
 
+    private function actionUpgradeWiki($get) {
+        if (!isset($get['name'])) {
+            $this->ferme->alerts->add(
+                "Paramètres manquant pour la suppression du wiki."
+            );
+        }
+
+        try {
+            $this->ferme->upgrade($get['name']);
+        } catch (\Exception $e) {
+            $this->ferme->alerts->add($e->getMessage(), 'error');
+            return;
+        }
+
+        $this->ferme->alerts->add(
+            "Le wiki " . $get['name'] . " a été mis à jour avec succès",
+            'success'
+        );
+
+
+    }
+
     private function actionAddWiki($post)
     {
         if (!$this->isHashcashValid($post)) {
@@ -292,7 +318,7 @@ class Controller
             'success'
         );
 
-        $mail = new MailCreateWiki($this->ferme, $post['wikiName']);
+        $mail = new MailCreateWiki($this->ferme->config, $post['wikiName']);
         $mail->send();
     }
 

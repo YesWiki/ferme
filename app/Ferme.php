@@ -30,7 +30,25 @@ class Ferme
     {
         $this->users->isAuthorized();
         $this->wikis->remove($name);
-        $this->log->write($this->users->whoIsLogged(), "Suppression du wiki '$name'");
+        $this->log->write(
+            $this->users->whoIsLogged(),
+            "Suppression du wiki '$name'"
+        );
+    }
+
+    public function upgrade($name)
+    {
+        $this->users->isAuthorized();
+        $listWikis = $this->wikis->search($name);
+
+        $this->log->write(
+            $this->users->whoIsLogged(),
+            "Mise à jour du wiki '$name'"
+        );
+
+        $listWikis[0]->upgrade(
+            "packages/" . $this->config['source']. "/files/"
+        );
     }
 
     public function updateConfiguration($name)
