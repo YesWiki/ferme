@@ -62,7 +62,9 @@ class Wiki
         $this->infos['name'] = $this->config['wakka_name'];
         $this->infos['url'] = $this->config['base_url'];
         $this->infos['description'] = html_entity_decode(
-            $this->infos['description']
+            $this->infos['description'],
+            ENT_QUOTES,
+            "UTF-8"
         );
 
         return $this->infos;
