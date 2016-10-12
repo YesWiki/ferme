@@ -138,6 +138,10 @@ class Controller
             case 'deleteArchive':
                 $this->actionDeleteArchive($get);
                 break;
+
+            case 'upgrade':
+                $this->actionUpgradeWiki($get);
+                break;
         }
     }
 
@@ -252,6 +256,28 @@ class Controller
             "Le wiki " . $get['name'] . " a été supprimée avec succès",
             'success'
         );
+
+    }
+
+    private function actionUpgradeWiki($get) {
+        if (!isset($get['name'])) {
+            $this->ferme->alerts->add(
+                "Paramètres manquant pour la suppression du wiki."
+            );
+        }
+
+        try {
+            $this->ferme->upgrade($get['name']);
+        } catch (\Exception $e) {
+            $this->ferme->alerts->add($e->getMessage(), 'error');
+            return;
+        }
+
+        $this->ferme->alerts->add(
+            "Le wiki " . $get['name'] . " a été mis à jour avec succès",
+            'success'
+        );
+
 
     }
 

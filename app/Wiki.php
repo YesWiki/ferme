@@ -169,6 +169,53 @@ class Wiki
     }
 
     /**
+     * [updateConfiguration description]
+     * @return [type] [description]
+     */
+    public function updateConfiguration()
+    {
+        $this->config['mysql_host'] = $this->fermeConfig['db_host'];
+        $this->config['mysql_database'] = $this->fermeConfig['db_name'];
+        $this->config['mysql_user'] = $this->fermeConfig['db_user'];
+        $this->config['mysql_password'] = $this->fermeConfig['db_password'];
+        $this->config['base_url'] = $this->fermeConfig['base_url'];
+        $this->config['base_url'] .= $this->path;
+        $this->config['base_url'] .= '/wakka.php?wiki=';
+        $this->config->write($this->path . "/wakka.config.php");
+        return $this->config;
+    }
+
+    public function upgrade($srcPath)
+    {
+        // Supprime les fichiers du wiki
+        $fileToIgnore = array(
+            '.', '..', 'wakka.config.php', 'wakka.infos.php', 'files'
+        );
+        if ($res = opendir($this->path)) {
+            while (($file = readdir($res)) !== false) {
+                if (!in_array($file, $fileToIgnore)) {
+                    $this->deleteFile($this->path . '/' . $file);
+                }
+            }
+            closedir($res);
+        }
+
+        // Copie les nouveaux fichiers
+        if ($res = opendir($srcPath)) {
+            while (($file = readdir($res)) !== false) {
+                if (!in_array($file, $fileToIgnore)) {
+                    $this->copyFile(
+                        $srcPath . '/' . $file,
+                        $this->path . '/'
+                    );
+                }
+            }
+            closedir($res);
+        }
+
+    }
+
+    /**
      * Dump la base de donnée
      * @todo : Trouver une solution PHP only
      *
@@ -242,23 +289,6 @@ class Wiki
     }
 
     /**
-     * [updateConfiguration description]
-     * @return [type] [description]
-     */
-    public function updateConfiguration()
-    {
-        $this->config['mysql_host'] = $this->fermeConfig['db_host'];
-        $this->config['mysql_database'] = $this->fermeConfig['db_name'];
-        $this->config['mysql_user'] = $this->fermeConfig['db_user'];
-        $this->config['mysql_password'] = $this->fermeConfig['db_password'];
-        $this->config['base_url'] = $this->fermeConfig['base_url'];
-        $this->config['base_url'] .= $this->path;
-        $this->config['base_url'] .= '/wakka.php?wiki=';
-        $this->config->write($this->path . "/wakka.config.php");
-        return $this->config;
-    }
-
-    /**
      * Récupère la liste des noms de tables dans la base de donnée pour ce Wiki.
      *
      * @param $db
@@ -317,5 +347,27 @@ class Wiki
             rmdir($path);
             return true;
         }
+    }
+
+    /**
+     * Copie les fichiers
+     * @param  string $source      Dossier source
+     * @param  string $destination Dossier de destination
+     * @return bool              Vrai si l'opération à réussi
+     */
+    private function copyFile($source, $destination)
+    {
+        // TODO : trouver une solution portable et optimisée
+        $output = array();
+        $command = "cp -r --preserve=mode,ownership "
+            . $source . " "
+            . $destination;
+        exec($command, $output, $returnVar);
+
+        if (0 != $returnVar) {
+            shell_exec("rm -r " . $destination);
+            throw new \Exception("Erreur lors de la copie des fichiers", 1);
+        }
+        return true;
     }
 }
