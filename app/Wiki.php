@@ -61,6 +61,9 @@ class Wiki
         $this->infos = $wakkaInfos;
         $this->infos['name'] = $this->config['wakka_name'];
         $this->infos['url'] = $this->config['base_url'];
+        $this->infos['description'] = html_entity_decode(
+            $this->infos['description']
+        );
 
         return $this->infos;
     }
@@ -224,7 +227,6 @@ class Wiki
      */
     private function dumpDB($file)
     {
-        $database = $this->dbConnexion;
         $tables = $this->getDBTablesList();
 
         $strListTable = "";
