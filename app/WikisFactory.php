@@ -95,7 +95,8 @@ class WikisFactory extends Factory
             );
         }
 
-        $this->copyFiles($packagePath . "files", $wikiPath);
+        $wikiSrcFiles = new \Files\File($packagePath . "files");
+        $wikiSrcFiles->copy($wikiPath);
 
         // TODO : Utiliser la class Configuration pour gérer cela ou pas...
         // A reflechir...
@@ -171,27 +172,5 @@ class WikisFactory extends Factory
                 1
             );
         }
-    }
-
-    /**
-     * Copie les fichiers
-     * @param  string $source      Dossier source
-     * @param  string $destination Dossier de destination
-     * @return bool              Vrai si l'opération à réussi
-     */
-    private function copyFiles($source, $destination)
-    {
-        // TODO : trouver une solution portable et optimisée
-        $output = array();
-        $command = "cp -r --preserve=mode,ownership "
-            . $source . " "
-            . $destination;
-        exec($command, $output, $returnVar);
-
-        if (0 != $returnVar) {
-            shell_exec("rm -r " . $destination);
-            throw new \Exception("Erreur lors de la copie des fichiers", 1);
-        }
-        return true;
     }
 }

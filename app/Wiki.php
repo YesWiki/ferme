@@ -104,7 +104,6 @@ class Wiki
      */
     public function delete()
     {
-
         $database = $this->dbConnexion;
         $fermePath = $this->fermeConfig['ferme_path'];
 
@@ -121,26 +120,9 @@ class Wiki
             }
         }
 
-        // Vérifie si la suppression a été effective
-        $tables = $this->getDBTablesList();
-        if (!empty($tables)) {
-            throw new \Exception(
-                "Erreur lors de la suppression de la base de donnée",
-                1
-            );
-        }
-
         //Supprimer les fichiers
-        $wikiPath = $fermePath . $this->config['wakka_name'];
-        $this->deleteFile($wikiPath);
-
-        // Vérifie si la suppression a été effective
-        if (is_dir($wikiPath)) {
-            throw new \Exception(
-                "Impossible de supprimer les fichiers du wiki",
-                1
-            );
-        }
+        $wikiFiles = new \Files\File($fermePath . $this->config['wakka_name']);
+        $wikiFiles->delete();
     }
 
     /**
@@ -196,10 +178,12 @@ class Wiki
         $fileToIgnore = array(
             '.', '..', 'wakka.config.php', 'wakka.infos.php', 'files'
         );
+
         if ($res = opendir($this->path)) {
-            while (($file = readdir($res)) !== false) {
-                if (!in_array($file, $fileToIgnore)) {
-                    $this->deleteFile($this->path . '/' . $file);
+            while (($filename = readdir($res)) !== false) {
+                if (!in_array($filename, $fileToIgnore)) {
+                    $file = new \Files\File($this->path . '/' . $filename);
+                    $file->delete();
                 }
             }
             closedir($res);
@@ -207,17 +191,14 @@ class Wiki
 
         // Copie les nouveaux fichiers
         if ($res = opendir($srcPath)) {
-            while (($file = readdir($res)) !== false) {
-                if (!in_array($file, $fileToIgnore)) {
-                    $this->copyFile(
-                        $srcPath . '/' . $file,
-                        $this->path . '/'
-                    );
+            while (($filename = readdir($res)) !== false) {
+                if (!in_array($filename, $fileToIgnore)) {
+                    $file = new \Files\File($srcPath . $filename);
+                    $file->copy($this->path . '/' . $filename);
                 }
             }
             closedir($res);
         }
-
     }
 
     /**
@@ -322,56 +303,5 @@ class Wiki
         }
 
         return $finalResults;
-    }
-
-    /**
-     * Supprime un fichier ou un dossier et tout son contenu
-     * @param  string $path chemin du fichier/dossier a supprimer
-     * @return bool       vrai en cas de réussite, faux en cas d'erreur.
-     */
-    private function deleteFile($path)
-    {
-        if (is_file($path)) {
-            if (unlink($path)) {
-                return true;
-            }
-            return false;
-        }
-
-        if (is_dir($path)) {
-            $file2ignore = array('.', '..');
-            if ($res = opendir($path)) {
-                while (($file = readdir($res)) !== false) {
-                    if (!in_array($file, $file2ignore)) {
-                        $this->deleteFile($path . '/' . $file);
-                    }
-                }
-                closedir($res);
-            }
-            rmdir($path);
-            return true;
-        }
-    }
-
-    /**
-     * Copie les fichiers
-     * @param  string $source      Dossier source
-     * @param  string $destination Dossier de destination
-     * @return bool              Vrai si l'opération à réussi
-     */
-    private function copyFile($source, $destination)
-    {
-        // TODO : trouver une solution portable et optimisée
-        $output = array();
-        $command = "cp -r --preserve=mode,ownership "
-            . $source . " "
-            . $destination;
-        exec($command, $output, $returnVar);
-
-        if (0 != $returnVar) {
-            shell_exec("rm -r " . $destination);
-            throw new \Exception("Erreur lors de la copie des fichiers", 1);
-        }
-        return true;
     }
 }
