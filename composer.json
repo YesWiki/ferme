@@ -2,7 +2,8 @@
     "name": "ferme",
     "description": "Ferme de wikis",
     "require": {
-        "twig/twig": "~1.0"
+        "twig/twig": "~1.0",
+        "daiko/php-files": "dev-master"
     },
     "require-dev": {
         "phpdocumentor/phpdocumentor": "2.*"
