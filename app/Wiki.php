@@ -100,7 +100,6 @@ class Wiki
 
     /**
      * Supprime ce wiki.
-     * @todo : trouver une solution pour éviter le shell
      */
     public function delete()
     {
@@ -137,7 +136,9 @@ class Wiki
         $tmpPath = $this->fermeConfig['tmp_path'];
 
         // Dump de la base de donnée.
-        $sqlFile = $this->dumpDB($tmpPath . $wikiName . '.sql');
+        $sqlFile = $tmpPath . $wikiName . '.sql';
+        $database = new Database($this->dbConnexion);
+        $database->export($sqlFile, $this->config['table_prefix']);
 
         // TODO : Solution portable et optimisée
         $cmd = 'tar -czf ' . $filename
@@ -210,7 +211,9 @@ class Wiki
      */
     private function dumpDB($file)
     {
-        $tables = $this->getDBTablesList();
+        $database = new Database($this->dbConnexion);
+        $database->export($file);
+        /*$tables = $this->getDBTablesList();
 
         $strListTable = "";
         foreach ($tables as $tableName) {
@@ -225,7 +228,7 @@ class Wiki
             . " > " . $file
         );
 
-        return $file;
+        return $file;*/
     }
 
     /**
