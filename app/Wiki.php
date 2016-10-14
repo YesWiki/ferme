@@ -203,35 +203,6 @@ class Wiki
     }
 
     /**
-     * Dump la base de donnée
-     * @todo : Trouver une solution PHP only
-     *
-     * @param $file
-     * @return mixed
-     */
-    private function dumpDB($file)
-    {
-        $database = new Database($this->dbConnexion);
-        $database->export($file);
-        /*$tables = $this->getDBTablesList();
-
-        $strListTable = "";
-        foreach ($tables as $tableName) {
-            $strListTable .= $tableName . " ";
-        }
-        shell_exec(
-            "mysqldump --host=" . $this->fermeConfig['db_host']
-            . " --user=" . $this->fermeConfig['db_user']
-            . " --password=" . $this->fermeConfig['db_password']
-            . " " . $this->fermeConfig['db_name']
-            . " " . $strListTable
-            . " > " . $file
-        );
-
-        return $file;*/
-    }
-
-    /**
      * Calcul l'espace utilisé par la base de donnée.
      *
      * @return mixed
