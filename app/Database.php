@@ -36,6 +36,13 @@ class Database
         file_put_contents($file, $output);
     }
 
+    public function import($sqlFile)
+    {
+        $content = file_get_contents($sqlFile);
+        $sth = $this->dbConnexion->prepare($content);
+        $sth->execute();
+    }
+
     private function getCreateTable($tableName)
     {
         $query = "SHOW CREATE TABLE $tableName;";

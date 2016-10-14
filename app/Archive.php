@@ -74,7 +74,7 @@ class Archive
             throw new \Exception('Un wiki du meme nom existe déjà.', 1);
         }
 
-        $output = shell_exec(
+        shell_exec(
             'tar -C ' . $fermePath
             . ' -xvzf ' . $archivesPath . $this->filename
         );
@@ -87,19 +87,8 @@ class Archive
             );
         }
 
-        //restaurer la base de donnée
-        include $wikiPath . "wakka.config.php";
-
-        $output = shell_exec(
-            'cat ' . $sqlFile . ' | '
-            . '/usr/bin/mysql'
-            . ' --host=' . $wakkaConfig['mysql_host']
-            . ' --user=' . $wakkaConfig['mysql_user']
-            . ' --password=' . $wakkaConfig['mysql_password']
-            . ' ' . $wakkaConfig['mysql_database']
-        );
-
-        //Effacer les fichiers temporaires
+        $database = new Database($this->dbConnect());
+        $database->import($sqlFile);
 
         unlink($sqlFile);
     }
@@ -125,5 +114,30 @@ class Archive
             $this->config['archives_path']
             . $this->filename
         );
+    }
+
+    /**
+     * Établis la connexion a la base de donnée si ce n'est pas déjà fait.
+     * @return \PDO la connexion a la base de donnée
+     */
+    private function dbConnect()
+    {
+        $dsn = 'mysql:host=' . $this->config['db_host'] . ';';
+        $dsn .= 'dbname=' . $this->config['db_name'] . ';';
+
+        try {
+            $this->dbConnexion = new \PDO(
+                $dsn,
+                $this->config['db_user'],
+                $this->config['db_password']
+            );
+            return $this->dbConnexion;
+        } catch (\PDOException $e) {
+            throw new \Exception(
+                "Impossible de se connecter à la base de donnée : "
+                . $e->getMessage(),
+                1
+            );
+        }
     }
 }
