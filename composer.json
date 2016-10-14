@@ -1,6 +1,7 @@
 {
     "name": "ferme",
     "description": "Ferme de wikis",
+    "license": "MIT",
     "require": {
         "twig/twig": "~1.0",
         "daiko/php-files": "dev-master"
