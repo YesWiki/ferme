@@ -81,7 +81,9 @@ class Wiki
             $this->loadInfos();
         }
         $this->infos['db_size'] = $this->calDBSize();
-        $this->infos['files_size'] = $this->calFilesSize();
+
+        $file = new \Files\File($this->path);
+        $this->infos['files_size'] = $file->diskUsage();
         return $this->infos;
     }
 
@@ -235,28 +237,6 @@ class Wiki
         }
 
         return $size;
-    }
-
-    /**
-     * Cacul l'espace disque utilisé.
-     *
-     * @param $path
-     * @return int
-     */
-    private function calFilesSize($path = "")
-    {
-        if ("" == $path) {
-            $path = $this->path;
-        }
-
-        if (is_file($path) or is_dir($path)) {
-            $output = shell_exec('du -s ' . $path);
-            $size = intval(explode("\t", $output)[0]);
-            // Résultat en octet
-            return $size * 1024;
-        }
-
-        return 0;
     }
 
     /**
