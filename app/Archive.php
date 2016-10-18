@@ -64,28 +64,13 @@ class Archive
     public function restore()
     {
         $name = substr($this->filename, 0, -16);
-        $fermePath = $this->config['ferme_path'];
-        $wikiPath = $fermePath . $name . '/';
-        $archivesPath = $this->config['archives_path'];
-        $sqlFile = $fermePath . $name . '.sql';
+        $fermePath = realpath($this->config['ferme_path']);
+        //$wikiPath = $fermePath . $name . '/';
+        $archivesFile = realpath($this->config['archives_path'] . $this->filename);
+        $sqlFile = $fermePath . '/' . $name . '.sql';
 
-        //Vérifier si le wiki n'est pas déjà existant
-        if (file_exists($wikiPath)) {
-            throw new \Exception('Un wiki du meme nom existe déjà.', 1);
-        }
-
-        shell_exec(
-            'tar -C ' . $fermePath
-            . ' -xvzf ' . $archivesPath . $this->filename
-        );
-
-        // Vérifie si les fichiers sont bien de retour au bon endroit
-        if (!is_dir($wikiPath)) {
-            throw new \Exception(
-                'Impossible d\'extraire l\'archive',
-                1
-            );
-        }
+        $archive = new \PharData($archivesFile);
+        $archive->extractTo($fermePath);
 
         $database = new Database($this->dbConnect());
         $database->import($sqlFile);

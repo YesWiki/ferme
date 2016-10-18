@@ -130,30 +130,42 @@ class Wiki
     public function archive()
     {
         $wikiName = $this->config['wakka_name'];
-        $filename = $this->fermeConfig['archives_path']
-        . $wikiName . date("YmdHi") . '.tgz';
-        $fermePath = $this->fermeConfig['ferme_path'];
-        $tmpPath = $this->fermeConfig['tmp_path'];
+        $archiveFileName = $this->fermeConfig['archives_path']
+            . $wikiName
+            . date("YmdHi")
+            . '.tgz';
+        $wikiPath = $this->fermeConfig['ferme_path'] . $wikiName;
+        $sqlFile = $this->fermeConfig['tmp_path'] . $wikiName . '.sql';
 
         // Dump de la base de donnée.
-        $sqlFile = $tmpPath . $wikiName . '.sql';
         $database = new Database($this->dbConnexion);
         $database->export($sqlFile, $this->config['table_prefix']);
 
-        // TODO : Solution portable et optimisée
-        $cmd = 'tar -czf ' . $filename
-        . ' -C ' . $fermePath . ' ' . $wikiName
-        . ' -C  ' . realpath($tmpPath) . ' ' . $wikiName . '.sql';
+        $directory = new \RecursiveDirectoryIterator(realpath($wikiPath));
+        $iterator = new \RecursiveIteratorIterator($directory);
 
-        $output = array();
-        exec($cmd, $output, $returnVar);
+        // Regenère l'itérateur pour définir le chemin interne à l'archive
+        $fileList = array();
+        foreach ($iterator as $key => $value) {
+            if (!in_array($value->getFilename(), array('..', '.'))) {
+                $archiveInternalPath = substr(
+                    $value,
+                    strlen(realpath($this->fermeConfig['ferme_path'])) + 1
+                );
+                $fileList[$archiveInternalPath] = $key;
+            }
+        }
+        $obj = new \ArrayObject($fileList);
 
+        // Création de l'archive
+        $archive = new \PharData($archiveFileName);
+        $archive->buildFromIterator($obj->getIterator());
+        $archive->addFile($sqlFile, basename($sqlFile));
+
+        unset($archive);
         unlink($sqlFile);
 
-        if (0 != $returnVar) {
-            throw new \Exception("Erreur lors de la création de l'archive.", 1);
-        }
-        return $filename;
+        return $archiveFileName;
     }
 
     /**
