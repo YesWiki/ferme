@@ -132,42 +132,34 @@ class Wiki
     public function archive()
     {
         $wikiName = $this->config['wakka_name'];
-        $archiveFileName = $this->fermeConfig['archives_path']
+        $archiveFilename = $this->fermeConfig['archives_path']
             . $wikiName
             . date("YmdHi")
             . '.tgz';
-        $wikiPath = $this->fermeConfig['ferme_path'] . $wikiName;
+        $wikiPath = realpath($this->fermeConfig['ferme_path'] . $wikiName);
         $sqlFile = $this->fermeConfig['tmp_path'] . $wikiName . '.sql';
 
         // Dump de la base de donnée.
         $database = new Database($this->dbConnexion);
         $database->export($sqlFile, $this->config['table_prefix']);
 
-        $directory = new \RecursiveDirectoryIterator(realpath($wikiPath));
-        $iterator = new \RecursiveIteratorIterator($directory);
-
-        // Regenère l'itérateur pour définir le chemin interne à l'archive
-        $fileList = array();
-        foreach ($iterator as $key => $value) {
-            if (!in_array($value->getFilename(), array('..', '.'))) {
-                $archiveInternalPath = substr(
-                    $value,
-                    strlen(realpath($this->fermeConfig['ferme_path'])) + 1
-                );
-                $fileList[$archiveInternalPath] = $key;
-            }
-        }
-        $obj = new \ArrayObject($fileList);
-
         // Création de l'archive
-        $archive = new \PharData($archiveFileName);
-        $archive->buildFromIterator($obj->getIterator());
+        $archive = new \PharData($archiveFilename);
+
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator(
+                $wikiPath,
+                \RecursiveDirectoryIterator::SKIP_DOTS // Evite les repertoire .. et .
+            )
+        );
+
+        $archive->buildFromIterator($iterator, dirname($wikiPath));
         $archive->addFile($sqlFile, basename($sqlFile));
 
         unset($archive);
         unlink($sqlFile);
 
-        return $archiveFileName;
+        return $archiveFilename;
     }
 
     /**
