@@ -67,93 +67,93 @@
   <h1 class="title">Nouveau Wiki</h1>
   <div id="nouveau" class="row">
     <div class="span6">
-    
-      <!-- Attention il ne faut pas changer class et id du formulaire 
-      sinon hashcash ne fonctionne plus.-->    
 
-      <form id="newWiki" 
-          class="newForm well well-small form-horizontal" 
+      <!-- Attention il ne faut pas changer class et id du formulaire
+      sinon hashcash ne fonctionne plus.-->
+
+      <form id="newWiki"
+          class="newForm well well-small form-horizontal"
           action="?action=addWiki"
           method="post">
 
         <div class="control-group">
           <label class="control-label" for="wikiName">
-            Nom du wiki : 
+            Nom du wiki :
           </label>
 
           <div class="controls">
-            <input  type="text" name="wikiName" 
-                placeholder="10 caractères max" 
-                required="required" 
+            <input  type="text" name="wikiName"
+                placeholder="10 caractères max"
+                required="required"
                 maxlength="10"
                 {% if mail %}
-                  value = "{{ wiki_name }}" 
+                  value = "{{ wiki_name }}"
                 {% endif %} />
-            <img class="tooltip_aide" 
-              title="10 caractères maximum, uniquement des alpha numériques." 
-              src="themes/default/img/aide.png" 
-              width="16" 
-              height="16" 
+            <img class="tooltip_aide"
+              title="10 caractères maximum, uniquement des alpha numériques."
+              src="themes/default/img/aide.png"
+              width="16"
+              height="16"
               alt="image aide" />
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="mail">
-            Votre adresse email : 
+            Votre adresse email :
           </label>
 
           <div class="controls">
-            <input  type="email" name="mail" 
-                placeholder="Votre adresse mail" 
+            <input  type="email" name="mail"
+                placeholder="Votre adresse mail"
                 required="required"
                 {% if mail %}
-                  value = "{{ mail }}" 
+                  value = "{{ mail }}"
                 {% endif %}
             />
-            <img  class="tooltip_aide" 
-                  title="Saisissez votre adresse, nous l'utiliserons pour vous contacter." 
-                  src="themes/default/img/aide.png" 
-                  width="16" 
-                  height="16" 
+            <img  class="tooltip_aide"
+                  title="Saisissez votre adresse, nous l'utiliserons pour vous contacter."
+                  src="themes/default/img/aide.png"
+                  width="16"
+                  height="16"
                   alt="image aide" />
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="description">
-            Description du Wiki : 
+            Description du Wiki :
           </label>
-        
+
           <div class="controls">
-            <textarea name="description" 
-                  placeholder="Une courte description de votre projet (140 caractères max)." 
-                  maxlength="140" >{{ description }}</textarea> 
-            <img    class="tooltip_aide" 
-                title="Décrivez rapidement le projet auquel est rattaché ce wiki. (140 caractères maximum)" 
-                src="themes/default/img/aide.png" 
-                width="16" 
-                height="16" 
+            <textarea name="description"
+                  placeholder="Une courte description de votre projet (140 caractères max)."
+                  maxlength="140" >{{ description }}</textarea>
+            <img    class="tooltip_aide"
+                title="Décrivez rapidement le projet auquel est rattaché ce wiki. (140 caractères maximum)"
+                src="themes/default/img/aide.png"
+                width="16"
+                height="16"
                 alt="image aide" />
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="theme">
-            Thème : 
+            Thème :
           </label>
-        
+
           <div class="controls">
             <select id="theme" name="theme" onChange="changeThumb()">
               {% for theme in list_themes %}
                 <option thumb="{{ theme['thumb'] }}" >{{ theme['name'] }}</option>
               {% endfor %}
-            </select> 
-            <img class="tooltip_aide" 
+            </select>
+            <img class="tooltip_aide"
                title="Choisissez le thème de votre nouveau Wiki"
-               src="themes/default/img/aide.png" 
-               width="16" 
-               height="16" 
+               src="themes/default/img/aide.png"
+               width="16"
+               height="16"
                alt="image aide" />
           </div>
         </div>
@@ -176,30 +176,30 @@
       <img id="thumb" class="img-polaroid" src="" />
     </div>
   </div> <!-- Fin row-->
- 
+
   <div class="row">
   <div class="span6">
     <h1 class="title">Liste des Wikis</h1>
   </div>
   <div class="span6 control-group form-search list-filter">
     <div class="controls">
-      <label for="filter">Filtre :</label> 
+      <label for="filter">Filtre :</label>
       <input id="filter" type="text" name="filter" />
     </div>
   </div>
   </div>
-  
+
   <div id="liste" class="row">
-      
-        {% include 'views/list_wikis.html' %}
-        
+
+        {% include 'AjaxListWikis.twig' %}
+
   </div>
 </div> <!--Fin container -->
 
   <script src="http://code.jquery.com/jquery.min.js"></script>
   {% for js in list_js %}
   <script src="{{ js }}"></script>
-  {% endfor %}  
+  {% endfor %}
   <script type="text/JavaScript">
     function changeThumb(){
       var thumb = document
@@ -213,12 +213,12 @@
 
     function lookup(inputString) {
       $.get("", {
-        view: "ajax", 
-        query: "search", 
+        view: "ajax",
+        query: "search",
         string: ""+$("#filter").val()+""
       }, function(data){ // on envoit la valeur du champ texte dans la variable post queryString au fichier ajax.php
         if(data.length >0) {
-          $('#listeWikis').replaceWith(data); 
+          $('#listeWikis').replaceWith(data);
           initTableSorter();
         }
       });
@@ -233,12 +233,12 @@
 
     $(document).ready(changeThumb());
 
-    $(document).ready(function() { 
+    $(document).ready(function() {
       initTableSorter();
       $("#filter").keyup( function() {
-        lookup($(this).val()) 
+        lookup($(this).val())
       });
-    }); 
+    });
   </script>
 
 </body>
