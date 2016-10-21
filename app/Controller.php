@@ -50,7 +50,7 @@ class Controller
 
     private function ajax($get)
     {
-        $view = new View($this->ferme);
+        $view = new Views\AjaxListWikis($this->ferme);
         if (isset($get['query']) and ($get['query'] === 'search')) {
             switch ($get['query']) {
                 case 'search':
@@ -58,13 +58,11 @@ class Controller
                     if (isset($get['string'])) {
                         $string = $get['string'];
                         if ('' === $string) {
-                            $string = '*';
+                            $view->setFilter('*');
                         }
                     }
-                    $view->ajax(
-                        'views/list_wikis.html',
-                        array('string' => $string)
-                    );
+                    $view->setFilter($string);
+                    $view->show();
                     break;
                 default:
                     # code...
@@ -81,22 +79,23 @@ class Controller
 
     private function showHtml($view)
     {
-        $instView = new View($this->ferme);
         switch ($view) {
             case 'admin':
                 if (!$this->ferme->users->isLogged()) {
-                    $instView->show('auth.html');
+                    $view = new Views\Authentification($this->ferme);
+                    $view->show();
                     break;
                 }
-                $this->ferme->wikis->calSize();
-                $instView->show('admin.html');
+                $view = new Views\Administration($this->ferme);
+                $view->show();
                 break;
             case 'exportMailing':
-                $view = new View($this->ferme);
-                $view->exportMailing("mailing.csv");
+                $view = new Views\CsvMailing($this->ferme);
+                $view->show();
                 break;
             default:
-                $instView->show();
+                $view = new Views\Home($this->ferme);
+                $view->show();
                 break;
         }
     }

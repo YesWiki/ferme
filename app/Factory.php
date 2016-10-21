@@ -83,7 +83,7 @@ abstract class Factory implements \ArrayAccess, \Iterator, \Countable
             return array();
         }
 
-        if ('*' === $string) {
+        if ($string === '*' or $string === '') {
             return $this->list;
         }
 

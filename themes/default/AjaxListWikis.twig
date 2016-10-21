@@ -1,0 +1,22 @@
+<table id="listeWikis"
+  class="wiki-list table table-hover table-condensed
+       span12 tablesorter">
+    <thead>
+      <tr>
+        <th>Nom</th>
+       <th>Description</th>
+        <th>Date de création</th>
+      </tr>
+    </thead>
+  <tbody>
+    {% for wiki in list_wikis %}
+    <tr class="clickable" onclick='document.location.href="{{ wiki['url'] }}"'>
+      <td class="span2"><strong>{{ wiki['name'] }}</strong></td>
+      <td class="span8">{{ wiki['description'] }}</td>
+      <td class="span2">
+        {{ wiki['date']|date("Y-m-d H:i", timezone="Europe/Paris") }}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
