@@ -1,36 +1,56 @@
 <?php
 namespace Ferme\Views;
 
+/**
+ * @author Florestan Bredow <florestan.bredow@supagro.fr>
+ * @link http://www.phpdoc.org/docs/latest/index.html
+ */
 abstract class TwigView extends View
 {
+    /**
+     * @var \Twig_Environment
+     */
     protected $twig;
 
     /**
-     * Rassemble les informations necessaire pour la vue.
-     * @return none
+     * Get all informations needed by the view
+     * @return array needed informations for the view
      */
     abstract protected function compileInfos();
 
-    protected function getTemplate()
-    {
-        $explodedClassName = explode('\\', get_class($this));
-        $className = end($explodedClassName);
-        return "$className.twig";
-    }
-
+    /**
+     * Constructor
+     * @param \Ferme\Ferme $ferme reference to model.
+     */
     public function __construct($ferme)
     {
         parent::__construct($ferme);
-        $twigLoader = new \Twig_Loader_Filesystem($this->getThemePath());
+        $twigLoader = new \Twig_Loader_Filesystem(
+            'themes/' . $this->ferme->config['template']
+        );
         $this->twig = new \Twig_Environment($twigLoader);
     }
 
+    /**
+     * Show the view
+     * @return void
+     */
     public function show()
     {
         $listInfos = $this->compileInfos();
         $listInfos = $this->addThemesInfos($listInfos);
         $listInfos = $this->addUserInfos($listInfos);
-        echo $this->twig->render($this->getTemplate(), $listInfos);
+        echo $this->twig->render($this->getTemplateFilename(), $listInfos);
+    }
+
+    /**
+     * @return string
+     */
+    private function getTemplateFilename()
+    {
+        $explodedClassName = explode('\\', get_class($this));
+        $className = end($explodedClassName);
+        return "$className.twig";
     }
 
     /**
@@ -51,7 +71,8 @@ abstract class TwigView extends View
     }
 
     /**
-     * Ajoute les CSS du themes
+     * list CSS files present in "css" theme's folder
+     * @return array
      */
     private function getCSS()
     {
@@ -64,7 +85,8 @@ abstract class TwigView extends View
     }
 
     /**
-     * Ajoute les JavaScript du themes
+     * list JS files present in "js" theme's folder
+     * @return array
      */
     private function getJS()
     {
@@ -77,11 +99,11 @@ abstract class TwigView extends View
     }
 
     /**
-     * Liste des fichiers dans un repertoire
-     * @todo Filtrer les résultat par extension (css ou js)
-     *
-     * @param $path
-     * @return mixed
+     * List files in directory
+     * @todo Filter results by extension (css ou js)
+     * @todo use Iterators
+     * @param $path Path to folder to scan
+     * @return array
      */
     private function getFiles($path)
     {
@@ -100,8 +122,8 @@ abstract class TwigView extends View
     }
 
     /**
-     * Ajoute les informations concernant l'utilisateur connecté.
-     * @param  array  $infos le tableau a completer.
+     * Add connected user's informations
+     * @param  array  $infos Array to complete
      * @return array
      */
     private function addUserInfos(&$infos)
@@ -117,11 +139,9 @@ abstract class TwigView extends View
     }
 
     /**
-    * Génère un tableau d'information sur les objets a partir de la liste
-    * de ces objets (Archive ou Wiki)
-    * @param  array $listObjects liste d'objets dont il faut récupérer les
-    * informations
-    * @return array               Information sur les objets
+    * transform a list of Archives / Wikis in array of informations
+    * @param  array $listObjects object list
+    * @return array objects informations
     */
     protected function object2Infos($listObjects)
     {
@@ -130,11 +150,5 @@ abstract class TwigView extends View
             $listInfos[$name] = $object->getInfos();
         }
         return $listInfos;
-    }
-
-
-    private function getThemePath()
-    {
-        return 'themes/' . $this->ferme->config['template'];
     }
 }

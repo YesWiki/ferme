@@ -1,9 +1,16 @@
 <?php
 namespace Ferme\Views;
 
+/**
+ * @author Florestan Bredow <florestan.bredow@supagro.fr>
+ * @link http://www.phpdoc.org/docs/latest/index.html
+ */
 class Home extends TwigView
 {
-
+    /**
+     * Get all informations needed by the view
+     * @return array needed informations for the view
+     */
     protected function compileInfos()
     {
         $infos = array();
@@ -47,8 +54,8 @@ class Home extends TwigView
     }
 
     /**
-     * Génère l'URL vers le javascript qui calcule le hash
-     * @return string URL vers le javascript
+     * Make hashcash URL
+     * @return string URL hashcash javascript
      */
     private function hashCash()
     {
@@ -60,8 +67,8 @@ class Home extends TwigView
     }
 
     /**
-     * Retourne la liste des thèmes.
-     * @return array tableau de tableau avec deux clés : name et thumb
+     * return list of theme available for new wiki
+     * @return array of array with 2 keys : name et thumb
      */
     private function getThemesList()
     {
@@ -71,10 +78,10 @@ class Home extends TwigView
             . $this->ferme->config['source']
             . "/install.config.php";
 
-        foreach ($config['themes'] as $key => $value) {
+        foreach ($config['themes'] as $themeName => $themeInfos) {
             $themesList[] = array(
-                'name' => $key,
-                'thumb' => $value['thumb'],
+                'name' => $themeName,
+                'thumb' => $themeInfos['thumb'],
             );
         }
         return $themesList;

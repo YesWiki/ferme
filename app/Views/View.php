@@ -2,31 +2,31 @@
 namespace Ferme\Views;
 
 /**
- * Classe wiki
- *
- * Gère l'afficahge de la Ferme
- * @package Ferme
- * @author  Florestan Bredow <florestan.bredow@supagro.fr>
- * @version 0.2.1 (Git: $Id$)
- * @copyright 2013 Florestan Bredow
+ * @author Florestan Bredow <florestan.bredow@supagro.fr>
+ * @link http://www.phpdoc.org/docs/latest/index.html
  */
-
 abstract class View
 {
-    protected $ferme;
-    protected $alerts;
 
     /**
-     * Constructeur
-     *
-     * @param $ferme
+     * Model, to grab informations.
+     * @var \Ferme\Ferme
+     */
+    protected $ferme;
+
+    /**
+     * Constructor
+     * @param \Ferme\Ferme $ferme reference to model.
      */
     public function __construct($ferme)
     {
         $this->ferme = $ferme;
-        $this->alerts = array();
     }
 
+    /**
+     * Show the view
+     * @return void
+     */
     abstract public function show();
 
 }
