@@ -25,9 +25,7 @@ abstract class TwigView extends View
     public function __construct($ferme)
     {
         parent::__construct($ferme);
-        $twigLoader = new \Twig_Loader_Filesystem(
-            'themes/' . $this->ferme->config['template']
-        );
+        $twigLoader = new \Twig_Loader_Filesystem($this->getThemePath());
         $this->twig = new \Twig_Environment($twigLoader);
     }
 
@@ -150,5 +148,14 @@ abstract class TwigView extends View
             $listInfos[$name] = $object->getInfos();
         }
         return $listInfos;
+    }
+
+    /**
+     * [getThemePath description]
+     * @return [type] [description]
+     */
+    private function getThemePath()
+    {
+        return 'themes/' . $this->ferme->config['template'];
     }
 }
