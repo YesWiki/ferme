@@ -4,8 +4,11 @@ namespace Ferme;
 $loader = require __DIR__ . '/vendor/autoload.php';
 
 session_start();
+
 try {
-    $controller = new Controller();
+    $config = new Configuration('ferme.config.php');
+    $ferme = new Ferme($config);
+    $controller = new Controller($ferme);
 } catch (\Exception $e) {
     print('Erreur fatale (problème de configuration ?)');
     exit;

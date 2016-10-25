@@ -15,10 +15,9 @@ class Controller
     private $config;
     private $ferme;
 
-    public function __construct()
+    public function __construct($ferme)
     {
-        $this->config = new Configuration('ferme.config.php');
-        $this->ferme = new Ferme($this->config);
+        $this->ferme = $ferme;
     }
 
     public function run($get, $post)
