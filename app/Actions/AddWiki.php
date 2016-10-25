@@ -5,11 +5,11 @@ namespace Ferme\Actions;
  * @author Florestan Bredow <florestan.bredow@supagro.fr>
  * @link http://www.phpdoc.org/docs/latest/index.html
  */
-abstract class AddWiki extends Action
+class AddWiki extends Action
 {
     public function execute()
     {
-        if (!$this->isHashcashValid($post)) {
+        if (!$this->isHashcashValid()) {
             $this->ferme->alerts->add(
                 'La plantation de wiki est une activité délicate qui'
                 . ' ne doit pas être effectuée par un robot. (Pensez à'
@@ -19,9 +19,9 @@ abstract class AddWiki extends Action
             return;
         }
 
-        if (!isset($post['wikiName'])
-            or !isset($post['mail'])
-            or !isset($post['description'])
+        if (!isset($this->post['wikiName'])
+            or !isset($this->post['mail'])
+            or !isset($this->post['description'])
         ) {
             $this->ferme->alerts->add("Formulaire incomplet.", 'error');
             return;
@@ -29,9 +29,9 @@ abstract class AddWiki extends Action
 
         try {
             $wikiPath = $this->ferme->createWiki(
-                $post['wikiName'],
-                $post['mail'],
-                $post['description']
+                $this->post['wikiName'],
+                $this->post['mail'],
+                $this->post['description']
             );
         } catch (\Exception $e) {
             $this->ferme->alerts->add($e->getMessage(), 'error');
@@ -44,17 +44,17 @@ abstract class AddWiki extends Action
             'success'
         );
 
-        $mail = new MailCreateWiki($this->ferme->config, $post['wikiName']);
+        $mail = new \Ferme\MailCreateWiki($this->ferme->config, $this->post['wikiName']);
         $mail->send();
 
         $this->ferme->wikis->load();
     }
 
-    private function isHashcashValid($post)
+    private function isHashcashValid()
     {
         require_once 'app/secret/wp-hashcash.php';
-        if (!isset($post["hashcash_value"])
-            || hashcash_field_value() != $post["hashcash_value"]) {
+        if (!isset($this->post["hashcash_value"])
+            || hashcash_field_value() != $this->post["hashcash_value"]) {
             return false;
         }
         return true;
