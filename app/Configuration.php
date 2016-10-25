@@ -3,10 +3,6 @@ namespace Ferme;
 
 class Configuration implements \ArrayAccess
 {
-    /**
-     *
-     * @var array
-     */
     private $config;
     private $file;
 
@@ -17,9 +13,18 @@ class Configuration implements \ArrayAccess
     public function __construct($file)
     {
         $this->file = $file;
-        include $file;
+        $this->config = array();
+
+        if(is_file($file)) {
+            include $file;
+        }
+
         if (isset($wakkaConfig)) {
             $this->config = $wakkaConfig;
+        }
+
+        if (isset($config)) {
+            $this->config = $config;
         }
     }
 

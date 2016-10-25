@@ -1,5 +1,5 @@
 <?php
-$this->config = array(
+$config = array(
     'db_host' => 'localhost',
     'db_name' => 'XXXXXXXXXX',
     'db_user' => 'XXXXXXXXXX',
