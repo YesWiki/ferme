@@ -18,7 +18,8 @@
     "autoload": {
         "psr-4": {
           "Ferme\\": "app",
-          "Ferme\\Views\\": "app/Views"
+          "Ferme\\Views\\": "app/Views",
+          "Ferme\\Actions\\": "app/Actions"
         }
     }
 }
