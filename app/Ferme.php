@@ -65,7 +65,8 @@ class Ferme
     {
         //Une série de tests sur les données.
         if ($this->isValidWikiName($wikiname)) {
-            throw new Exception("Ce nom n'est pas valide.", 1);
+            throw new \Exception("Ce nom n'est pas valide. "
+                . "(uniquement les caractères A-Z et 0-9)", 1);
         }
 
         if (!filter_var($mail, FILTER_VALIDATE_EMAIL)) {
