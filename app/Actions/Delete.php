@@ -5,7 +5,7 @@ namespace Ferme\Actions;
  * @author Florestan Bredow <florestan.bredow@supagro.fr>
  * @link http://www.phpdoc.org/docs/latest/index.html
  */
-class Archive extends Action
+class Delete extends Action
 {
     public function execute()
     {
