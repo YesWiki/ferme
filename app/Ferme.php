@@ -70,7 +70,7 @@ class Ferme
         }
 
         if (!filter_var($mail, FILTER_VALIDATE_EMAIL)) {
-            throw new Exception("Cet email n'est pas valide.", 1);
+            throw new \Exception("Cet email n'est pas valide.", 1);
         }
 
         return $this->wikis->create(
@@ -80,6 +80,31 @@ class Ferme
                 'desc' => $this->cleanEntry($desc),
             )
         );
+    }
+
+    public function checkInstallation()
+    {
+        if (!is_dir($this->config['ferme_path'])) {
+            if (!mkdir($this->config['ferme_path'], 0777, true)) {
+                throw new \Exception(
+                    "Le dossier d'installation des wiki ("
+                        . $this->config['ferme_path']
+                        . ") ne peut être créé.",
+                    1
+                );
+            }
+        }
+
+        if (!is_dir($this->config['archives_path'])) {
+            if (!mkdir($this->config['archives_path'], 0777, true)) {
+                throw new \Exception(
+                "Le dossier des archives ("
+                    . $this->config['archives_path']
+                    . ") ne peut être créé.",
+                    1
+                );
+            }
+        }
     }
 
     /*************************************************************************
