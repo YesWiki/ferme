@@ -1,205 +1,115 @@
 <!DOCTYPE html>
-<html class="no-js" lang="fr">
+<html lang="fr">
 
 <head>
   <title>Ferme de Wiki</title>
 
   <meta charset="utf-8">
   <meta name="description" content="Ferme de Wikis">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <link
+    rel="stylesheet"
+    href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+    integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+    crossorigin="anonymous"
+  >
   {% for css in list_css %}
   <link href="{{ css }}" rel="stylesheet" />
   {% endfor %}
 </head>
+
 <body>
+  {% include 'twig/navbar.twig' %}
 
-<div class="navbar navbar-fixed-top navbar-inverse">
-  <div class="navbar-inner">
-    <div class="container">
-      <span class="brand">Ferme de Wikis</span>
-      <div class="nav-collapse collapse">
-        <ul class="nav">
-          <li><a href="#">Nouveau Wiki</a></li>
-          <li><a href="#liste">Liste des Wikis</a></li>
-        </ul>
+  {% include 'twig/alerts.twig' %}
+
+  <div class="container">
+    <div class="row vcenter">
+      <div class="col-md-6 jumbotron">
+        <h1>Nouveau wiki</h1><br />
+
+        <!-- Attention il ne faut pas changer class et id du formulaire
+        sinon hashcash ne fonctionne plus.-->
+        <form id="newWiki" class="newForm form-horizontal" action="?action=addWiki" method="post">
+
+          <div class="form-group">
+            <label class="col-sm-5 control-label" for="wikiName">Nom du wiki</label>
+            <div class="col-sm-7">
+              <input  type="text" name="wikiName" placeholder="10 caractères max" required="required"  maxlength="10" {% if mail %}value="{{ wiki_name }}"{% endif %} />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-5 control-label" for="mail">Votre adresse email</label>
+            <div class="col-sm-7">
+              <input  type="email" name="mail" placeholder="Votre adresse mail" required="required" {% if mail %}value="{{ mail }}"{% endif %} />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-5 control-label" for="description">Description du Wiki</label>
+            <div class="col-sm-7">
+              <textarea name="description" placeholder="Une courte description de votre projet (140 caractères max)." maxlength="140" >{{ description }}</textarea>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-5 control-label" for="theme">Thème</label>
+            <div class="col-sm-7">
+              <select id="theme" name="theme" onChange="changeThumb()">
+                  {% for theme in list_themes %}
+                    <option thumb="{{ theme['thumb'] }}" >{{ theme['name'] }}</option>
+                  {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="col-sm-offset-5 col-sm-7">
+              <!--Protection HashCash -->
+              <script type="text/javascript" src="{{ hashcash_url }}"></script>
+              <script type="text/javascript">
+                document.write('<button type="submit" name="action" class="btn btn-primary btn-lg" id="submit"/>Semer !</button>');
+              </script>
+              <noscript>Formulaire protégé via JavaScript, <br />Merci de l'activer.</noscript>
+            </div>
+          </div>
+        </form>
       </div>
-      <div class="nav-collapse collapse pull-right">
-        <ul class="nav">
-          <li>
-            <a href="?view=admin">
-              Administration
-              {% if not logged %}
-              <i class="icon-lock icon-white"></i>
-              {% endif %}
-            </a>
-          {% if logged %}
-          <li>
-            <div class="btn-group">
-              <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
-                <span class="glyphicon  glyphicon-cog icon-cog"></span>
-            </a>
-            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
-              <li>
-                <span class="dropdown-item">Utilisateur : {{ username }}</span>
-              </li>
-              <li>
-                <a href="?action=logout">Déconnexion</a>
-              </li>
-            </ul>
-          </li>
-          {% endif %}
-        </ul>
+
+      <div id="thumbdiv" class="col-md-6">
+        <img id="thumb" class="img-responsive" src="" />
       </div>
     </div>
   </div>
-</div>
 
-<div class="container">
-
-  {% for alert in list_alerts %}
-  <div id="{{ alert['id'] }}" class="alert" onClick="hide(this)">
-    <button type="button" class="close" data-dismiss="alert">&times;</button>
-    {{ alert['text']|raw }}
-  </div>
-  {% endfor %}
-
-  <h1 class="title">Nouveau Wiki</h1>
-  <div id="nouveau" class="row">
-    <div class="span6">
-
-      <!-- Attention il ne faut pas changer class et id du formulaire
-      sinon hashcash ne fonctionne plus.-->
-
-      <form id="newWiki"
-          class="newForm well well-small form-horizontal"
-          action="?action=addWiki"
-          method="post">
-
-        <div class="control-group">
-          <label class="control-label" for="wikiName">
-            Nom du wiki :
-          </label>
-
-          <div class="controls">
-            <input  type="text" name="wikiName"
-                placeholder="10 caractères max"
-                required="required"
-                maxlength="10"
-                {% if mail %}
-                  value = "{{ wiki_name }}"
-                {% endif %} />
-            <img class="tooltip_aide"
-              title="10 caractères maximum, uniquement des alpha numériques."
-              src="themes/default/img/aide.png"
-              width="16"
-              height="16"
-              alt="image aide" />
-          </div>
+  <div id="searchWiki" class="container-fluid">
+    <form id="searchWikiForm" class="form-horizontal"
+      <div class="form-group form-search">
+        <label class="col-sm-6 control-label x2" for="filter">Trouver mon Wiki : </label>
+        <div class="col-sm-6">
+          <input class="x2" id="filter" type="text" name="filter" />
         </div>
-
-        <div class="control-group">
-          <label class="control-label" for="mail">
-            Votre adresse email :
-          </label>
-
-          <div class="controls">
-            <input  type="email" name="mail"
-                placeholder="Votre adresse mail"
-                required="required"
-                {% if mail %}
-                  value = "{{ mail }}"
-                {% endif %}
-            />
-            <img  class="tooltip_aide"
-                  title="Saisissez votre adresse, nous l'utiliserons pour vous contacter."
-                  src="themes/default/img/aide.png"
-                  width="16"
-                  height="16"
-                  alt="image aide" />
-          </div>
-        </div>
-
-        <div class="control-group">
-          <label class="control-label" for="description">
-            Description du Wiki :
-          </label>
-
-          <div class="controls">
-            <textarea name="description"
-                  placeholder="Une courte description de votre projet (140 caractères max)."
-                  maxlength="140" >{{ description }}</textarea>
-            <img    class="tooltip_aide"
-                title="Décrivez rapidement le projet auquel est rattaché ce wiki. (140 caractères maximum)"
-                src="themes/default/img/aide.png"
-                width="16"
-                height="16"
-                alt="image aide" />
-          </div>
-        </div>
-
-        <div class="control-group">
-          <label class="control-label" for="theme">
-            Thème :
-          </label>
-
-          <div class="controls">
-            <select id="theme" name="theme" onChange="changeThumb()">
-              {% for theme in list_themes %}
-                <option thumb="{{ theme['thumb'] }}" >{{ theme['name'] }}</option>
-              {% endfor %}
-            </select>
-            <img class="tooltip_aide"
-               title="Choisissez le thème de votre nouveau Wiki"
-               src="themes/default/img/aide.png"
-               width="16"
-               height="16"
-               alt="image aide" />
-          </div>
-        </div>
-
-        <div class="control-group">
-          <div class="controls">
-            <!--Protection HashCash -->
-            <script type="text/javascript" src="{{ hashcash_url }}"></script>
-            <script type="text/javascript">
-              document.write('<input type="submit" name="action" class="btn" value="Semer !" id="submit"/>');
-            </script>
-            <noscript>Formulaire protégé via JavaScript, <br />Merci de l'activer.</noscript>
-          </div>
-        </div>
-      </form>
-    </div>
-
-
-    <div id="thumbdiv" class="span6">
-      <img id="thumb" class="img-polaroid" src="" />
-    </div>
-  </div> <!-- Fin row-->
-
-  <div class="row">
-  <div class="span6">
-    <h1 class="title">Liste des Wikis</h1>
-  </div>
-  <div class="span6 control-group form-search list-filter">
-    <div class="controls">
-      <label for="filter">Filtre :</label>
-      <input id="filter" type="text" name="filter" />
-    </div>
-  </div>
+      </div>
+    </form>
   </div>
 
-  <div id="liste" class="row">
 
-        {% include 'AjaxListWikis.twig' %}
-
+  <div id="liste" class="container">
+    <h2 class="title">Liste des Wikis</h2>
+    {% include 'AjaxListWikis.twig' %}
   </div>
-</div> <!--Fin container -->
 
-  <script src="http://code.jquery.com/jquery.min.js"></script>
-  {% for js in list_js %}
-  <script src="{{ js }}"></script>
-  {% endfor %}
+  <footer>
+
+  </footer>
+
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="themes/default/js/jquery.min.js"><\/script>')</script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  <script src="themes/default/js/jquery.tablesorter.min.js"></script>
   <script type="text/JavaScript">
     function changeThumb(){
       var thumb = document
@@ -227,13 +137,13 @@
 
     function initTableSorter() {
       $("#listeWikis").tablesorter(
-        {sortList: [[0,0]]}
-       );
+
+        {theme : 'blue', sortList: [[0,0]]}
+      );
     }
 
-    $(document).ready(changeThumb());
-
     $(document).ready(function() {
+      changeThumb();
       initTableSorter();
       $("#filter").keyup( function() {
         lookup($(this).val())

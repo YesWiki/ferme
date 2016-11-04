@@ -8,178 +8,133 @@
   <meta name="description" content="Ferme de Wikis">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <link
+    rel="stylesheet"
+    href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+    integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+    crossorigin="anonymous"
+  >
   {% for css in list_css %}
   <link href="{{ css }}" rel="stylesheet" />
   {% endfor %}
 </head>
+
 <body>
+  {% include 'twig/navbar.twig' %}
 
-<div class="navbar navbar-inverse navbar-fixed-top">
-  <div class="navbar-inner">
-    <div class="container">
-      <span class="brand">Administration de la ferme</span>
-      <div class="nav-collapse collapse">
-        <ul class="nav">
-          <li><a href="#">Liste des Wikis</a></li>
-          <li><a href="#archives">Liste des Archives</a></li>
-        </ul>
-      </div>
-      <div class="nav-collapse collapse pull-right">
-        <ul class="nav">
-          <li><a href="./">Retour</a></li>
-          {% if logged %}
-          <li>
-            <div class="btn-group">
-              <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
-                <span class="glyphicon  glyphicon-cog icon-cog"></span>
-            </a>
-            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
-              <li>
-                <span class="dropdown-item">Utilisateur : {{ username }}</span>
-              </li>
-              <li>
-                <a href="?action=logout">Déconnexion</a>
-              </li>
-            </ul>
-          </li>
-          {% endif %}
-        </ul>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="container">
-
-  {% for alert in list_alerts %}
-  <div id="{{ alert['id'] }}" class="alert alert-{{ alert['type'] }}" onClick="hide(this)">
-    <button type="button" class="close" data-dismiss="alert">&times;</button>
-    {{ alert['text']|raw }}
-  </div>
-  {% endfor %}
-
-  <h1>Liste des wikis
-    <a  class="save btn btn-mini" title="Exporte la liste des wikis (CSV)" href="?view=exportMailing">
-      <i class="icon-list-alt"></i>
-    </a>
-  </h1>
-
-  <div id="wikis" class="span12">
-  <table id="listeWikis"
-    class="wiki-list table table-hover table-condensed tablesorter">
-    <thead>
-      <tr>
-        <th class="span2">Nom</th>
-        <th class="span2">Créé par</th>
-        <th class="span2">Créé le</th>
-        <th class="span1">BD</th>
-        <th class="span1">Disque</th>
-        <th class="span2"></th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Liste des Wikis -->
-      {% for wiki in list_wikis %}
-      <tr>
-        <td>{{ wiki['name'] }}</td>
-        <td>
-          <a href="mailto:{{ wiki['mail'] }}">{{ wiki['mail'] }}</a>
-        </td>
-        <td>
-          {{ wiki['date']|date("Y-m-d H:i", timezone="Europe/Paris") }}
-        </td>
-        <td >
-          <span class="pull-right">
-            {{ (wiki['db_size'] / 1024 / 1024)|round(2) }} Mo
-          </span>
-        </td>
-        <td>
-          <span class="pull-right">
-            {{ (wiki['files_size'] / 1024 / 1024)|round(2) }} Mo
-          </span>
-        </td>
-        <td>
-          <div class="btn-group  pull-right">
-            <a  class="save btn btn-mini"
-                title="Ouvre le wiki"
-                href="{{ wiki['url'] }}">
-              <i class=" icon-eye-open"></i>
-            </a>
-            <a  class="save btn btn-mini btn-success"
-                title="Archive le wiki"
-                href="?view=admin&action=archive&name={{ wiki['name'] }}">
-
-              <i class="icon-circle-arrow-down icon-white"></i>
-            </a>
-            <a  class="upgrade btn btn-mini btn-primary"
-                title="Mets à jour le wiki vers la dernière version (fichiers uniquement)"
-                href="?view=admin&action=upgrade&name={{ wiki['name'] }}">
-              <i class="icon-refresh icon-white"></i>
-            </a>
-            <a  class="save btn btn-mini btn-warning"
-                title="Mets à jour la configuration avec les paramètres de la ferme (url et base de données)"
-                href="?view=admin&action=updateConfiguration&name={{ wiki['name'] }}">
-              <i class="icon-refresh icon-white"></i>
-            </a>
-            <a  class="delete btn btn-mini btn-danger"
-                title="Supprime le wiki"
-                onclick="return(confirm('Etes-vous sûr de vouloir supprimer le wiki : {{ wiki['name'] }} ?'));"
-                href="?view=admin&action=delete&name={{ wiki['name'] }}">
-              <i class="icon-trash icon-white"></i>
-            </a>
-          </div>
-        </td>
-      </tr>
-      {% endfor %}
-      <!--Fin liste des wikis-->
-    </tbody>
-  </table>
+  {% include 'twig/alerts.twig' %}
 
 
+  <div id="wikis" class="container">
+    <h1>Liste des wikis
+      <a  class="save btn btn-group-sm" title="Exporte la liste des wikis (CSV)" href="?view=exportMailing">
+        <i class="icon-list-alt"></i>
+      </a>
+    </h1>
+    <table id="listeWikis"
+      class="wiki-list table table-hover table-condensed tablesorter">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Créé par</th>
+          <th>Créé le</th>
+          <th><span class="pull-right">BD</span></th>
+          <th><span class="pull-right">Disque</span></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Liste des Wikis -->
+        {% for wiki in list_wikis %}
+        <tr>
+          <td>{{ wiki['name'] }}</td>
+          <td>
+            <a href="mailto:{{ wiki['mail'] }}">{{ wiki['mail'] }}</a>
+          </td>
+          <td>
+            {{ wiki['date']|date("Y-m-d H:i", timezone="Europe/Paris") }}
+          </td>
+          <td >
+            <span class="pull-right">
+              {{ (wiki['db_size'] / 1024 / 1024)|round(2) }} Mo
+            </span>
+          </td>
+          <td>
+            <span class="pull-right">
+              {{ (wiki['files_size'] / 1024 / 1024)|round(2) }} Mo
+            </span>
+          </td>
+          <td>
+            <div class="btn-group btn-group-xs pull-right" role="group">
+              <a  class="save btn btn-default"
+                  title="Ouvre le wiki"
+                  href="{{ wiki['url'] }}">
+                <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+              </a>
+              <a  class="save btn btn-success"
+                  title="Archive le wiki"
+                  href="?view=admin&action=archive&name={{ wiki['name'] }}">
+                <span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
+              </a>
+              <a  class="upgrade btn btn-primary"
+                  title="Mets à jour le wiki vers la dernière version (fichiers uniquement)"
+                  href="?view=admin&action=upgrade&name={{ wiki['name'] }}">
+                <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+              </a>
+              <a  class="save btn btn-warning"
+                  title="Mets à jour la configuration avec les paramètres de la ferme (url et base de données)"
+                  href="?view=admin&action=updateConfiguration&name={{ wiki['name'] }}">
+                <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+              </a>
+              <a  class="delete btn btn-danger"
+                  title="Supprime le wiki"
+                  onclick="return(confirm('Etes-vous sûr de vouloir supprimer le wiki : {{ wiki['name'] }} ?'));"
+                  href="?view=admin&action=delete&name={{ wiki['name'] }}">
+                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+        <!--Fin liste des wikis-->
+      </tbody>
+    </table>
   </div>
 
-  <h1>Liste des archives</h1>
-
-  <div id="archives" class="span12">
+  <div id="archives" class="container">
+    <h2>Liste des archives</h2>
     <table id="listeArchives"
       class="wiki-list table table-hover table-condensed tablesorter">
       <thead>
         <tr>
-          <th class="span4">Nom</th>
-          <th class="span2">Archivé le</th>
-          <th class="span1">Poid</th>
-          <th class="span2"></th>
+          <th>Nom</th>
+          <th>Archivé le</th>
+          <th><span class="pull-right">Poid</span></th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
         <!--Listes des archives-->
         {% for archive in list_archives %}
         <tr>
+          <td>{{ archive['name'] }}</td>
+          <td>{{ archive['date']|date("Y-m-d H:i", timezone="Europe/Paris") }}</td>
+          <td><span class="pull-right">{{ (archive['size'] / 1024 / 1024)|round(2) }} Mo</span></td>
           <td>
-            {{ archive['name'] }}
-          </td>
-          <td>
-            {{ archive['date']|date("Y-m-d H:i", timezone="Europe/Paris") }}
-          </td>
-          <td>
-            <span class="pull-right">
-              {{ (archive['size'] / 1024 / 1024)|round(2) }} Mo
-            </span>
-          </td>
-          <td>
-            <div class="btn-group  pull-right">
-              <a class="save btn btn-mini"
+            <div class="btn-group btn-group-xs pull-right">
+              <a class="save btn btn-default"
                   href="{{ archive['url'] }}">
-                <i class="icon-download-alt"></i>
+                <span class="glyphicon glyphicon-download" aria-hidden="true"></span>
               </a>
-              <a class="save btn btn-mini btn-primary"
+              <a class="save btn btn-group-sm btn-primary"
                 href="?view=admin&action=restore&name={{ archive['filename'] }}">
                 <i class="icon-circle-arrow-up icon-white"></i>
+                <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
               </a>
-              <a class="delete btn btn-mini btn-danger "
+              <a class="delete btn btn-group-sm btn-danger "
                   onclick="return(confirm('Êtes-vous sûr de vouloir supprimer l\'archive : {{ archive['filename'] }} ?'));"
                   href="?view=admin&action=deleteArchive&name={{ archive['filename'] }}">
-                <i class="icon-trash icon-white"></i>
+                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
               </a>
             </div>
           </td>
@@ -190,10 +145,14 @@
     </table>
   </div>
 
-  <script src="http://code.jquery.com/jquery.min.js"></script>
-  {% for js in list_js %}
-  <script src="{{ js }}"></script>
-  {% endfor %}
+  <footer>
+
+  </footer>
+
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="themes/default/js/jquery.min.js"><\/script>')</script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
   <script type="text/JavaScript">
     $(document).ready(function() {
           $("#listeWikis").tablesorter(
@@ -216,7 +175,5 @@
           );
       });
   </script>
-</div>
-
 </body>
 </html>

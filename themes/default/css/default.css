@@ -1,9 +1,41 @@
-body {padding-top: 60px;}
 tr.clickable {cursor: pointer}
-h1.title {margin-bottom: 15px; margin-top: 30px;}
+
+#searchWiki {
+  background: #449d44;
+  padding: 30px 0;
+  margin: 50px 0;
+}
+
+footer {
+  min-height: 60px;
+  background-color: #222;
+  border-color: #080808;
+  margin-top: 50px;
+}
+
+.vcenter {
+    display: flex;
+    align-items: center;
+}
+
+@media (min-width: @screen-sm-min) {
+  .vcenter {
+    display: inherit;
+  }
+}
+
+#searchWiki label {
+  color: white;
+}
+
+.x2 {
+  font-size: 200%;
+}
+
+/* tables */
 table.tablesorter thead tr .header {
-	background: url(../img/bg.gif) no-repeat center left; 
-	cursor: pointer; 
+	background: url(../img/bg.gif) no-repeat center left;
+	cursor: pointer;
 	padding-left: 20px;
 }
 table.tablesorter thead tr .headerSortUp {
@@ -11,21 +43,4 @@ table.tablesorter thead tr .headerSortUp {
 }
 table.tablesorter thead tr .headerSortDown {
 	background: url(../img/desc.gif) #F5F5F5 no-repeat center left;
-}
-
-div.auth {
-    max-width: 500px;
-    margin: auto;
-}
-
-div.list-filter {
-    text-align: right;
-    margin-top: 35px;
-}
-
-span.dropdown-item {
-    clear: both;
-    display: block;
-    padding: 3px 20px;
-    white-space: nowrap;
 }
