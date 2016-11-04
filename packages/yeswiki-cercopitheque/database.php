@@ -225,7 +225,7 @@ $listQuery = array(
     (17, 'AidE', '" . $date . "', '=====Les pages d\'aide=====\n\n	- [[CoursUtilisationYesWiki Cours sur l\'utilisation de YesWiki]]\n	- ReglesDeFormatage : résumé des syntaxes permettant la mise en forme du texte.\n\n\"\"<a onclick=\"var iframe = document.getElementById(\'yeswiki-doc\');iframe.src = \'http://yeswiki.net/wakka.php?wiki=DocumentatioN/iframe\';\" class=\"btn btn-default\"><i class=\"glyphicon glyphicon-home\"></i> Accueil de la documentation</a><iframe id=\"yeswiki-doc\" width=\"100%\" height=\"1000\" frameborder=\"0\" src=\"http://yeswiki.net/wakka.php?wiki=DocumentatioN/iframe\"></iframe>\"\"\n', '', 'WikiAdmin', 'WikiAdmin', 'Y', 'page', ''),
     (18, 'DerniersChangementsRSS', '" . $date . "', '{{recentchangesrss}}', '', 'WikiAdmin', 'WikiAdmin', 'Y', 'page', ''),
     (19, 'PageFooter', '" . $date . "', '\"\"<div class=\"text-center\">\"\"(>^_^)> Galope sous [[http://www.yeswiki.net YesWiki]] <(^_^<)\"\"</div>\"\"\n', '', 'WikiAdmin', 'WikiAdmin', 'Y', 'page', ''),
-    (20, 'PageHeader', '" . $date . "', '======Description de mon wiki======\nDouble cliquer ici pour changer le texte.\n', '', 'WikiAdmin', 'WikiAdmin', 'Y', 'page', ''),
+    (20, 'PageHeader', '" . $date . "', '{{backgroundimage height=\"150\" bgcolor=\"transparent\" class=\"white text-center\"}}\n======Description de mon wiki======\nDouble cliquer ici pour changer le texte.\n{{endbackgroundimage}}', '', 'WikiAdmin', 'WikiAdmin', 'Y', 'page', ''),
     (21, 'MotDePassePerdu', '" . $date . "', '{{lostpassword}}\n', '', 'WikiAdmin', 'WikiAdmin', 'Y', 'page', '');",
 
     "CREATE TABLE `" . $tablePrefix . "referrers` (
