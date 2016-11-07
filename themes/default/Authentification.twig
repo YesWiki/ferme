@@ -8,53 +8,46 @@
   <meta name="description" content="Ferme de Wikis">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <link
+    rel="stylesheet"
+    href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+    integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+    crossorigin="anonymous"
+  >
   {% for css in list_css %}
   <link href="{{ css }}" rel="stylesheet" />
   {% endfor %}
 </head>
 <body>
+  {% include 'twig/navbar.twig' %}
 
-<div class="navbar navbar-inverse navbar-fixed-top">
-  <div class="navbar-inner">
-    <div class="container">
-      <span class="brand">Administration de la ferme</span>
-      <div class="nav-collapse collapse pull-right">
-        <ul class="nav">
-          <li><a href="./">Retour</a></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</div>
+  {% include 'twig/alerts.twig' %}
 
-<div class="container auth well">
-  <form 
-    class='auth form-horizontal' 
-    method="post" 
-    action="?view=admin&action=login"
-  >
-    <div class="control-group">
-      <label class='control-label' for="username">Utilisateur</label>
-      <div class="controls">
-        <input type="text" name="username">
+  <div class="container well col-sm-offset-4 col-sm-4">
+    <form class='form-horizontal' method="post" action="?view=admin&action=login">
+      <div class="form-group">
+        <label class='col-sm-2 control-label' for="username">Utilisateur</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" name="username">
+        </div>
       </div>
-    </div>
-    <div class="control-group">
-      <label class='control-label' for="password">Mot de passe</label>
-      <div class="controls">
-        <input type="password" name="password">
+      <div class="form-group">
+        <label class='col-sm-2 control-label' for="password">Mot de passe</label>
+        <div class="col-sm-10">
+          <input type="password" class="form-control" name="password">
+        </div>
       </div>
-    </div>
-    <div class="control-group">
-      <div class="controls">
-        <input class='btn btn-primary' type="submit" value="Connexion">
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+          <input class='btn btn-primary' class="form-control" type="submit" value="Connexion">
+        </div>
       </div>
-    </div>
-  </form>
-</div> <!--Fin container -->
+    </form>
+  </div> <!--Fin container -->
 
-  {% for js in list_js %}
-  <script src="{{ js }}"></script>
-  {% endfor %}  
+  {% include 'twig/footer.twig' %}
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 </body>
 </html>
