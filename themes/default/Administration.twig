@@ -38,8 +38,8 @@
           <th>Nom</th>
           <th>Créé par</th>
           <th>Créé le</th>
-          <th><span class="pull-right">BD</span></th>
-          <th><span class="pull-right">Disque</span></th>
+          <th>BD</th>
+          <th>Disque</th>
           <th></th>
         </tr>
       </thead>
@@ -54,15 +54,11 @@
           <td>
             {{ wiki['date']|date("Y-m-d H:i", timezone="Europe/Paris") }}
           </td>
-          <td >
-            <span class="pull-right">
-              {{ (wiki['db_size'] / 1024 / 1024)|round(2) }} Mo
-            </span>
+          <td>
+            {{ (wiki['db_size'] / 1024 / 1024)|round(2) }} Mo
           </td>
           <td>
-            <span class="pull-right">
-              {{ (wiki['files_size'] / 1024 / 1024)|round(2) }} Mo
-            </span>
+            {{ (wiki['files_size'] / 1024 / 1024)|round(2) }} Mo
           </td>
           <td>
             <div class="btn-group btn-group-xs pull-right" role="group">
@@ -109,7 +105,7 @@
         <tr>
           <th>Nom</th>
           <th>Archivé le</th>
-          <th><span class="pull-right">Poid</span></th>
+          <th>Poid</th>
           <th></th>
         </tr>
       </thead>
@@ -119,7 +115,7 @@
         <tr>
           <td>{{ archive['name'] }}</td>
           <td>{{ archive['date']|date("Y-m-d H:i", timezone="Europe/Paris") }}</td>
-          <td><span class="pull-right">{{ (archive['size'] / 1024 / 1024)|round(2) }} Mo</span></td>
+          <td>{{ (archive['size'] / 1024 / 1024)|round(2) }} Mo</td>
           <td>
             <div class="btn-group btn-group-xs pull-right">
               <a class="save btn btn-default"
@@ -151,27 +147,26 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
   <script>window.jQuery || document.write('<script src="themes/default/js/jquery.min.js"><\/script>')</script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  <script src="themes/default/js/jquery.tablesorter.min.js"></script>
   <script type="text/JavaScript">
     $(document).ready(function() {
-          $("#listeWikis").tablesorter(
-            {
-              sortList: [[0,0]],
-              headers: {
-                5: { sorter: false }
-              }
-            }
-          );
-      });
-      $(document).ready(function() {
-          $("#listeArchives").tablesorter(
-            {
-              sortList: [[0,0]],
-              headers: {
-                3: { sorter: false }
-              }
-            }
-          );
-      });
+      $("#listeWikis").tablesorter(
+        {
+          sortList: [[0,0]],
+          headers: {
+            5: { sorter: false }
+          }
+        }
+      );
+      $("#listeArchives").tablesorter(
+        {
+          sortList: [[0,0]],
+          headers: {
+            3: { sorter: false }
+          }
+        }
+      );
+    });
   </script>
 </body>
 </html>
