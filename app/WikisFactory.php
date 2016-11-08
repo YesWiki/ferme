@@ -4,6 +4,7 @@ namespace Ferme;
 class WikisFactory extends Factory
 {
     private $config;
+    private $cache = null;
     private $dbConnexion = null;
 
     /**
@@ -15,11 +16,11 @@ class WikisFactory extends Factory
         parent::__construct();
         $this->config = $config;
         $this->dbConnect();
+        $this->cache = new Cache($config, $this->dbConnexion);
     }
 
     /**
      * Charge la liste des Wikis et leurs informations.
-     * @param  boolean $calculate_size Si vrai calcule la taille de la base de
      * donnée et l'espace occupé sur le disque.
      */
     public function load()
@@ -38,7 +39,8 @@ class WikisFactory extends Factory
                 $this->list[$wiki] = new Wiki(
                     $wikiPath,
                     $this->config,
-                    $this->dbConnexion
+                    $this->dbConnexion,
+                    $this->cache
                 );
                 // Gère le cas ou le wiki a été partiellement installé.
                 if (!$this->list[$wiki]->loadConfiguration()) {

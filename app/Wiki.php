@@ -17,6 +17,7 @@ class Wiki
     private $fermeConfig;
     private $dbConnexion;
     private $infos = null;
+    private $cache;
 
     /**
      * Constructeur
@@ -25,11 +26,12 @@ class Wiki
      * @param PDO           $dbConnexion connexion vers la base de donnée (déjà
      * établie)
      */
-    public function __construct($path, $config, $dbConnexion)
+    public function __construct($path, $config, $dbConnexion, $cache)
     {
         $this->path = $path;
         $this->fermeConfig = $config;
         $this->dbConnexion = $dbConnexion;
+        $this->cache = $cache;
     }
 
     public function loadConfiguration()
@@ -80,10 +82,29 @@ class Wiki
         if (is_null($this->infos)) {
             $this->loadInfos();
         }
-        $this->infos['db_size'] = $this->calDBSize();
 
+        $cacheInfos = $this->cache->read($this->config['wakka_name']);
+
+        // Les informations sont en cache.
+        if ($cacheInfos !== false) {
+            $this->infos['db_size'] = $cacheInfos['db_size'];
+            $this->infos['files_size'] = $cacheInfos['files_size'];
+            return $this->infos;
+        }
+
+        // Les informations ne sont pas en cache
+        $this->infos['db_size'] = $this->calDBSize();
         $file = new \Files\File($this->path);
         $this->infos['files_size'] = $file->diskUsage();
+
+        $this->cache->write(
+            $this->config['wakka_name'],
+            array(
+                'db_size' => $this->infos['db_size'],
+                'files_size' => $this->infos['files_size']
+            )
+        );
+
         return $this->infos;
     }
 
