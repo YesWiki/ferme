@@ -61,8 +61,6 @@ class AddWiki extends Action
 
         $mail = new \Ferme\MailCreateWiki($this->ferme->config, $this->post['wikiName']);
         $mail->send();
-
-        $this->ferme->wikis->load();
     }
 
     private function isHashcashValid()

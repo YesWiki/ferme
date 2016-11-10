@@ -15,21 +15,23 @@ class ArchivesCollection extends Collection
     {
         $this->list = array();
         $archivesPath = $this->config['archives_path'];
+        $archiveFactory = new ArchiveFactory($this->config);
 
-        if (!$handle = opendir($archivesPath)) {
-            throw new \Exception("Impossible d'accéder à " . $archivesPath, 1);
-        }
-        while (false !== ($archive = readdir($handle))) {
-            $archivePath = $archivesPath . $archive;
-            if ("." != $archive
-                and ".." != $archive
-                and "tgz" === pathinfo($archive, PATHINFO_EXTENSION)
+        $archivesList = new \RecursiveDirectoryIterator(
+            $archivesPath,
+            \RecursiveDirectoryIterator::SKIP_DOTS
+        );
+        foreach ($archivesList as $archivePath) {
+            if ("tgz" === pathinfo($archivePath, PATHINFO_EXTENSION)
                 and is_file($archivePath)
             ) {
-                $this->list[$archive] = new Archive($archive, $this->config);
+                $archive = $archiveFactory->createFromExisting(
+                    basename($archivePath)
+                );
+                $archiveName = $archive->getInfos()['filename'];
+                $this->add($archiveName, $archive);
             }
         }
-        closedir($handle);
     }
 
     public function remove($key)

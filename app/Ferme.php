@@ -101,11 +101,10 @@ class Ferme
             $this->users->whoIsLogged(),
             "Archive le wiki '$name'"
         );
-        $archiveName = $listWikis[0]->archive();
-        $archive = new Archive(basename($archiveName), $this->config);
 
+        $archiveFactory = new ArchiveFactory($this->config);
+        $archive = $archiveFactory->createFromWiki($listWikis[0]);
         $archiveName = $archive->getInfos()['filename'];
-        // TODO définir le nom de l'archive ici.
         $this->archives->add($archiveName, $archive);
     }
 

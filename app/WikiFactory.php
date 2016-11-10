@@ -37,6 +37,11 @@ class Wikifactory
         return $this->createWikiFromExisting($name);
     }
 
+    public function createFromArchive()
+    {
+        //TODO
+    }
+
     private function getWikiPath($name)
     {
         return $this->fermeConfig['ferme_path'] . $name . "/";
