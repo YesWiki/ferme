@@ -27,12 +27,27 @@ class AddWiki extends Action
             return;
         }
 
+        if ($this->isValidWikiName($this->post['wikiName'])) {
+            throw new \Exception("Ce nom n'est pas valide. "
+                . "(uniquement les caractères A-Z et 0-9)", 1);
+        }
+
+        if (!filter_var($this->post['mail'], FILTER_VALIDATE_EMAIL)) {
+            throw new \Exception("Cet email n'est pas valide.", 1);
+        }
+
         try {
-            $wikiPath = $this->ferme->createWiki(
-                $this->post['wikiName'],
-                $this->post['mail'],
-                $this->post['description']
+            $wikiFactory = new \Ferme\WikiFactory(
+                $this->ferme->config,
+                $this->ferme->dbConnexion
             );
+            $wikiName = $this->cleanEntry($this->post['wikiName']);
+            $wiki = $wikiFactory->createNewWiki(
+                $wikiName,
+                $this->cleanEntry($this->post['mail']),
+                $this->cleanEntry($this->post['description'])
+            );
+            $this->ferme->wikis->add($wikiName, $wiki);
         } catch (\Exception $e) {
             $this->ferme->alerts->add($e->getMessage(), 'error');
             return;
@@ -40,7 +55,7 @@ class AddWiki extends Action
 
         $this->ferme->alerts->add(
             '<a href="' . $this->ferme->config['base_url']
-            . $wikiPath . '">Visiter le nouveau wiki</a>',
+            . $wiki->getPath() . '">Visiter le nouveau wiki</a>',
             'success'
         );
 
@@ -58,5 +73,28 @@ class AddWiki extends Action
             return false;
         }
         return true;
+    }
+
+    /**
+     * Définis si le nom d'un wiki est valide
+     * @param  strin   $name Nom potentiel du wiki.
+     * @return boolean       Vrai si le nom est valide, faux sinon
+     */
+    private function isValidWikiName($name)
+    {
+        if (preg_match("~^[a-zA-Z0-9]{1,10}$~i", $name)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Nettoie une chaine de caractère
+     * @param  string $entry Chaine a nettoyer
+     * @return string        Chaine de caractères nettoyées
+     */
+    private function cleanEntry($entry)
+    {
+        return htmlentities($entry, ENT_QUOTES, "UTF-8");
     }
 }

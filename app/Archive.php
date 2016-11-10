@@ -1,7 +1,7 @@
 <?php
 namespace Ferme;
 
-class Archive
+class Archive implements InterfaceObject
 {
     /**
      * @var mixed

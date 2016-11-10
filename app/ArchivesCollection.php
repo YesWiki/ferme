@@ -32,22 +32,6 @@ class ArchivesCollection extends Collection
         closedir($handle);
     }
 
-    /**
-     * Créé une archive
-     * @param  Wiki $args['wiki'] Instance de Wiki a archiver.
-     * @return [type]       [description]
-     */
-    public function create($args = null)
-    {
-        if (!($args instanceof Wiki)) {
-            throw new \Exception(
-                "Impossible de créer une archive parametres incorrecte.",
-                1
-            );
-        }
-        $args->archive();
-    }
-
     public function remove($key)
     {
         if (!isset($this->list[$key])) {

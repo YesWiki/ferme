@@ -8,6 +8,7 @@ class Ferme
     public $archives;
     public $alerts;
     public $users;
+    public $dbConnexion;
     private $log;
 
     /*************************************************************************
@@ -16,8 +17,9 @@ class Ferme
     public function __construct($config)
     {
         $this->config = $config;
+        $this->dbConnect();
         $this->users = new UserController($config);
-        $this->wikis = new WikisCollection($config);
+        $this->wikis = new WikisCollection($config, $this->dbConnexion);
         $this->archives = new ArchivesCollection($config);
         $this->log = new Log($this->config['log_file']);
         $this->alerts = new Alerts();
@@ -29,7 +31,7 @@ class Ferme
     public function delete($name)
     {
         $this->users->isAuthorized();
-        $this->wikis->remove($name);
+        $this->wikis->delete($name);
         $this->log->write(
             $this->users->whoIsLogged(),
             "Suppression du wiki '$name'"
@@ -58,28 +60,9 @@ class Ferme
             $this->users->whoIsLogged(),
             "Mise a jour de configuration de '$name'"
         );
-        $this->wikis->updateConfiguration($name);
-    }
-
-    public function createWiki($wikiname, $mail, $desc)
-    {
-        //Une série de tests sur les données.
-        if ($this->isValidWikiName($wikiname)) {
-            throw new \Exception("Ce nom n'est pas valide. "
-                . "(uniquement les caractères A-Z et 0-9)", 1);
-        }
-
-        if (!filter_var($mail, FILTER_VALIDATE_EMAIL)) {
-            throw new \Exception("Cet email n'est pas valide.", 1);
-        }
-
-        return $this->wikis->create(
-            array(
-                'name' => $this->cleanEntry($wikiname),
-                'mail' => $this->cleanEntry($mail),
-                'desc' => $this->cleanEntry($desc),
-            )
-        );
+        $wikisFinded = $this->wikis->search($name);
+        $wiki = $wikisFinded[0];
+        $wiki->updateConfiguration();
     }
 
     public function checkInstallation()
@@ -118,7 +101,12 @@ class Ferme
             $this->users->whoIsLogged(),
             "Archive le wiki '$name'"
         );
-        $this->archives->create($listWikis[0]);
+        $archiveName = $listWikis[0]->archive();
+        $archive = new Archive(basename($archiveName), $this->config);
+
+        $archiveName = $archive->getInfos()['filename'];
+        // TODO définir le nom de l'archive ici.
+        $this->archives->add($archiveName, $archive);
     }
 
     public function deleteArchive($name)
@@ -147,25 +135,27 @@ class Ferme
      ************************************************************************/
 
     /**
-     * Définis si le nom d'un wiki est valide
-     * @param  strin   $name Nom potentiel du wiki.
-     * @return boolean       Vrai si le nom est valide, faux sinon
+     * Établis la connexion a la base de donnée si ce n'est pas déjà fait.
+     * @return \PDO la connexion a la base de donnée
      */
-    private function isValidWikiName($name)
+    private function dbConnect()
     {
-        if (preg_match("~^[a-zA-Z0-9]{1,10}$~i", $name)) {
-            return false;
-        }
-        return true;
-    }
+        $dsn = 'mysql:host=' . $this->config['db_host'] . ';';
+        $dsn .= 'dbname=' . $this->config['db_name'] . ';';
 
-    /**
-     * Nettoie une chaine de caractère
-     * @param  string $entry Chaine a nettoyer
-     * @return string        Chaine de caractères nettoyées
-     */
-    private function cleanEntry($entry)
-    {
-        return htmlentities($entry, ENT_QUOTES, "UTF-8");
+        try {
+            $this->dbConnexion = new \PDO(
+                $dsn,
+                $this->config['db_user'],
+                $this->config['db_password']
+            );
+            return $this->dbConnexion;
+        } catch (\PDOException $e) {
+            throw new \Exception(
+                "Impossible de se connecter à la base de donnée : "
+                . $e->getMessage(),
+                1
+            );
+        }
     }
 }
