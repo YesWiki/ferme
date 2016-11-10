@@ -26,8 +26,8 @@ class AjaxListWikis extends TwigView
     {
         $infos = array();
 
-        $infos['list_wikis'] =
-            $this->object2Infos($this->ferme->wikis->search($this->filter)
+        $infos['list_wikis'] = $this->object2Infos(
+            $this->ferme->wikis->searchNoCaseType($this->filter)
         );
 
         return $infos;

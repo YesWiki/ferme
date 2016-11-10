@@ -100,4 +100,34 @@ abstract class Factory implements \ArrayAccess, \Iterator, \Countable
 
         return $selected;
     }
+
+    /**
+     * Renvois un wiki ou un tableau de wiki dont le nom contient la
+     * @todo  Améliorer les fonctions de recherche
+     * @param  string $args nom d'un wiki ou '*' pour les avoir tous
+     * @return array       liste des wikis correspondant a la recherche
+     */
+    public function searchNoCaseType($string = '*')
+    {
+        if (!is_string($string)) {
+            return array();
+        }
+
+        if ($string === '*' or $string === '') {
+            return $this->list;
+        }
+
+        if ($this->offsetExists($string)) {
+            return array($this->list[$string]);
+        }
+
+        $selected = array();
+        foreach ($this->list as $name => $object) {
+            if (strstr(strtolower($name), strtolower($string))) {
+                $selected[$name] = $object;
+            }
+        }
+
+        return $selected;
+    }
 }
