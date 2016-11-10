@@ -5,10 +5,10 @@
  ***************************************************************************/
 
 $tablePrefix = $wikiName . "_";
-$wikiUrl = $this->config['base_url']
-. $this->config['ferme_path']
+$wikiUrl = $this->fermeConfig['base_url']
+    . $this->fermeConfig['ferme_path']
     . $wikiName . "/wakka.php?wiki=";
-$WikiAdminPasswordMD5 = $this->config['admin_password'];
+$WikiAdminPasswordMD5 = $this->fermeConfig['admin_password'];
 $date = time();
 
 // Take theme list from package
@@ -23,10 +23,10 @@ $config = array(
 	'yeswiki_version' => 'Cercopitheque',
   	'yeswiki_release' => '2014.11.24',
 	'debug' => 'no',
-	'mysql_host' => '" . $this->config['db_host'] . "',
-	'mysql_database' => '" . $this->config['db_name'] . "',
-	'mysql_user' => '" . $this->config['db_user'] . "',
-	'mysql_password' => '" . $this->config['db_password'] . "',
+	'mysql_host' => '" . $this->fermeConfig['db_host'] . "',
+	'mysql_database' => '" . $this->fermeConfig['db_name'] . "',
+	'mysql_user' => '" . $this->fermeConfig['db_user'] . "',
+	'mysql_password' => '" . $this->fermeConfig['db_password'] . "',
 	'table_prefix' => '$tablePrefix',
 	'base_url' => '$wikiUrl',
 	'rewrite_mode' => '0',

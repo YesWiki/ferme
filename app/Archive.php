@@ -1,12 +1,12 @@
 <?php
 namespace Ferme;
 
-class Archive
+class Archive implements InterfaceObject
 {
     /**
      * @var mixed
      */
-    private $filename;
+    public $filename;
     /**
      * @var mixed
      */
@@ -58,26 +58,6 @@ class Archive
         return $url;
     }
 
-    /**
-     * Restaure une archive si le nom wiki est libre
-     */
-    public function restore()
-    {
-        $name = substr($this->filename, 0, -16);
-        $fermePath = realpath($this->config['ferme_path']);
-        //$wikiPath = $fermePath . $name . '/';
-        $archivesFile = realpath($this->config['archives_path'] . $this->filename);
-        $sqlFile = $fermePath . '/' . $name . '.sql';
-
-        $archive = new \PharData($archivesFile);
-        $archive->extractTo($fermePath);
-
-        $database = new Database($this->dbConnect());
-        $database->import($sqlFile);
-
-        unlink($sqlFile);
-    }
-
     /*************************************************************************
      * Supprime une archive
      ************************************************************************/
@@ -99,30 +79,5 @@ class Archive
             $this->config['archives_path']
             . $this->filename
         );
-    }
-
-    /**
-     * Établis la connexion a la base de donnée si ce n'est pas déjà fait.
-     * @return \PDO la connexion a la base de donnée
-     */
-    private function dbConnect()
-    {
-        $dsn = 'mysql:host=' . $this->config['db_host'] . ';';
-        $dsn .= 'dbname=' . $this->config['db_name'] . ';';
-
-        try {
-            $this->dbConnexion = new \PDO(
-                $dsn,
-                $this->config['db_user'],
-                $this->config['db_password']
-            );
-            return $this->dbConnexion;
-        } catch (\PDOException $e) {
-            throw new \Exception(
-                "Impossible de se connecter à la base de donnée : "
-                . $e->getMessage(),
-                1
-            );
-        }
     }
 }

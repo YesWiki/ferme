@@ -26,7 +26,5 @@ class Archive extends Action
             "Le wiki " . $this->get['name'] . " a été archivé avec succès.",
             'success'
         );
-
-        $this->ferme->archives->load();
     }
 }

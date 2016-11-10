@@ -1,7 +1,7 @@
 <?php
 namespace Ferme;
 
-abstract class Factory implements \ArrayAccess, \Iterator, \Countable
+abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 {
     protected $list = null;
 
@@ -10,8 +10,26 @@ abstract class Factory implements \ArrayAccess, \Iterator, \Countable
         $this->list = array();
     }
 
-    abstract public function create($args = null);
-    abstract public function remove($key);
+    public function add($key, $object)
+    {
+        $this->list[$key] = $object;
+    }
+
+    /**
+     * Supprime un Wiki (Fichiers et base de données)
+     * @param  string $key nom du wiki a supprimer
+     */
+    public function delete($key)
+    {
+        if (!isset($this->list[$key])) {
+            throw new \Exception(
+                "Impossible de supprimer l'élément' $key. Il n'existe pas.",
+                1
+            );
+        }
+        $this->list[$key]->delete();
+        unset($this->list[$key]);
+    }
 
     public function offsetSet($offset, $value)
     {

@@ -7,7 +7,6 @@ namespace Ferme\Actions;
  */
 abstract class Action
 {
-
     protected $get;
     protected $post;
     protected $ferme;

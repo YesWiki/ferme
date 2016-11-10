@@ -26,8 +26,5 @@ class Restore extends Action
             "L'archive " . $this->get['name'] . " a été restaurée avec succès.",
             'success'
         );
-        // TODO : faire en sorte qu'il ne soit plus necessaire de recharger
-        //      tous les wikis.
-        $this->ferme->wikis->load();
     }
 }

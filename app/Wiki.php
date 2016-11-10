@@ -10,13 +10,13 @@ namespace Ferme;
  * @version 0.1.1 (Git: $Id$)
  * @copyright 2013 Florestan Bredow
  */
-class Wiki
+class Wiki implements InterfaceObject
 {
     private $path;
-    private $config;
     private $fermeConfig;
     private $dbConnexion;
     private $infos = null;
+    private $config = null;
 
     /**
      * Constructeur
@@ -25,28 +25,32 @@ class Wiki
      * @param PDO           $dbConnexion connexion vers la base de donnée (déjà
      * établie)
      */
-    public function __construct($path, $config, $dbConnexion)
+    public function __construct($path, $fermeConfig, $dbConnexion)
     {
         $this->path = $path;
-        $this->fermeConfig = $config;
+        $this->fermeConfig = $fermeConfig;
         $this->dbConnexion = $dbConnexion;
+        $this->loadConfiguration();
+        $this->loadInfos();
     }
 
     public function loadConfiguration()
     {
-        $filePath = $this->path . "/wakka.config.php";
-        if (!file_exists($filePath)) {
-            return false;
+        if (is_null($this->config)) {
+            $filePath = $this->path . "wakka.config.php";
+            if (!file_exists($filePath)) {
+                return false;
+            }
+            $this->config = new Configuration($filePath);
         }
-        $this->config = new Configuration($filePath);
-        return $this->config;
+        return true;
     }
 
     private function loadInfos()
     {
         unset($this->infos);
 
-        $filePath = $this->path . "/wakka.infos.php";
+        $filePath = $this->path . "wakka.infos.php";
 
         $wakkaInfos = array(
             'mail' => 'nomail',
@@ -59,7 +63,7 @@ class Wiki
         }
 
         $this->infos = $wakkaInfos;
-        $this->infos['name'] = $this->config['wakka_name'];
+        $this->infos['name'] = $this->getName();
         $this->infos['url'] = $this->config['base_url'];
         $this->infos['description'] = html_entity_decode(
             $this->infos['description'],
@@ -68,6 +72,11 @@ class Wiki
         );
 
         return $this->infos;
+    }
+
+    public function getName()
+    {
+        return $this->config['wakka_name'];
     }
 
     /**
@@ -85,6 +94,11 @@ class Wiki
         $file = new \Files\File($this->path);
         $this->infos['files_size'] = $file->diskUsage();
         return $this->infos;
+    }
+
+    public function getPath()
+    {
+        return $this->path;
     }
 
     /**
