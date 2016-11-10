@@ -1,7 +1,7 @@
 <?php
 namespace Ferme;
 
-class WikisFactory extends Factory
+class WikisCollection extends Collection
 {
     private $config;
     private $dbConnexion = null;

@@ -17,8 +17,8 @@ class Ferme
     {
         $this->config = $config;
         $this->users = new UserController($config);
-        $this->wikis = new WikisFactory($config);
-        $this->archives = new ArchivesFactory($config);
+        $this->wikis = new WikisCollection($config);
+        $this->archives = new ArchivesCollection($config);
         $this->log = new Log($this->config['log_file']);
         $this->alerts = new Alerts();
     }

@@ -1,7 +1,7 @@
 <?php
 namespace Ferme;
 
-class ArchivesFactory extends Factory
+class ArchivesCollection extends Collection
 {
     private $config;
 

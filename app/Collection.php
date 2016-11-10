@@ -1,7 +1,7 @@
 <?php
 namespace Ferme;
 
-abstract class Factory implements \ArrayAccess, \Iterator, \Countable
+abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 {
     protected $list = null;
 
