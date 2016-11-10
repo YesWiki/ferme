@@ -41,14 +41,13 @@ class Ferme
     public function upgrade($name)
     {
         $this->users->isAuthorized();
-        $listWikis = $this->wikis->search($name);
 
         $this->log->write(
             $this->users->whoIsLogged(),
             "Mise à jour du wiki '$name'"
         );
 
-        $listWikis[0]->upgrade(
+        $this->wikis[$name]->upgrade(
             "packages/" . $this->config['source']. "/files/"
         );
     }
@@ -60,9 +59,7 @@ class Ferme
             $this->users->whoIsLogged(),
             "Mise a jour de configuration de '$name'"
         );
-        $wikisFinded = $this->wikis->search($name);
-        $wiki = $wikisFinded[0];
-        $wiki->updateConfiguration();
+        $this->wikis[$name]->updateConfiguration();
     }
 
     public function checkInstallation()
