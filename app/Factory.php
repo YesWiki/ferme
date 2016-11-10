@@ -73,6 +73,7 @@ abstract class Factory implements \ArrayAccess, \Iterator, \Countable
 
     /**
      * Renvois un wiki ou un tableau de wiki dont le nom contient la
+     * chaine recherchée
      * @todo  Améliorer les fonctions de recherche
      * @param  string $args nom d'un wiki ou '*' pour les avoir tous
      * @return array       liste des wikis correspondant a la recherche
@@ -101,8 +102,8 @@ abstract class Factory implements \ArrayAccess, \Iterator, \Countable
         return $selected;
     }
 
-    /**
-     * Renvois un wiki ou un tableau de wiki dont le nom contient la
+    /** Renvois un wiki ou un tableau de wiki dont le nom contient la chaine
+     * recherchée sans prendre en compte la casse.
      * @todo  Améliorer les fonctions de recherche
      * @param  string $args nom d'un wiki ou '*' pour les avoir tous
      * @return array       liste des wikis correspondant a la recherche
