@@ -63,7 +63,7 @@ class Wiki implements InterfaceObject
         }
 
         $this->infos = $wakkaInfos;
-        $this->infos['name'] = $this->config['wakka_name'];
+        $this->infos['name'] = $this->getName();
         $this->infos['url'] = $this->config['base_url'];
         $this->infos['description'] = html_entity_decode(
             $this->infos['description'],
@@ -72,6 +72,11 @@ class Wiki implements InterfaceObject
         );
 
         return $this->infos;
+    }
+
+    public function getName()
+    {
+        return $this->config['wakka_name'];
     }
 
     /**

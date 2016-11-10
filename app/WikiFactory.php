@@ -37,9 +37,10 @@ class Wikifactory
         return $this->createWikiFromExisting($name);
     }
 
-    public function createFromArchive()
+    public function createFromArchive($archive)
     {
-        //TODO
+        $wikiName = $this->installFromArchive($archive);
+        return $this->createWikiFromExisting($wikiName);
     }
 
     private function getWikiPath($name)
@@ -85,5 +86,26 @@ class Wikifactory
                 );
             }
         }
+    }
+
+    /**
+     * install un wiki a partir d'une archive
+     */
+    private function installFromArchive($archive)
+    {
+        $name = substr($archive->filename, 0, -16);
+        $fermePath = realpath($this->fermeConfig['ferme_path']);
+        $sqlFile = $fermePath . '/' . $name . '.sql';
+
+        $archivePhar = new \PharData(
+            $this->fermeConfig['archives_path'] . $archive->filename
+        );
+        $archivePhar->extractTo($fermePath);
+
+        $database = new Database($this->dbConnexion);
+        $database->import($sqlFile);
+
+        unlink($sqlFile);
+        return $name;
     }
 }

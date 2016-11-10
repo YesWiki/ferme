@@ -96,14 +96,13 @@ class Ferme
     public function archiveWiki($name)
     {
         $this->users->isAuthorized();
-        $listWikis = $this->wikis->search($name);
         $this->log->write(
             $this->users->whoIsLogged(),
             "Archive le wiki '$name'"
         );
 
         $archiveFactory = new ArchiveFactory($this->config);
-        $archive = $archiveFactory->createFromWiki($listWikis[0]);
+        $archive = $archiveFactory->createFromWiki($this->wikis[$name]);
         $archiveName = $archive->getInfos()['filename'];
         $this->archives->add($archiveName, $archive);
     }
@@ -121,12 +120,14 @@ class Ferme
     public function restore($name)
     {
         $this->users->isAuthorized();
-        $listArchives = $this->archives->search($name);
+        $archive = $this->archives[$name];
         $this->log->write(
             $this->users->whoIsLogged(),
             "Restauration de l'archive '$name'"
         );
-        $listArchives[0]->restore();
+        $wikiFactory = new WikiFactory($this->config, $this->dbConnexion);
+        $wiki = $wikiFactory->createFromArchive($archive);
+        $this->wikis->add($wiki->getName(), $wiki);
     }
 
     /*************************************************************************

@@ -15,19 +15,16 @@ class Restore extends Action
             );
         }
 
-        try {
+        //try {
             $this->ferme->restore($this->get['name']);
-        } catch (\Exception $e) {
+        /*} catch (\Exception $e) {
             $this->ferme->alerts->add($e->getMessage(), 'error');
             return;
-        }
+        }*/
 
         $this->ferme->alerts->add(
             "L'archive " . $this->get['name'] . " a été restaurée avec succès.",
             'success'
         );
-        // TODO : faire en sorte qu'il ne soit plus necessaire de recharger
-        //      tous les wikis.
-        $this->ferme->wikis->load();
     }
 }
