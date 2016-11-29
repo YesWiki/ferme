@@ -10,11 +10,10 @@ créer les dossiers avec les droits écritures :
  - wikis/
  - archives/
 
-Utiliser composer avec 'composer install' pour ajouter les dependances
+Utiliser composer avec 'composer install --no-dev' pour ajouter les dependances
 
 Note
 ----
-Nécessite l'accès au shell (commandes du, tar)
 testé avec php 7.0
 
 
