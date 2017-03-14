@@ -82,7 +82,7 @@ class AddWiki extends Action
      */
     private function isValidWikiName($name)
     {
-        if (preg_match("~^[a-z0-9]{1,20}$~", $name)) {
+        if (preg_match("~^[a-z0-9]{1,20}$~i", $name)) {
             return false;
         }
         return true;
