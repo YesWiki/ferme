@@ -28,8 +28,10 @@ class AddWiki extends Action
         }
 
         if ($this->isValidWikiName($this->post['wikiName'])) {
-            throw new \Exception("Ce nom n'est pas valide. "
-                . "(uniquement les caractères A-Z et 0-9)", 1);
+            throw new \Exception("Ce nom n'est pas valide : "
+                . "longueur entre 1 et 20 caractères, uniquement les lettres de 'A' à 'Z' "
+                . "(minuscules ou majuscules), chiffres de '0' à '9', "
+                . "et caractères spéciaux '_' et '-'.", 1);
         }
 
         if (!filter_var($this->post['mail'], FILTER_VALIDATE_EMAIL)) {
@@ -80,7 +82,7 @@ class AddWiki extends Action
      */
     private function isValidWikiName($name)
     {
-        if (preg_match("~^[a-zA-Z0-9]{1,10}$~i", $name)) {
+        if (preg_match("~^[a-z0-9]{1,20}$~", $name)) {
             return false;
         }
         return true;
