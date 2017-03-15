@@ -46,13 +46,4 @@ class WikisCollection extends Collection
             );
         }
     }
-
-    public function calSize()
-    {
-        foreach ($this->list as $wiki) {
-            $wiki->calSize();
-        }
-    }
-
-
 }

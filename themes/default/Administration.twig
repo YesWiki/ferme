@@ -38,7 +38,7 @@
           <th>Nom</th>
           <th>Créé par</th>
           <th>Créé le</th>
-          <th>BD</th>
+          <th>Dernière modification</th>
           <th>Disque</th>
           <th></th>
         </tr>
@@ -55,10 +55,10 @@
             {{ wiki['date']|date("Y-m-d H:i", timezone="Europe/Paris") }}
           </td>
           <td>
-            {{ (wiki['db_size'] / 1024 / 1024)|round(2) }} Mo
+            {{ wiki['LasPageModificationDateTime']|date('Y-m-d H:i:s') }}
           </td>
           <td>
-            {{ (wiki['files_size'] / 1024 / 1024)|round(2) }} Mo
+            {{ (wiki['FilesDiskUsage'] / 1024 / 1024)|round(2) }} Mo
           </td>
           <td>
             <div class="btn-group btn-group-xs pull-right" role="group">

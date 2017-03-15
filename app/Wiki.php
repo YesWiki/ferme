@@ -16,7 +16,7 @@ class Wiki implements InterfaceObject
     public $name;
     private $fermeConfig;
     private $dbConnexion;
-    private $infos = null;
+    public $infos = null;
     private $config = null;
 
     /**
@@ -51,16 +51,28 @@ class Wiki implements InterfaceObject
      * @return array Liste des informations sur le wiki avec au moins la taille
      * de la base de donnée et des fichiers
      */
-    public function calSize()
+    public function getFilesDiskUsage()
     {
-        if (is_null($this->infos)) {
-            $this->loadInfos();
-        }
-        $this->infos['db_size'] = $this->calDBSize();
+        $file = new \Files\File($this->path . '/files');
+        return $file->diskUsage();
+    }
 
-        $file = new \Files\File($this->path);
-        $this->infos['files_size'] = $file->diskUsage();
-        return $this->infos;
+    /**
+     * Retourne la date a laquelle le wiki a été modifié pour la dernière fois.
+     * (création ou modification de page)
+     * @return DateTime La date et l'heure à laquelle la dernière modification a
+     *                  eu lieu.
+     */
+    public function getLasPageModificationDateTime()
+    {
+        $tablePages = $this->config['table_prefix'] . 'pages';
+        // Binary sert ici a faire une comparaison sensible a la casse.
+        $query = $this->dbConnexion->query(
+            "SHOW TABLE STATUS WHERE binary Name = '$tablePages';"
+        );
+        $result = $query->fetchAll();
+
+        return new \DateTime($result[0]['Update_time']);
     }
 
     /**
@@ -185,29 +197,6 @@ class Wiki implements InterfaceObject
     }
 
     /**
-     * Calcul l'espace utilisé par la base de donnée.
-     *
-     * @return mixed
-     */
-    private function calDBSize()
-    {
-        $database = $this->dbConnexion;
-        $query = "SHOW TABLE STATUS LIKE '"
-        . $this->config['table_prefix']
-            . "%';";
-
-        $result = $database->query($query);
-        $result->setFetchMode(\PDO::FETCH_OBJ);
-
-        $size = 0;
-        while ($row = $result->fetch()) {
-            $size += $row->Data_length + $row->Index_length;
-        }
-
-        return $size;
-    }
-
-    /**
      * Récupère la liste des noms de tables dans la base de donnée pour ce Wiki.
      *
      * @param $db
@@ -264,7 +253,6 @@ class Wiki implements InterfaceObject
             ENT_QUOTES,
             "UTF-8"
         );
-
         return $this->infos;
     }
 

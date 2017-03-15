@@ -15,12 +15,14 @@ class Administration extends TwigView
     {
         $infos = array();
 
-        // Evalue l'espace DB et Fichier de chaque Wiki, utile uniquement pour
-        // cette vue et tres lourd pour les ressources (TODO)
-        $this->ferme->wikis->calSize();
-
-        $infos['list_wikis'] =
-            $this->object2Infos($this->ferme->wikis->search());
+        // Ajoute la date de dernière modification et l'espace occupés par le
+        // repertoire 'files' aux informations sur le wiki.
+        $listWiki = $this->ferme->wikis->search();
+        foreach ($listWiki as $wiki) {
+            $wiki->infos['LasPageModificationDateTime'] = $wiki->getLasPageModificationDateTime();
+            $wiki->infos['FilesDiskUsage'] = $wiki->getFilesDiskUsage();
+        }
+        $infos['list_wikis'] = $this->object2Infos($listWiki);
 
         $infos['list_archives'] =
             $this->object2Infos($this->ferme->archives->search());
