@@ -57,7 +57,7 @@ class AddWiki extends Action
 
         $this->ferme->alerts->add(
             '<a href="' . $this->ferme->config['base_url']
-            . $wiki->getPath() . '">Visiter le nouveau wiki</a>',
+            . $wiki->path . '">Visiter le nouveau wiki</a>',
             'success'
         );
 

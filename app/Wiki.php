@@ -12,7 +12,8 @@ namespace Ferme;
  */
 class Wiki implements InterfaceObject
 {
-    private $path;
+    public $path;
+    public $name;
     private $fermeConfig;
     private $dbConnexion;
     private $infos = null;
@@ -25,8 +26,9 @@ class Wiki implements InterfaceObject
      * @param PDO           $dbConnexion connexion vers la base de donnée (déjà
      * établie)
      */
-    public function __construct($path, $fermeConfig, $dbConnexion)
+    public function __construct($name, $path, $fermeConfig, $dbConnexion)
     {
+        $this->name = $name;
         $this->path = $path;
         $this->fermeConfig = $fermeConfig;
         $this->dbConnexion = $dbConnexion;
@@ -46,39 +48,6 @@ class Wiki implements InterfaceObject
         return true;
     }
 
-    private function loadInfos()
-    {
-        unset($this->infos);
-
-        $filePath = $this->path . "wakka.infos.php";
-
-        $wakkaInfos = array(
-            'mail' => 'nomail',
-            'description' => 'Pas de description.',
-            'date' => 0,
-        );
-
-        if (file_exists($filePath)) {
-            include $filePath;
-        }
-
-        $this->infos = $wakkaInfos;
-        $this->infos['name'] = $this->getName();
-        $this->infos['url'] = $this->config['base_url'];
-        $this->infos['description'] = html_entity_decode(
-            $this->infos['description'],
-            ENT_QUOTES,
-            "UTF-8"
-        );
-
-        return $this->infos;
-    }
-
-    public function getName()
-    {
-        return $this->config['wakka_name'];
-    }
-
     /**
      * Calcule la taille occupée par les fichiers et la base de donnée du wiki
      * @return array Liste des informations sur le wiki avec au moins la taille
@@ -94,11 +63,6 @@ class Wiki implements InterfaceObject
         $file = new \Files\File($this->path);
         $this->infos['files_size'] = $file->diskUsage();
         return $this->infos;
-    }
-
-    public function getPath()
-    {
-        return $this->path;
     }
 
     /**
@@ -276,4 +240,34 @@ class Wiki implements InterfaceObject
 
         return $finalResults;
     }
+
+
+    private function loadInfos()
+    {
+        unset($this->infos);
+
+        $filePath = $this->path . "wakka.infos.php";
+
+        $wakkaInfos = array(
+            'mail' => 'nomail',
+            'description' => 'Pas de description.',
+            'date' => 0,
+        );
+
+        if (file_exists($filePath)) {
+            include $filePath;
+        }
+
+        $this->infos = $wakkaInfos;
+        $this->infos['name'] = $this->name;
+        $this->infos['url'] = $this->config['base_url'];
+        $this->infos['description'] = html_entity_decode(
+            $this->infos['description'],
+            ENT_QUOTES,
+            "UTF-8"
+        );
+
+        return $this->infos;
+    }
+
 }

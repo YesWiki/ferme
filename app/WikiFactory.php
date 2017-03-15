@@ -20,7 +20,7 @@ class Wikifactory
     public function createWikiFromExisting($name)
     {
         $wikiPath = $this->getWikiPath($name);
-        $wiki = new Wiki($wikiPath, $this->fermeConfig, $this->dbConnexion);
+        $wiki = new Wiki($name, $wikiPath, $this->fermeConfig, $this->dbConnexion);
         return $wiki;
     }
 

@@ -124,7 +124,7 @@ class Ferme
         );
         $wikiFactory = new WikiFactory($this->config, $this->dbConnexion);
         $wiki = $wikiFactory->createFromArchive($archive);
-        $this->wikis->add($wiki->getName(), $wiki);
+        $this->wikis->add($wiki->name, $wiki);
     }
 
     /*************************************************************************
