@@ -32,8 +32,6 @@ class Wiki implements InterfaceObject
         $this->path = $path;
         $this->fermeConfig = $fermeConfig;
         $this->dbConnexion = $dbConnexion;
-        $this->loadConfiguration();
-        $this->loadInfos();
     }
 
     public function loadConfiguration()
@@ -242,7 +240,7 @@ class Wiki implements InterfaceObject
     }
 
 
-    private function loadInfos()
+    public function loadInfos()
     {
         unset($this->infos);
 

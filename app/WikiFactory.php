@@ -21,6 +21,8 @@ class Wikifactory
     {
         $wikiPath = $this->getWikiPath($name);
         $wiki = new Wiki($name, $wikiPath, $this->fermeConfig, $this->dbConnexion);
+        $wiki->loadConfiguration();
+        $wiki->loadInfos();
         return $wiki;
     }
 
